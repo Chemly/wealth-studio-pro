@@ -121,7 +121,7 @@ input[type=number]{-moz-appearance:textfield;}
 @keyframes sheen{0%,60%{left:-100%;}100%{left:200%;}}
 
 /* ── DESKTOP TAB NAV */
-.tab{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:12px 14px;color:var(--t3);transition:all 0.2s;position:relative;white-space:nowrap;}
+.tab{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 14px;color:var(--t3);transition:all 0.2s;position:relative;white-space:nowrap;}
 .tab::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:1px;background:var(--acc);transition:all 0.25s;box-shadow:0 0 8px var(--acc);}
 .tab.on{color:var(--acc);}
 .tab.on::after{left:8%;right:8%;}
@@ -147,8 +147,8 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* ── CARDS */
 .card{background:var(--s2);border:1px solid var(--b1);border-radius:4px;transition:border-color 0.25s,box-shadow 0.25s;}
-.card:hover{border-color:var(--b2);box-shadow:0 0 20px rgba(0,255,135,0.04);}
-.card-acc{border-color:rgba(0,255,135,0.2);background:linear-gradient(135deg,var(--s2),rgba(0,255,135,0.03));}
+.card:hover{border-color:var(--b3);box-shadow:0 0 30px rgba(0,255,135,0.06),inset 0 0 30px rgba(0,255,135,0.02);}
+.card-acc{border-color:rgba(0,255,135,0.25);background:linear-gradient(135deg,var(--s2),rgba(0,255,135,0.05));box-shadow:0 0 20px rgba(0,255,135,0.05);}
 .card-b{border-color:rgba(96,239,255,0.2);}
 .card-p{border-color:rgba(167,139,250,0.2);}
 .card-r{border-color:rgba(255,77,109,0.2);}
@@ -158,7 +158,7 @@ input[type=number]{-moz-appearance:textfield;}
 .stat-card{background:var(--s2);border:1px solid var(--b1);border-radius:4px;padding:14px;position:relative;overflow:hidden;transition:border-color 0.25s,transform 0.25s;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:0.3;}
 .stat-card:hover{border-color:var(--b2);transform:translateY(-1px);}
-.stat-card-val{font-family:var(--font-ui);font-size:28px;letter-spacing:1px;line-height:1;margin-top:4px;}
+.stat-card-val{font-family:var(--font-ui);font-size:32px;letter-spacing:1px;line-height:1;margin-top:6px;}
 
 /* ── INPUTS */
 .ni{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:inherit;width:100%;outline:none;}
@@ -166,7 +166,7 @@ input[type=number]{-moz-appearance:textfield;}
 .si:focus{border-color:rgba(0,255,135,0.4);}
 .ti{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:11px;outline:none;width:100%;}
 .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
-.lbl-b{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
+.lbl-b{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
 
 /* ── BUTTONS */
 .btn{background:none;border:1px solid var(--b2);border-radius:2px;color:var(--t3);font-family:var(--font-mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
@@ -475,7 +475,7 @@ function Dashboard({ onNav, currency }) {
         ].map(({ l, v, sub, c, spark: sp, blink }) => (
           <div key={l} className="card scan-wrap" style={{ padding: "14px", borderColor: c === "var(--t1)" ? "var(--b1)" : `${c}25` }}>
             <div className="lbl" style={{ marginBottom: "6px" }}>{l}</div>
-            <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: c }} className={blink ? "blink" : ""}>{v}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: c }} className={blink ? "blink" : ""}>{v}</div>
             {sp && <div style={{ marginTop: "6px" }}><Spark data={sp} color={c} h={24} w={80} /></div>}
             {!sp && <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginTop: "4px" }}>{sub}</div>}
           </div>
@@ -705,7 +705,7 @@ function ETFModule({ currency }) {
                 ].map(({ l, v, extra, c }) => (
                   <div key={l} className="card" style={{ padding: "10px 12px" }}>
                     <div className="lbl" style={{ marginBottom: "4px" }}>{l}</div>
-                    <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: c }}>
+                    <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: c }}>
                       {extra ? extra : <AnimNum value={v} format={n => fmt(n, sym)} />}
                     </div>
                   </div>
@@ -717,27 +717,32 @@ function ETFModule({ currency }) {
                   <span className="lbl">Compound Projection — {years}yr</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>SCENARIO: <span style={{ color: "var(--acc)" }}>{scenario.toUpperCase()}</span></span>
                 </div>
-                <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none">
+                <svg width="100%" height="160" viewBox="0 0 600 200" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                     <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.10"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
                     <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.05"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                   </defs>
-                  {[0.2, 0.4, 0.6, 0.8].map(f => <line key={f} x1="0" y1={200 - f * 190} x2="600" y2={200 - f * 190} stroke="var(--b2)" strokeWidth="0.5" />)}
+                  {[0.25, 0.5, 0.75, 1.0].map(f => <line key={f} x1="0" y1={200 - f * 185} x2="600" y2={200 - f * 185} stroke="var(--b2)" strokeWidth="0.5" />)}
                   <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.hi / maxV) * 185}`), ...proj.slice().reverse().map(p => `${(p.y/years)*600},${200 - (p.lo / maxV) * 185}`)].join(" ")} fill="url(#bg2)" />
                   <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`), `600,200`].join(" ")} fill="url(#cg)" />
-                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.5" />
+                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1" strokeDasharray="4,6" opacity="0.25" />
                   <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`), `600,200`].join(" ")} fill="url(#pg)" />
                   <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
                   {proj.filter((_, i) => i % Math.ceil(years/5) === 0 && i > 0).map(p => (
                     <g key={p.y}>
-                      <circle cx={(p.y/years)*600} cy={200 - (p.v / maxV) * 185} r="3" fill="var(--acc)" />
-                      <text x={(p.y/years)*600} y={200 - (p.v / maxV) * 185 - 8} textAnchor="middle" fill="var(--acc)" fontFamily="monospace" fontSize="10">{fmt(p.v, sym)}</text>
+                      <circle cx={(p.y/years)*600} cy={200 - (p.v / maxV) * 185} r="3" fill="var(--acc)" style={{filter:"drop-shadow(0 0 4px #00FF87)"}} />
+                      <line x1={(p.y/years)*600} y1={200 - (p.v / maxV) * 185} x2={(p.y/years)*600} y2="195" stroke="var(--b2)" strokeWidth="0.5" strokeDasharray="2,2" />
                     </g>
                   ))}
                 </svg>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  {proj.filter((_, i) => i % Math.ceil(years / 5) === 0).map(p => <span key={p.y} style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>Yr{p.y}</span>)}
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
+                  {proj.filter((_, i) => i % Math.ceil(years / 5) === 0).map(p => (
+                    <div key={p.y} style={{ textAlign: "center" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)", marginBottom: "2px" }}>{p.y > 0 ? fmt(p.v, sym) : ""}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>Yr{p.y}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
               {/* Year table */}
@@ -1637,7 +1642,7 @@ function NetWorthModule({ currency }) {
         {[1, 3, 5, 10].map(y => (
           <div key={y} className="card" style={{ padding: "12px" }}>
             <div className="lbl">Projected ({y}yr)</div>
-            <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: "var(--acc3)", marginTop: "4px" }}>{fmt(projNW(y), sym)}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: "var(--acc3)", marginTop: "4px" }}>{fmt(projNW(y), sym)}</div>
           </div>
         ))}
       </div>
@@ -1828,7 +1833,7 @@ function FIREModule({ currency }) {
               {coastRows.map(row => (
                 <div key={row.retAge} className={`card${row.reached ? " card-acc" : ""}`} style={{ padding: "12px" }}>
                   <div className="lbl">Retire {row.retAge}</div>
-                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: row.reached ? "var(--acc)" : "var(--t2)", marginTop: "4px" }}>{fmt(row.coast, sym)}</div>
+                  <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: row.reached ? "var(--acc)" : "var(--t2)", marginTop: "4px" }}>{fmt(row.coast, sym)}</div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: row.reached ? "var(--acc)" : "var(--t3)", marginTop: "4px" }}>
                     {row.reached ? "✓ Already coasted!" : row.yrToCoast ? `${row.yrToCoast.toFixed(1)}yr to coast` : "—"}
                   </div>
@@ -2204,7 +2209,7 @@ function CrashSimModule({ currency }) {
             ].map(({ l, v, c }) => (
               <div key={l} className="card" style={{ padding: "12px" }}>
                 <div className="lbl">{l}</div>
-                <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: c, marginTop: "4px" }}>{v}</div>
+                <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: c, marginTop: "4px" }}>{v}</div>
               </div>
             ))}
           </div>
