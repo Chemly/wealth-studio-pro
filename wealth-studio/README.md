@@ -32,7 +32,7 @@ npm run dev
 npm install
 npm run build
 # Output is in /dist — upload this folder anywhere
-```
+``` 
 
 ## Features
 
