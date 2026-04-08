@@ -334,68 +334,41 @@ function ApiKeyBar() {
   const [input, setInput] = useState("");
   const [show, setShow] = useState(false);
 
-  const STATUS_COLOR = { idle: "var(--t3)", loading: "var(--acc5)", live: "var(--acc)", error: "var(--acc4)", nokey: "var(--t3)" };
-  const STATUS_LABEL = { idle: "—", loading: "Fetching…", live: "● LIVE DATA", error: "⚠ Key Error", nokey: "Connect Live Data" };
-
+  // When live, show minimal status. When error, allow re-entry.
   const handleSave = () => {
     const k = input.trim();
     if (k.length > 5) { setApiKey(k); setInput(""); setShow(false); }
   };
-
   const handleClear = () => { setApiKey(""); setInput(""); setShow(false); };
 
+  // If live — show a clean minimal bar. Hide the connect prompt since key is baked in.
   return (
-    <div style={{ borderBottom: `1px solid ${status === "live" ? "rgba(0,255,135,0.12)" : "var(--b1)"}`, background: status === "live" ? "rgba(0,255,135,0.03)" : "var(--s1)", padding: "0 20px", display: "flex", alignItems: "center", gap: "12px", height: "34px", flexShrink: 0, transition: "all 0.3s" }}>
-      <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: STATUS_COLOR[status], letterSpacing: "2px", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "6px" }}>
-        {status === "live" && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block", animation: "pdot 2s ease-in-out infinite" }} />}
-        {STATUS_LABEL[status]}
-      </div>
-
-      {status !== "live" && !show && (
-        <button
-          onClick={() => setShow(true)}
-          style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.25)", borderRadius: "2px", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "3px 10px", cursor: "pointer", letterSpacing: "2px", whiteSpace: "nowrap", transition: "all 0.2s" }}
-        >
-          + ENTER FINNHUB KEY
-        </button>
-      )}
-
-      {show && (
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
-          <input
-            autoFocus
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleSave()}
-            placeholder="Paste Finnhub API key → press Enter…"
-            style={{ flex: 1, background: "var(--s2)", border: "1px solid rgba(0,255,135,0.3)", borderRadius: "2px", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "10px", padding: "4px 10px", outline: "none" }}
-          />
-          <button onClick={handleSave} style={{ background: "rgba(0,255,135,0.12)", border: "1px solid rgba(0,255,135,0.4)", borderRadius: "2px", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "4px 10px", cursor: "pointer", letterSpacing: "1px", whiteSpace: "nowrap" }}>
-            SAVE
-          </button>
-          <button onClick={() => setShow(false)} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "4px 7px", cursor: "pointer" }}>
-            ✕
-          </button>
-        </div>
-      )}
-
+    <div style={{ borderBottom: `1px solid ${status === "live" ? "rgba(0,255,135,0.1)" : "var(--b1)"}`, background: status === "live" ? "rgba(0,255,135,0.02)" : "var(--s1)", padding: "0 20px", display: "flex", alignItems: "center", gap: "12px", height: "30px", flexShrink: 0, transition: "all 0.3s" }} className="hide-mob">
       {status === "live" && (
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
+        <>
+          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block", animation: "pdot 2s ease-in-out infinite" }} />
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)", letterSpacing: "2px" }}>LIVE DATA</span>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", letterSpacing: "1px" }}>Refreshes every 30s</span>
-          <button onClick={refetch} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "2px 8px", cursor: "pointer", transition: "all 0.15s" }}>↻ Now</button>
-          <button onClick={handleClear} style={{ background: "none", border: "none", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", cursor: "pointer" }}>Disconnect</button>
-        </div>
+          <button onClick={refetch} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "2px 8px", cursor: "pointer" }}>↻ Now</button>
+        </>
       )}
-
-      {status === "error" && (
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--acc4)", letterSpacing: "1px" }}>
-          Invalid key. <button onClick={() => { handleClear(); setShow(true); }} style={{ background: "none", border: "none", color: "var(--acc2)", fontFamily: "var(--font-mono)", fontSize: "8px", cursor: "pointer", textDecoration: "underline" }}>Try again</button>
-        </span>
+      {status === "loading" && (
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc5)", letterSpacing: "2px" }}>⟳ Fetching live prices…</span>
       )}
-
-      <div style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", letterSpacing: "1px" }}>
-        Free key: <span style={{ color: "var(--acc2)" }}>finnhub.io</span>
-      </div>
+      {(status === "error" || status === "nokey") && (
+        <>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc4)", letterSpacing: "1px" }}>⚠ Live data unavailable</span>
+          {show ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
+              <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSave()} placeholder="Enter Finnhub API key…" style={{ flex: 1, background: "var(--s2)", border: "1px solid rgba(0,255,135,0.3)", borderRadius: "2px", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "10px", padding: "3px 8px", outline: "none" }} />
+              <button onClick={handleSave} style={{ background: "rgba(0,255,135,0.1)", border: "1px solid rgba(0,255,135,0.3)", borderRadius: "2px", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "3px 8px", cursor: "pointer" }}>SAVE</button>
+              <button onClick={() => setShow(false)} style={{ background: "none", border: "none", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", cursor: "pointer" }}>✕</button>
+            </div>
+          ) : (
+            <button onClick={() => setShow(true)} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "2px 8px", cursor: "pointer" }}>+ Enter Key</button>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -2748,7 +2721,7 @@ function WealthStudioApp() {
           <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 10px var(--acc)" }} className="pulse-dot" />
         </div>
       </div>
-      <ApiKeyBar />
+      {/* ApiKeyBar only shown once - after desktop header via desk-header class */}
 
       {/* ── CONTENT ── */}
       <div className="content mob-content" style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
