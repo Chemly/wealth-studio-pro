@@ -717,24 +717,22 @@ function ETFModule({ currency }) {
                   <span className="lbl">Compound Projection — {years}yr</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>SCENARIO: <span style={{ color: "var(--acc)" }}>{scenario.toUpperCase()}</span></span>
                 </div>
-                <svg width="100%" height="200" viewBox={`0 0 ${years} 200`} preserveAspectRatio="none">
+                <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                     <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.10"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
                     <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.05"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                   </defs>
-                  {[0.2, 0.4, 0.6, 0.8].map(f => <line key={f} x1="0" y1={200 - f * 190} x2={years} y2={200 - f * 190} stroke="var(--b1)" strokeWidth="0.5" />)}
-                  <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.hi / maxV) * 185}`), ...proj.slice().reverse().map(p => `${p.y},${200 - (p.lo / maxV) * 185}`)].join(" ")} fill="url(#bg2)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.hi / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="1" strokeDasharray="2,4" opacity="0.35" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.lo / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="1" strokeDasharray="2,4" opacity="0.35" />
-                  <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.c / maxV) * 185}`), `${years},200`].join(" ")} fill="url(#cg)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.6" />
-                  <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.v / maxV) * 185}`), `${years},200`].join(" ")} fill="url(#pg)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-                  {proj.filter((_, i) => i % 5 === 0 && i > 0).map(p => (
+                  {[0.2, 0.4, 0.6, 0.8].map(f => <line key={f} x1="0" y1={200 - f * 190} x2="600" y2={200 - f * 190} stroke="var(--b2)" strokeWidth="0.5" />)}
+                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.hi / maxV) * 185}`), ...proj.slice().reverse().map(p => `${(p.y/years)*600},${200 - (p.lo / maxV) * 185}`)].join(" ")} fill="url(#bg2)" />
+                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`), `600,200`].join(" ")} fill="url(#cg)" />
+                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.5" />
+                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`), `600,200`].join(" ")} fill="url(#pg)" />
+                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
+                  {proj.filter((_, i) => i % Math.ceil(years/5) === 0 && i > 0).map(p => (
                     <g key={p.y}>
-                      <circle cx={p.y} cy={200 - (p.v / maxV) * 185} r="2" fill="var(--acc)" />
-                      <text x={p.y} y={200 - (p.v / maxV) * 185 - 5} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="8">{fmt(p.v, sym)}</text>
+                      <circle cx={(p.y/years)*600} cy={200 - (p.v / maxV) * 185} r="3" fill="var(--acc)" />
+                      <text x={(p.y/years)*600} y={200 - (p.v / maxV) * 185 - 8} textAnchor="middle" fill="var(--acc)" fontFamily="monospace" fontSize="10">{fmt(p.v, sym)}</text>
                     </g>
                   ))}
                 </svg>
@@ -1107,8 +1105,8 @@ function DCAModule({ currency }) {
                 const gid = ["g1", "g2", "g3"][i];
                 return (
                   <g key={i}>
-                    <polygon points={[`0,200`, ...data.map(p => `${p.y},${200 - (p.v / maxV) * 185}`), `${years},200`].join(" ")} fill={`url(#${gid})`} />
-                    <polyline points={data.map(p => `${p.y},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke={c} strokeWidth="1.2" />
+                    <polygon points={[`0,200`, ...data.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`), `${years},200`].join(" ")} fill={`url(#${gid})`} />
+                    <polyline points={data.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke={c} strokeWidth="1.2" />
                   </g>
                 );
               })}
@@ -1244,21 +1242,21 @@ function MonteCarloModule({ currency }) {
             {/* Fan chart */}
             <div className="card scan-wrap" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "8px" }}>{sims} Simulation Paths — Percentile Fan</div>
-              <svg width="100%" height="220" viewBox={`0 0 ${years} 220`} preserveAspectRatio="none">
+              <svg width="100%" height="220" viewBox="0 0 600 220" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="mc90" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.08"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                   <linearGradient id="mc75" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.12"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                 </defs>
                 {/* Simulation paths (faint) */}
                 {results.paths.map((path, i) => (
-                  <polyline key={i} points={path.filter((_, j) => j % 12 === 0).map((v, y) => `${y},${220 - (v / maxPath) * 200}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.4" opacity="0.08" />
+                  <polyline key={i} points={path.filter((_, j) => j % 12 === 0).map((v, y) => `${(y/(years))*600},${220 - (v / maxPath) * 200}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.4" opacity="0.08" />
                 ))}
                 {/* P90-P10 band */}
-                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${p.y},${220 - (p.p90 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p10 / maxPath) * 200}`)].join(" ")} fill="url(#mc90)" />
-                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${p.y},${220 - (p.p75 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p25 / maxPath) * 200}`)].join(" ")} fill="url(#mc75)" />
+                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p.p90 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p10 / maxPath) * 200}`)].join(" ")} fill="url(#mc90)" />
+                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p.p75 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p25 / maxPath) * 200}`)].join(" ")} fill="url(#mc75)" />
                 {/* Percentile lines */}
                 {[["p90", "#00FF87", 0.4], ["p75", "#00FF87", 0.6], ["p50", "#00FF87", 1.0], ["p25", "#60EFFF", 0.6], ["p10", "#FF4D6D", 0.5]].map(([key, c, op]) => (
-                  <polyline key={key} points={results.yearlyPcts.map(p => `${p.y},${220 - (p[key] / maxPath) * 200}`).join(" ")} fill="none" stroke={c} strokeWidth={key === "p50" ? 2.5 : 1.2} opacity={op} strokeDasharray={key !== "p50" ? "2,3" : ""} />
+                  <polyline key={key} points={results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p[key] / maxPath) * 200}`).join(" ")} fill="none" stroke={c} strokeWidth={key === "p50" ? 2.5 : 1.2} opacity={op} strokeDasharray={key !== "p50" ? "2,3" : ""} />
                 ))}
               </svg>
               <div style={{ display: "flex", gap: "12px", marginTop: "6px", flexWrap: "wrap" }}>
@@ -1784,12 +1782,12 @@ function FIREModule({ currency }) {
               </div>
               <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
                 <div className="lbl" style={{ marginBottom: "8px" }}>Path to FIRE</div>
-                <svg width="100%" height="190" viewBox={`0 0 50 190`} preserveAspectRatio="none">
+                <svg width="100%" height="190" viewBox="0 0 600 190" preserveAspectRatio="none">
                   <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
-                  <line x1="0" y1={190 - (fireNum / maxV) * 175} x2="50" y2={190 - (fireNum / maxV) * 175} stroke="var(--acc4)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
-                  <polygon points={[`0,190`, ...yearlyProj.slice(0, 51).map(p => `${p.y},${190 - (p.v / maxV) * 175}`), `50,190`].join(" ")} fill="url(#fg2)" />
-                  <polyline points={yearlyProj.slice(0, 51).map(p => `${p.y},${190 - (p.v / maxV) * 175}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-                  {firePoint && firePoint.y <= 50 && <circle cx={firePoint.y} cy={190 - (firePoint.v / maxV) * 175} r="3" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 4px #00FF87)" }} />}
+                  <line x1="0" y1={190 - (fireNum / maxV) * 175} x2="600" y2={190 - (fireNum / maxV) * 175} stroke="var(--acc4)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
+                  <polygon points={[`0,190`, ...yearlyProj.slice(0, 51).map(p => `${(p.y/50)*600},${190 - (p.v / maxV) * 175}`), `600,190`].join(" ")} fill="url(#fg2)" />
+                  <polyline points={yearlyProj.slice(0, 51).map(p => `${(p.y/50)*600},${190 - (p.v / maxV) * 175}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
+                  {firePoint && firePoint.y <= 50 && <circle cx={(firePoint.y/50)*600} cy={190 - (firePoint.v / maxV) * 175} r="3" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 4px #00FF87)" }} />}
                 </svg>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   {[0, 10, 20, 30, 40, 50].map(y => <span key={y} style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>Yr{y}</span>)}
