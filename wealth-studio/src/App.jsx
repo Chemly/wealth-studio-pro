@@ -131,13 +131,13 @@ input[type=number]{-moz-appearance:textfield;}
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--mob-nav-h);background:rgba(2,2,5,0.98);border-top:1px solid var(--b2);backdrop-filter:blur(20px);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .mob-nav::-webkit-scrollbar{display:none;}
 .mob-nav-inner{display:flex;align-items:stretch;min-width:max-content;height:100%;}
-.mob-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:60px;padding:0 10px;background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);transition:all 0.2s;border-top:2px solid transparent;-webkit-tap-highlight-color:transparent;}
+.mob-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:64px;padding:0 12px;background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);transition:all 0.2s;border-top:2px solid transparent;-webkit-tap-highlight-color:transparent;}
 .mob-tab.on{color:var(--acc);border-top-color:var(--acc);}
-.mob-tab-icon{font-size:16px;line-height:1;}
+.mob-tab-icon{font-size:18px;line-height:1;}
 
 /* ── MOBILE HEADER */
 .desk-header{display:flex;}
-.mob-header{display:none;align-items:center;justify-content:space-between;padding:0 16px;height:52px;}
+.mob-header{display:none;align-items:center;justify-content:space-between;padding:0 16px;height:56px;}
 .mob-title{font-family:var(--font-ui);font-size:18px;letter-spacing:3px;color:var(--acc);}
 
 /* ── SUBTABS */
@@ -211,34 +211,107 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 /* ═══════════════════════════════════════════════
    MOBILE — max-width 768px
    ═══════════════════════════════════════════════ */
+
+/* Mobile utility classes - always available */
+.mob-scroll{-webkit-overflow-scrolling:touch;}
+.mob-col{display:flex;flex-direction:column;}
+
 @media (max-width:768px){
+  /* Nav + header */
   .mob-nav{display:block;}
   .desk-header{display:none !important;}
   .mob-header{display:flex !important;}
-  .mob-content{padding-bottom:calc(var(--mob-nav-h) + 8px) !important;}
+  .desk-footer{display:none !important;}
+  .scanline-fx{display:none !important;}
+  .ticker-wrap{display:none !important;}
+
+  /* Content area */
+  .mob-content{
+    padding-bottom:calc(var(--mob-nav-h) + 12px) !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+
+  /* All grid classes collapse to 1 col by default */
   .rg-2,.rg-3,.rg-4,.rg-5{grid-template-columns:1fr !important;}
+  /* 2-col grids that stay 2-col on mobile */
   .rg-2-mob{grid-template-columns:1fr 1fr !important;}
-  .panel-split{grid-template-columns:1fr !important;}
-  .etf-layout{grid-template-columns:1fr !important;height:auto !important;}
-  .etf-picker{border-right:none !important;border-bottom:1px solid var(--b1);max-height:280px;}
-  .side-layout{grid-template-columns:1fr !important;}
-  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .subtab{padding:8px 12px;font-size:9px;}
-  .btn,.btn-ghost{padding:9px 14px;font-size:9px;}
-  .si{padding:7px 9px;font-size:12px;}
-  input[type=range]::-webkit-slider-thumb{width:20px;height:20px;}
-  .card{border-radius:6px;}
+  /* Dashboard stat grid: 2 cols */
+  .rg-5.dash-stats{grid-template-columns:1fr 1fr !important;}
+  /* Dashboard module grid: 2x2 */
+  .dash-modules{grid-template-columns:1fr 1fr !important;}
+  /* Market heatmap: 2 cols */
+  .heat-grid{grid-template-columns:1fr 1fr !important;}
+
+  /* Panel/side layouts always stack */
+  .panel-split,.side-layout{
+    display:flex !important;
+    flex-direction:column !important;
+    grid-template-columns:1fr !important;
+  }
+  .side-layout > *{width:100% !important;min-width:0 !important;}
+  .side-layout > *:first-child{max-height:none !important;}
+
+  /* ETF module - stack picker above chart */
+  .etf-layout{
+    display:flex !important;
+    flex-direction:column !important;
+    height:auto !important;
+    overflow-y:auto !important;
+  }
+  .etf-picker{
+    max-height:240px;
+    overflow-y:auto;
+    border-right:none !important;
+    border-bottom:1px solid var(--b1) !important;
+    flex-shrink:0;
+  }
+  .mob-scroll{height:auto !important;padding-bottom:80px !important;}
+
+  /* Tables - horizontal scroll */
+  .table-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch !important;width:100%;}
+  table{min-width:500px;}
+
+  /* Typography scale */
+  .lbl{font-size:10px !important;letter-spacing:1px !important;}
+  .lbl-b{font-size:11px !important;}
+  .td{font-size:12px !important;padding:8px 10px !important;}
+  .th{font-size:10px !important;padding:8px 10px !important;}
+  .stat-val{font-size:24px !important;}
+  .stat-card-val{font-size:26px !important;}
+
+  /* Touch targets */
+  .subtab{padding:10px 14px !important;font-size:11px !important;}
+  .btn,.btn-ghost{padding:10px 16px !important;font-size:10px !important;}
+  .btn-acc{padding:12px 18px !important;}
+  .si{padding:9px 10px !important;font-size:13px !important;}
+  input[type=range]::-webkit-slider-thumb{width:22px !important;height:22px !important;}
+  input[type=range]{height:4px !important;}
+
+  /* Cards */
+  .card{border-radius:8px;}
   .mob-pad{padding:14px !important;}
-  .lbl{font-size:9px;letter-spacing:1.5px;}
-  .td{font-size:11px;padding:7px 8px;}
-  .th{font-size:9px;padding:7px 8px;}
-  .ticker-wrap{display:none;}
-  .subtab-row{flex-wrap:wrap;gap:5px !important;}
-  .stat-val{font-size:22px !important;}
   .mob-full{width:100% !important;}
   .hide-mob{display:none !important;}
-  .desk-footer{display:none;}
-  .scanline-fx{display:none;}
+
+  /* Subtab rows wrap */
+  .subtab-row{flex-wrap:wrap !important;gap:6px !important;}
+
+  /* Inputs fill width on mobile */
+  .ni{font-size:14px !important;}
+
+  /* Module content scrollable */
+  .module-content{overflow-y:auto !important;-webkit-overflow-scrolling:touch !important;}
+
+  /* Override any inline min-width that causes overflow */
+  .mob-no-minw{min-width:0 !important;}
+
+  /* Stat cards in a 2-col grid */
+  .stat-grid-mob{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;}
+
+  /* Chart containers - ensure they don't overflow */
+  svg{max-width:100% !important;overflow:visible;}
+  .chart-wrap{overflow-x:hidden !important;}
 }
 
 /* ═══════════════════════════════════════════════
@@ -247,22 +320,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 @media (min-width:769px) and (max-width:1024px){
   .rg-5{grid-template-columns:repeat(3,1fr) !important;}
   .rg-4{grid-template-columns:repeat(2,1fr) !important;}
-  .tab{padding:10px 11px;font-size:8px;}
-}
-
-/* ── ETF LAYOUT */
-.mob-scroll{-webkit-overflow-scrolling:touch;}
-@media (max-width:768px){
-  .etf-layout{display:flex !important;flex-direction:column !important;height:auto !important;overflow-y:auto !important;}
-  .etf-picker{max-height:260px;overflow-y:auto;}
-  .mob-scroll{height:auto !important;padding-bottom:80px !important;}
-  .dash-modules{grid-template-columns:repeat(2,1fr) !important;}
-  .heat-grid{grid-template-columns:repeat(2,1fr) !important;}
-  .rg-5{grid-template-columns:repeat(2,1fr) !important;}
-  .rg-4{grid-template-columns:repeat(2,1fr) !important;}
-  .rg-3{grid-template-columns:repeat(2,1fr) !important;}
-  .side-layout{flex-direction:column !important;}
-  .module-content{overflow-y:auto !important;-webkit-overflow-scrolling:touch;}
+  .tab{padding:10px 11px !important;font-size:8px !important;}
+  .etf-layout{grid-template-columns:220px 1fr !important;}
 }
 `;
 
@@ -463,9 +522,9 @@ function Dashboard({ onNav, currency }) {
   ];
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "20px" }} className="fade-up">
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", WebkitOverflowScrolling: "touch" }} className="fade-up">
       {/* Hero stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", className: "rg-5", gap: "10px", marginBottom: "16px" }}>
+      <div className="rg-5 dash-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "10px", marginBottom: "16px" }}>
         {[
           { l: "Market Avg Return", v: "12.8%", sub: "Blended across all ETFs", c: "var(--acc)", spark: Array.from({length:16},(_,i)=>12+Math.sin(i*0.9)*2) },
           { l: "Best Performer", v: "NDQ +18.2%", sub: "Highest historical avg", c: "var(--acc2)", spark: Array.from({length:16},(_,i)=>15+Math.sin(i*1.2)*4) },
@@ -485,7 +544,7 @@ function Dashboard({ onNav, currency }) {
       {/* Module grid */}
       <div style={{ marginBottom: "16px" }}>
         <div className="lbl" style={{ marginBottom: "10px" }}>── Modules</div>
-        <div className="rg-4" className="rg-4 dash-modules" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+        <div className="dash-modules" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
           {modules.map(m => (
             <button key={m.id} onClick={() => onNav(m.id)} style={{ background: "var(--s2)", border: `1px solid var(--b1)`, borderRadius: "4px", padding: "14px", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = m.color + "50"; e.currentTarget.style.background = "var(--s3)"; }}
@@ -503,7 +562,7 @@ function Dashboard({ onNav, currency }) {
       {/* Market overview */}
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "10px" }}>── Live Market Overview</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", className: "rg-5", gap: "6px" }}>
+        <div className="heat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "6px" }}>
           {marketData.map(e => {
             const up = parseFloat(e.today) >= 0;
             return (
@@ -583,7 +642,7 @@ function ETFModule({ currency }) {
   }, [blended, blendedExp, start, monthly, years]);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "270px 1fr", height: "calc(100vh - 138px)", overflow: "hidden" }}>
+    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: "270px 1fr", overflow: "hidden" }}>
       {/* Picker */}
       <div className="etf-picker" style={{ borderRight: "1px solid var(--b1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{ padding: "8px", borderBottom: "1px solid var(--b1)", display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -652,7 +711,7 @@ function ETFModule({ currency }) {
             })}
           </div>
           {/* stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4px", marginTop: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "4px", marginTop: "8px" }}>
             {[
               { l: "Return", v: `${blended.toFixed(1)}%` },
               { l: "Vol σ", v: `${blendedVol.toFixed(1)}%` },
@@ -678,7 +737,7 @@ function ETFModule({ currency }) {
 
           {sub === "portfolio" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
                 {[
                   { l: "Starting Capital", v: start, set: setStart, pre: sym },
                   { l: "Monthly DCA", v: monthly, set: setMonthly, pre: sym },
@@ -695,7 +754,7 @@ function ETFModule({ currency }) {
                   </div>
                 ))}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", className: "rg-5", gap: "8px" }}>
+              <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
                 {[
                   { l: `Value (${years}y)`, v: final.v, c: "var(--acc)" },
                   { l: "Contributed", v: final.c, c: "var(--t1)" },
@@ -717,7 +776,7 @@ function ETFModule({ currency }) {
                   <span className="lbl">Compound Projection — {years}yr</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>SCENARIO: <span style={{ color: "var(--acc)" }}>{scenario.toUpperCase()}</span></span>
                 </div>
-                <svg width="100%" height="160" viewBox="0 0 600 200" preserveAspectRatio="none">
+                <svg width="100%" height="140" viewBox="0 0 600 200" preserveAspectRatio="none" style={{ maxWidth: "100%", display: "block" }}>
                   <defs>
                     <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                     <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.10"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
@@ -777,7 +836,7 @@ function ETFModule({ currency }) {
 
           {sub === "milestones" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
                 {milestones.map(ms => {
                   const hit = proj.find(p => p.v >= ms);
                   return (
@@ -832,7 +891,7 @@ function ETFModule({ currency }) {
                 return (
                   <div key={t} className="card" style={{ padding: "14px", borderColor: i === 0 ? "#00FF8730" : "#60EFFF30" }}>
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: c, marginBottom: "10px" }}>{e.ticker} — {e.name}</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px" }}>
+                    <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: "8px" }}>
                       {[["Return", `${e.avgReturn}%`], ["Volatility", `${e.vol}%`], ["Sharpe", e.sharpe], ["Expense", `${e.expense}%`], ["Dividend", `${e.div}%`], ["Inception", e.inception]].map(([k, v]) => (
                         <div key={k}>
                           <div className="lbl">{k}</div>
@@ -869,7 +928,7 @@ function ETFModule({ currency }) {
 
           {sub === "risk" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
                 {[
                   { l: "Portfolio Volatility", v: `${blendedVol.toFixed(1)}%`, c: "var(--acc5)" },
                   { l: "Blended Sharpe", v: (Object.entries(sel).reduce((a, [t, p]) => { const e = ETFs.find(x => x.ticker === t); return a + (e ? e.sharpe * (p / 100) : 0); }, 0)).toFixed(2), c: "var(--acc3)" },
@@ -912,7 +971,7 @@ function ETFModule({ currency }) {
 
           {sub === "fees" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
                 {[
                   { l: "Blended MER", v: `${blendedExp.toFixed(3)}%`, c: "var(--acc4)" },
                   { l: `Fee Drag (${years}yr)`, v: fmt(expDrag, sym), c: "var(--acc4)" },
@@ -965,7 +1024,7 @@ function ETFModule({ currency }) {
 
           {sub === "dividends" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
                 {[
                   { l: "Blended Yield", v: `${blendedDiv.toFixed(2)}%`, c: "var(--acc5)" },
                   { l: "Annual Dividends (Now)", v: fmt(start * blendedDiv / 100, sym), c: "var(--acc5)" },
@@ -1048,8 +1107,8 @@ function DCAModule({ currency }) {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", height: "calc(100vh - 138px)" }} className="fade-up">
-      <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>Select ETF</div>
@@ -1083,7 +1142,7 @@ function DCAModule({ currency }) {
           ))}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
             {[
               { l: `DCA Only (${years}yr)`, v: finalDCA.v, sub: `Contrib: ${fmt(finalDCA.c, sym)}`, c: "var(--acc)" },
               { l: `Lump Sum Only (${years}yr)`, v: finalLump.v, sub: `Invest: ${fmt(lump, sym)}`, c: "var(--acc2)" },
@@ -1196,8 +1255,8 @@ function MonteCarloModule({ currency }) {
   const maxPath = results ? Math.max(...results.yearlyPcts.map(p => p.p90)) : 1;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", height: "calc(100vh - 138px)" }} className="fade-up">
-      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {[
             { l: "ETF", type: "sel" },
@@ -1231,7 +1290,7 @@ function MonteCarloModule({ currency }) {
 
         {results ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+            <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
               {[
                 { l: "Median Outcome", v: fmt(results.pct(50), sym), c: "var(--acc)" },
                 { l: "Best Case (90th)", v: fmt(results.pct(90), sym), c: "var(--acc2)" },
@@ -1352,7 +1411,7 @@ function BudgetModule({ currency }) {
   const dTotal = donutData.reduce((a, [, v]) => a + v, 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 138px)", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div className="subtab-row" style={{ display: "flex", gap: "4px", padding: "8px", borderBottom: "1px solid var(--b1)", flexWrap: "wrap" }}>
         {[["overview", "Overview"], ["breakdown", "Breakdown"], ["goals", "Goals"], ["rules", "Budget Rules"], ["forecast", "Forecast"]].map(([id, l]) => (
           <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
@@ -1361,7 +1420,7 @@ function BudgetModule({ currency }) {
       <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
         {sub === "overview" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "10px" }}>
+            <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "10px" }}>
               <div className="card card-acc" style={{ padding: "12px" }}>
                 <div className="lbl" style={{ marginBottom: "6px" }}>Monthly Income</div>
                 <select className="si" value={period} onChange={e => setPeriod(e.target.value)} style={{ marginBottom: "8px" }}><option value="monthly">Monthly</option><option value="annual">Annual ÷12</option></select>
@@ -1370,7 +1429,7 @@ function BudgetModule({ currency }) {
                   <input className="ni" type="number" value={income} onChange={e => setIncome(+e.target.value)} style={{ fontSize: "26px", color: "var(--acc)" }} />
                 </div>
               </div>
-              <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
                 {[
                   { l: "Total Expenses", v: fmt(totalExp, sym), c: "var(--acc4)" },
                   { l: "Monthly Surplus", v: fmt(surplus, sym), c: surplus >= 0 ? "var(--acc)" : "var(--acc4)" },
@@ -1448,7 +1507,7 @@ function BudgetModule({ currency }) {
                     <input className="ti" value={g.name} onChange={e => updG(g.id, "name", e.target.value)} style={{ fontSize: "13px", color: "var(--acc)", maxWidth: "200px" }} />
                     <button className="btn-del" onClick={() => delGoal(g.id)}>×</button>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "12px" }}>
+                  <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px", marginBottom: "12px" }}>
                     {[{ l: "Target", v: g.target, field: "target" }, { l: "Saved", v: g.saved, field: "saved" }].map(({ l, v, field }) => (
                       <div key={l}>
                         <div className="lbl">{l}</div>
@@ -1474,7 +1533,7 @@ function BudgetModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "12px" }}>50/30/20 Rule Analysis</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px" }}>
                 {[
                   { l: "Needs (50%)", target: 50, actual: moIncome > 0 ? (essentialExp / moIncome) * 100 : 0, val: fmt(essentialExp, sym), c: "var(--acc2)" },
                   { l: "Wants (30%)", target: 30, actual: moIncome > 0 ? ((totalExp - essentialExp) / moIncome) * 100 : 0, val: fmt(totalExp - essentialExp, sym), c: "var(--acc3)" },
@@ -1522,7 +1581,7 @@ function BudgetModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Invest Your Surplus — What It Becomes</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px" }}>
                 {[7, 10, 12].map(rate => (
                   <div key={rate} className="card" style={{ padding: "12px", background: "var(--s3)" }}>
                     <div className="lbl" style={{ marginBottom: "8px" }}>@ {rate}% p.a.</div>
@@ -1606,8 +1665,8 @@ function NetWorthModule({ currency }) {
   };
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", height: "calc(100vh - 138px)" }} className="fade-up">
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", className: "rg-5", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
         {[
           { l: "Net Worth", v: fmt(netWorth, sym), c: netWorth >= 0 ? "var(--acc)" : "var(--acc4)", big: true },
           { l: "Total Assets", v: fmt(totalAssets, sym), c: "var(--acc2)" },
@@ -1638,7 +1697,7 @@ function NetWorthModule({ currency }) {
         </div>
       </div>
       {/* Projections */}
-      <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
         {[1, 3, 5, 10].map(y => (
           <div key={y} className="card" style={{ padding: "12px" }}>
             <div className="lbl">Projected ({y}yr)</div>
@@ -1673,7 +1732,7 @@ function NetWorthModule({ currency }) {
                   <input className="ti" value={l.name} onChange={e => updL(l.id, "name", e.target.value)} style={{ flex: 1, color: "var(--acc4)" }} />
                   <button className="btn-del" onClick={() => delL(l.id)}>×</button>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px", marginBottom: "6px" }}>
+                <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "6px", marginBottom: "6px" }}>
                   {[["Balance", l.balance, "balance", sym, "", "var(--acc4)"], ["Rate", l.rate, "rate", "", "%", "var(--acc5)"], ["Min Pay", l.minPay, "minPay", sym, "", "var(--t2)"]].map(([lbl, val, field, pre, suf, c]) => (
                     <div key={lbl}>
                       <div className="lbl">{lbl}</div>
@@ -1741,7 +1800,7 @@ function FIREModule({ currency }) {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 138px)", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div style={{ display: "flex", gap: "4px", padding: "8px", borderBottom: "1px solid var(--b1)" }}>
         {[["calculator", "Calculator"], ["swr", "SWR Analysis"], ["coast", "Coast FIRE"], ["scenarios", "Scenarios"]].map(([id, l]) => (
           <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
@@ -1749,7 +1808,7 @@ function FIREModule({ currency }) {
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
         {sub === "calculator" && (
-          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+          <div className="fade-up side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
               {[
                 { l: "Current Portfolio", v: portfolio, set: setPortfolio, pre: sym },
@@ -1829,7 +1888,7 @@ function FIREModule({ currency }) {
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", lineHeight: 1.6, padding: "10px", background: "var(--s1)", borderRadius: "3px", border: "1px solid var(--b1)" }}>
               Coast FIRE: the portfolio value at which, even if you stop contributing, your investments will grow to your FIRE number by retirement age.
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", className: "rg-5", gap: "8px" }}>
+            <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
               {coastRows.map(row => (
                 <div key={row.retAge} className={`card${row.reached ? " card-acc" : ""}`} style={{ padding: "12px" }}>
                   <div className="lbl">Retire {row.retAge}</div>
@@ -1913,8 +1972,8 @@ function TaxModule({ currency }) {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", height: "calc(100vh - 138px)" }} className="fade-up">
-      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
           {[
             { l: "Portfolio Value", v: portfolio, set: setPortfolio, pre: sym },
@@ -1937,7 +1996,7 @@ function TaxModule({ currency }) {
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+          <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
             {[
               { l: "Gross Annual Gain", v: fmt(grossGain, sym), c: "var(--acc2)" },
               { l: "Tax on Gains", v: fmt(taxOnGains, sym), c: "var(--acc4)" },
@@ -2024,7 +2083,7 @@ function RebalancerModule({ currency }) {
   const needsRebal = holdings.some(h => Math.abs(calcRebal(h).drift) > threshold);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", height: "calc(100vh - 138px)" }} className="fade-up">
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px" }}>
         {[
           { l: "Portfolio Total", v: fmt(total, sym), c: "var(--acc)" },
@@ -2038,7 +2097,7 @@ function RebalancerModule({ currency }) {
           </div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "12px" }}>
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "6px" }}>Drift Threshold</div>
@@ -2148,8 +2207,8 @@ function CrashSimModule({ currency }) {
   const bonus = recovered - portfolio;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", height: "calc(100vh - 138px)" }} className="fade-up mob-scroll">
-      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "12px" }}>
 
         {/* Controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -2198,7 +2257,7 @@ function CrashSimModule({ currency }) {
 
         {/* Results */}
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
             {[
               { l: "Before Crash",       v: fmt(portfolio, sym),   c: "var(--acc2)" },
               { l: `After ${Math.abs(crash.drop)}% Drop`, v: fmt(afterCrash, sym), c: "var(--acc4)" },
@@ -2324,8 +2383,8 @@ function LoanModule({ currency }) {
     : [...loans].sort((a, b) => a.balance - b.balance);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", height: "calc(100vh - 138px)" }} className="fade-up mob-scroll">
-      <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
         {[
           { l: "Total Debt",      v: fmt(totalDebt, sym),    c: "var(--acc4)" },
           { l: "Min Payments/mo", v: fmt(totalMinPay, sym),  c: "var(--acc5)" },
@@ -2462,8 +2521,8 @@ function IncomeModule({ currency }) {
   }, {});
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", height: "calc(100vh - 138px)" }} className="fade-up mob-scroll">
-      <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
         {[
           { l: "Total Monthly",    v: fmt(totalMo, sym),           c: "var(--acc)"  },
           { l: "Active Streams",   v: `${active.length} / ${streams.length}`, c: "var(--acc2)" },
@@ -2687,7 +2746,7 @@ function WealthStudioApp() {
       {/* ApiKeyBar only shown once - after desktop header via desk-header class */}
 
       {/* ── CONTENT ── */}
-      <div className="content mob-content" style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div className="content mob-content" className="module-content" style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {tab === "dashboard"  && <Dashboard onNav={setTab} currency={currency} />}
         {tab === "etf"        && <ETFModule currency={currency} />}
         {tab === "dca"        && <DCAModule currency={currency} />}
