@@ -57,7 +57,7 @@ const G = `
 :root{
   --bg:#020205;--s1:#06060d;--s2:#0a0a15;--s3:#0e0e1c;--s4:#131322;
   --b1:#121225;--b2:#1a1a35;--b3:#242448;
-  --t1:#eef2ff;--t2:#7b85a8;--t3:#333560;
+  --t1:#f4f7ff;--t2:#9aa3bf;--t3:#4a5070;
   --acc:#00FF87;--acc2:#60EFFF;--acc3:#A78BFA;--acc4:#FF4D6D;--acc5:#FFD60A;--acc6:#FF9F0A;
   --acc-dim:#00FF8720;
   --font-mono:'Share Tech Mono',monospace;
@@ -162,10 +162,10 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* ── INPUTS */
 .ni{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:inherit;width:100%;outline:none;}
-.si{background:var(--s1);border:1px solid var(--b2);border-radius:2px;color:var(--t1);font-family:var(--font-mono);font-size:10px;padding:4px 6px;outline:none;cursor:pointer;transition:border-color 0.15s;}
+.si{background:var(--s1);border:1px solid var(--b2);border-radius:2px;color:var(--t1);font-family:var(--font-mono);font-size:12px;padding:5px 8px;outline:none;cursor:pointer;transition:border-color 0.15s;}
 .si:focus{border-color:rgba(0,255,135,0.4);}
 .ti{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:11px;outline:none;width:100%;}
-.lbl{font-family:var(--font-mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--t3);}
+.lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
 .lbl-b{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
 
 /* ── BUTTONS */
@@ -193,8 +193,8 @@ input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(-
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 8px var(--acc);}
 
 /* ── TABLE */
-.th{font-family:var(--font-mono);font-size:8px;color:var(--t3);letter-spacing:1px;padding:6px 8px;border-bottom:1px solid var(--b1);text-transform:uppercase;white-space:nowrap;background:var(--s1);}
-.td{font-family:var(--font-mono);font-size:10px;color:var(--t2);padding:6px 8px;border-bottom:1px solid var(--b1);}
+.th{font-family:var(--font-mono);font-size:10px;color:var(--t3);letter-spacing:1px;padding:7px 10px;border-bottom:1px solid var(--b1);text-transform:uppercase;white-space:nowrap;background:var(--s1);}
+.td{font-family:var(--font-mono);font-size:12px;color:var(--t2);padding:7px 10px;border-bottom:1px solid var(--b1);}
 .td-acc{color:var(--acc);}
 .td-b{color:var(--acc2);}
 .td-r{color:var(--acc4);}
@@ -723,23 +723,23 @@ function ETFModule({ currency }) {
                     <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.10"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
                     <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.05"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                   </defs>
-                  {[0.2, 0.4, 0.6, 0.8].map(f => <line key={f} x1="0" y1={200 - f * 190} x2={years} y2={200 - f * 190} stroke="var(--b1)" strokeWidth="0.3" />)}
+                  {[0.2, 0.4, 0.6, 0.8].map(f => <line key={f} x1="0" y1={200 - f * 190} x2={years} y2={200 - f * 190} stroke="var(--b1)" strokeWidth="0.5" />)}
                   <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.hi / maxV) * 185}`), ...proj.slice().reverse().map(p => `${p.y},${200 - (p.lo / maxV) * 185}`)].join(" ")} fill="url(#bg2)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.hi / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.5" strokeDasharray="2,4" opacity="0.35" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.lo / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.5" strokeDasharray="2,4" opacity="0.35" />
+                  <polyline points={proj.map(p => `${p.y},${200 - (p.hi / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="1" strokeDasharray="2,4" opacity="0.35" />
+                  <polyline points={proj.map(p => `${p.y},${200 - (p.lo / maxV) * 185}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="1" strokeDasharray="2,4" opacity="0.35" />
                   <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.c / maxV) * 185}`), `${years},200`].join(" ")} fill="url(#cg)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="0.8" strokeDasharray="3,3" opacity="0.6" />
+                  <polyline points={proj.map(p => `${p.y},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.6" />
                   <polygon points={[`0,200`, ...proj.map(p => `${p.y},${200 - (p.v / maxV) * 185}`), `${years},200`].join(" ")} fill="url(#pg)" />
-                  <polyline points={proj.map(p => `${p.y},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="1.5" />
+                  <polyline points={proj.map(p => `${p.y},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
                   {proj.filter((_, i) => i % 5 === 0 && i > 0).map(p => (
                     <g key={p.y}>
                       <circle cx={p.y} cy={200 - (p.v / maxV) * 185} r="2" fill="var(--acc)" />
-                      <text x={p.y} y={200 - (p.v / maxV) * 185 - 5} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="5">{fmt(p.v, sym)}</text>
+                      <text x={p.y} y={200 - (p.v / maxV) * 185 - 5} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="8">{fmt(p.v, sym)}</text>
                     </g>
                   ))}
                 </svg>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  {proj.filter((_, i) => i % Math.ceil(years / 5) === 0).map(p => <span key={p.y} style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>Yr{p.y}</span>)}
+                  {proj.filter((_, i) => i % Math.ceil(years / 5) === 0).map(p => <span key={p.y} style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>Yr{p.y}</span>)}
                 </div>
               </div>
               {/* Year table */}
@@ -883,13 +883,13 @@ function ETFModule({ currency }) {
               <div className="card scan-wrap" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Risk vs Return Scatter — All ETFs</div>
                 <svg width="100%" height="260" viewBox="0 0 520 260">
-                  {[0, 1, 2, 3, 4].map(i => <line key={i} x1="50" y1={i * 55 + 10} x2="515" y2={i * 55 + 10} stroke="var(--b1)" strokeWidth="0.4" />)}
-                  {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={i * 90 + 50} y1="10" x2={i * 90 + 50} y2="250" stroke="var(--b1)" strokeWidth="0.4" />)}
-                  <text x="280" y="258" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="7">VOLATILITY (σ) →</text>
-                  <text x="12" y="135" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="7" transform="rotate(-90,12,135)">RETURN →</text>
+                  {[0, 1, 2, 3, 4].map(i => <line key={i} x1="50" y1={i * 55 + 10} x2="515" y2={i * 55 + 10} stroke="var(--b1)" strokeWidth="0.5" />)}
+                  {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={i * 90 + 50} y1="10" x2={i * 90 + 50} y2="250" stroke="var(--b1)" strokeWidth="0.5" />)}
+                  <text x="280" y="258" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">VOLATILITY (σ) →</text>
+                  <text x="12" y="135" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10" transform="rotate(-90,12,135)">RETURN →</text>
                   {/* Efficient frontier hint */}
                   <path d="M 60 220 Q 200 150 350 60" fill="none" stroke="var(--acc)" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.25" />
-                  <text x="355" y="55" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="6" opacity="0.4">efficient frontier</text>
+                  <text x="355" y="55" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="9" opacity="0.4">efficient frontier</text>
                   {ETFs.map(etf => {
                     const x = 50 + (etf.vol / 60) * 460;
                     const y = 240 - (etf.avgReturn / 22) * 220;
@@ -898,7 +898,7 @@ function ETFModule({ currency }) {
                       <g key={etf.ticker}>
                         <circle cx={x} cy={y} r={on ? 7 : 4} fill={on ? etf.color : "var(--b3)"} opacity={on ? 0.9 : 0.5} />
                         {on && <circle cx={x} cy={y} r={12} fill="none" stroke={etf.color} strokeWidth="0.8" opacity="0.4" />}
-                        <text x={x + 9} y={y + 3} fill={on ? etf.color : "var(--t3)"} fontFamily="var(--font-mono)" fontSize="7">{etf.ticker}</text>
+                        <text x={x + 9} y={y + 3} fill={on ? etf.color : "var(--t3)"} fontFamily="var(--font-mono)" fontSize="10">{etf.ticker}</text>
                       </g>
                     );
                   })}
@@ -1101,7 +1101,7 @@ function DCAModule({ currency }) {
                   <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity="0.15"/><stop offset="100%" stopColor={c} stopOpacity="0"/></linearGradient>
                 ))}
               </defs>
-              {[0.25, 0.5, 0.75].map(f => <line key={f} x1="0" y1={200 - f * 185} x2={years} y2={200 - f * 185} stroke="var(--b1)" strokeWidth="0.3" />)}
+              {[0.25, 0.5, 0.75].map(f => <line key={f} x1="0" y1={200 - f * 185} x2={years} y2={200 - f * 185} stroke="var(--b1)" strokeWidth="0.5" />)}
               {[dcaProj, lumpProj, hybridProj].map((data, i) => {
                 const c = ["#00FF87", "#60EFFF", "#A78BFA"][i];
                 const gid = ["g1", "g2", "g3"][i];
@@ -1251,14 +1251,14 @@ function MonteCarloModule({ currency }) {
                 </defs>
                 {/* Simulation paths (faint) */}
                 {results.paths.map((path, i) => (
-                  <polyline key={i} points={path.filter((_, j) => j % 12 === 0).map((v, y) => `${y},${220 - (v / maxPath) * 200}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.2" opacity="0.08" />
+                  <polyline key={i} points={path.filter((_, j) => j % 12 === 0).map((v, y) => `${y},${220 - (v / maxPath) * 200}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.4" opacity="0.08" />
                 ))}
                 {/* P90-P10 band */}
                 <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${p.y},${220 - (p.p90 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p10 / maxPath) * 200}`)].join(" ")} fill="url(#mc90)" />
                 <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${p.y},${220 - (p.p75 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p25 / maxPath) * 200}`)].join(" ")} fill="url(#mc75)" />
                 {/* Percentile lines */}
                 {[["p90", "#00FF87", 0.4], ["p75", "#00FF87", 0.6], ["p50", "#00FF87", 1.0], ["p25", "#60EFFF", 0.6], ["p10", "#FF4D6D", 0.5]].map(([key, c, op]) => (
-                  <polyline key={key} points={results.yearlyPcts.map(p => `${p.y},${220 - (p[key] / maxPath) * 200}`).join(" ")} fill="none" stroke={c} strokeWidth={key === "p50" ? 1.5 : 0.8} opacity={op} strokeDasharray={key !== "p50" ? "2,3" : ""} />
+                  <polyline key={key} points={results.yearlyPcts.map(p => `${p.y},${220 - (p[key] / maxPath) * 200}`).join(" ")} fill="none" stroke={c} strokeWidth={key === "p50" ? 2.5 : 1.2} opacity={op} strokeDasharray={key !== "p50" ? "2,3" : ""} />
                 ))}
               </svg>
               <div style={{ display: "flex", gap: "12px", marginTop: "6px", flexWrap: "wrap" }}>
@@ -1627,7 +1627,7 @@ function NetWorthModule({ currency }) {
         <svg width="100%" height="80" viewBox={`0 0 ${nwSpark.length - 1} 80`} preserveAspectRatio="none">
           <defs><linearGradient id="nwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
           <polygon points={[`0,80`, ...nwSpark.map((v, i) => `${i},${80 - ((v - minNW) / (maxNW - minNW)) * 70}`), `${nwSpark.length - 1},80`].join(" ")} fill="url(#nwg)" />
-          <polyline points={nwSpark.map((v, i) => `${i},${80 - ((v - minNW) / (maxNW - minNW)) * 70}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="1.5" />
+          <polyline points={nwSpark.map((v, i) => `${i},${80 - ((v - minNW) / (maxNW - minNW)) * 70}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
           {nwSpark.map((v, i) => <circle key={i} cx={i} cy={80 - ((v - minNW) / (maxNW - minNW)) * 70} r={i === nwSpark.length - 1 ? "2.5" : "1.2"} fill="var(--acc)" />)}
         </svg>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
@@ -1786,9 +1786,9 @@ function FIREModule({ currency }) {
                 <div className="lbl" style={{ marginBottom: "8px" }}>Path to FIRE</div>
                 <svg width="100%" height="190" viewBox={`0 0 50 190`} preserveAspectRatio="none">
                   <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
-                  <line x1="0" y1={190 - (fireNum / maxV) * 175} x2="50" y2={190 - (fireNum / maxV) * 175} stroke="var(--acc4)" strokeWidth="0.8" strokeDasharray="3,3" opacity="0.7" />
+                  <line x1="0" y1={190 - (fireNum / maxV) * 175} x2="50" y2={190 - (fireNum / maxV) * 175} stroke="var(--acc4)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
                   <polygon points={[`0,190`, ...yearlyProj.slice(0, 51).map(p => `${p.y},${190 - (p.v / maxV) * 175}`), `50,190`].join(" ")} fill="url(#fg2)" />
-                  <polyline points={yearlyProj.slice(0, 51).map(p => `${p.y},${190 - (p.v / maxV) * 175}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="1.5" />
+                  <polyline points={yearlyProj.slice(0, 51).map(p => `${p.y},${190 - (p.v / maxV) * 175}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
                   {firePoint && firePoint.y <= 50 && <circle cx={firePoint.y} cy={190 - (firePoint.v / maxV) * 175} r="3" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 4px #00FF87)" }} />}
                 </svg>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
