@@ -3,28 +3,90 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const ETFs = [
-  { ticker:"QQQ",  name:"Nasdaq 100",              avgReturn:17.9, vol:22.1, sharpe:0.81, color:"#00FF87", region:"US Tech",      risk:"High",     expense:0.20, inception:1999, div:0.6  },
-  { ticker:"NDQ",  name:"Nasdaq 100 (ASX)",         avgReturn:18.2, vol:22.4, sharpe:0.82, color:"#00E87C", region:"US Tech",      risk:"High",     expense:0.22, inception:2015, div:0.5  },
-  { ticker:"VOO",  name:"S&P 500 Vanguard",         avgReturn:13.0, vol:15.2, sharpe:0.85, color:"#60EFFF", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2010, div:1.4  },
-  { ticker:"IVV",  name:"S&P 500 iShares",          avgReturn:13.1, vol:15.3, sharpe:0.86, color:"#45E0F0", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2000, div:1.3  },
-  { ticker:"VTI",  name:"Total US Market",          avgReturn:12.7, vol:15.0, sharpe:0.84, color:"#38BDF8", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2001, div:1.5  },
-  { ticker:"IOO",  name:"Global 100",               avgReturn:12.4, vol:14.8, sharpe:0.83, color:"#A78BFA", region:"Global",       risk:"Med-High", expense:0.40, inception:2000, div:1.8  },
-  { ticker:"VGS",  name:"MSCI World",               avgReturn:11.8, vol:13.9, sharpe:0.84, color:"#818CF8", region:"Global",       risk:"Medium",   expense:0.18, inception:2014, div:2.1  },
-  { ticker:"DHHF", name:"Diversified All Growth",   avgReturn:11.1, vol:14.2, sharpe:0.78, color:"#F472B6", region:"Diversified",  risk:"Med-High", expense:0.19, inception:2020, div:1.6  },
-  { ticker:"VDHG", name:"Diversified High Growth",  avgReturn:10.2, vol:12.8, sharpe:0.79, color:"#FB7185", region:"Diversified",  risk:"Medium",   expense:0.27, inception:2017, div:2.0  },
-  { ticker:"VAS",  name:"ASX 300",                  avgReturn:9.6,  vol:13.1, sharpe:0.73, color:"#FBBF24", region:"Australia",    risk:"Medium",   expense:0.07, inception:2009, div:4.2  },
-  { ticker:"A200", name:"ASX 200",                  avgReturn:9.4,  vol:12.9, sharpe:0.72, color:"#F59E0B", region:"Australia",    risk:"Medium",   expense:0.04, inception:2018, div:4.0  },
-  { ticker:"VEU",  name:"All World ex-US",          avgReturn:7.9,  vol:13.5, sharpe:0.58, color:"#34D399", region:"ex-US",        risk:"Medium",   expense:0.07, inception:2007, div:2.8  },
-  { ticker:"VHY",  name:"High Yield AUS",           avgReturn:8.1,  vol:11.2, sharpe:0.72, color:"#6EE7B7", region:"Dividend",     risk:"Med-Low",  expense:0.25, inception:2011, div:5.8  },
-  { ticker:"VGE",  name:"Emerging Markets",         avgReturn:8.4,  vol:19.1, sharpe:0.44, color:"#FCA5A5", region:"Emerging",     risk:"High",     expense:0.48, inception:2013, div:2.3  },
-  { ticker:"BOND", name:"Aggregate Bond",           avgReturn:4.2,  vol:5.8,  sharpe:0.72, color:"#94A3B8", region:"Fixed Income", risk:"Low",      expense:0.05, inception:2003, div:3.5  },
-  { ticker:"GLD",  name:"Gold ETF",                 avgReturn:8.9,  vol:15.4, sharpe:0.57, color:"#FDE68A", region:"Commodities",  risk:"Medium",   expense:0.40, inception:2004, div:0.0  },
-  { ticker:"ARKK", name:"ARK Innovation",           avgReturn:14.1, vol:55.2, sharpe:0.25, color:"#FF6B6B", region:"Disruptive",   risk:"Very High",expense:0.75, inception:2014, div:0.0  },
-  { ticker:"VNQ",  name:"Real Estate REIT",         avgReturn:9.1,  vol:16.8, sharpe:0.54, color:"#C4B5FD", region:"Real Estate",  risk:"Medium",   expense:0.12, inception:2004, div:3.8  },
-  { ticker:"SCHD", name:"Dividend Growth",          avgReturn:11.2, vol:14.1, sharpe:0.79, color:"#86EFAC", region:"Dividend",     risk:"Medium",   expense:0.06, inception:2011, div:3.5  },
-  { ticker:"VIG",  name:"Dividend Appreciation",   avgReturn:10.8, vol:13.2, sharpe:0.82, color:"#4ADE80", region:"Dividend",     risk:"Medium",   expense:0.06, inception:2006, div:1.8  },
-  { ticker:"HACK", name:"Cybersecurity",            avgReturn:12.6, vol:20.8, sharpe:0.60, color:"#F0ABFC", region:"Sector",       risk:"High",     expense:0.60, inception:2015, div:0.2  },
-  { ticker:"ROBO", name:"Robotics & AI",            avgReturn:13.1, vol:21.4, sharpe:0.61, color:"#E879F9", region:"Sector",       risk:"High",     expense:0.95, inception:2013, div:0.1  },
+  // ── US BROAD MARKET ───────────────────────────────────────────────
+  { ticker:"SPY",   name:"S&P 500 SPDR",              avgReturn:13.0, vol:15.1, sharpe:0.86, color:"#60EFFF", region:"US Broad",     risk:"Med-High", expense:0.09, inception:1993, div:1.3,  exchange:"NYSE" },
+  { ticker:"VOO",   name:"S&P 500 Vanguard",           avgReturn:13.0, vol:15.2, sharpe:0.85, color:"#45E0F0", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2010, div:1.4,  exchange:"NYSE" },
+  { ticker:"IVV",   name:"S&P 500 iShares",            avgReturn:13.1, vol:15.3, sharpe:0.86, color:"#38BDF8", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2000, div:1.3,  exchange:"NYSE" },
+  { ticker:"VTI",   name:"Total US Market",            avgReturn:12.7, vol:15.0, sharpe:0.84, color:"#7DD3FC", region:"US Broad",     risk:"Med-High", expense:0.03, inception:2001, div:1.5,  exchange:"NYSE" },
+  { ticker:"IWM",   name:"Russell 2000 Small Cap",     avgReturn:10.2, vol:20.1, sharpe:0.51, color:"#BAE6FD", region:"US Small Cap", risk:"High",     expense:0.19, inception:2000, div:1.2,  exchange:"NYSE" },
+  // ── US TECH ───────────────────────────────────────────────────────
+  { ticker:"QQQ",   name:"Nasdaq 100",                 avgReturn:17.9, vol:22.1, sharpe:0.81, color:"#00FF87", region:"US Tech",      risk:"High",     expense:0.20, inception:1999, div:0.6,  exchange:"NYSE" },
+  { ticker:"QQQM",  name:"Nasdaq 100 Mini",            avgReturn:17.9, vol:22.1, sharpe:0.81, color:"#00E87C", region:"US Tech",      risk:"High",     expense:0.15, inception:2020, div:0.5,  exchange:"NYSE" },
+  { ticker:"XLK",   name:"Tech Select Sector",         avgReturn:18.2, vol:21.8, sharpe:0.83, color:"#34D399", region:"US Tech",      risk:"High",     expense:0.09, inception:1998, div:0.7,  exchange:"NYSE" },
+  { ticker:"VGT",   name:"Vanguard IT",                avgReturn:17.8, vol:21.5, sharpe:0.83, color:"#6EE7B7", region:"US Tech",      risk:"High",     expense:0.10, inception:2004, div:0.6,  exchange:"NYSE" },
+  { ticker:"ARKK",  name:"ARK Innovation",             avgReturn:14.1, vol:55.2, sharpe:0.25, color:"#FF6B6B", region:"Disruptive",   risk:"Very High",expense:0.75, inception:2014, div:0.0,  exchange:"NYSE" },
+  // ── US DIVIDEND & INCOME ──────────────────────────────────────────
+  { ticker:"SCHD",  name:"Schwab Dividend Growth",     avgReturn:11.2, vol:14.1, sharpe:0.79, color:"#86EFAC", region:"Dividend",     risk:"Medium",   expense:0.06, inception:2011, div:3.5,  exchange:"NYSE" },
+  { ticker:"VIG",   name:"Dividend Appreciation",      avgReturn:10.8, vol:13.2, sharpe:0.82, color:"#4ADE80", region:"Dividend",     risk:"Medium",   expense:0.06, inception:2006, div:1.8,  exchange:"NYSE" },
+  { ticker:"VYM",   name:"High Dividend Yield",        avgReturn:9.8,  vol:13.8, sharpe:0.71, color:"#A7F3D0", region:"Dividend",     risk:"Medium",   expense:0.06, inception:2006, div:3.2,  exchange:"NYSE" },
+  { ticker:"JEPI",  name:"JPM Equity Premium Inc",     avgReturn:8.4,  vol:10.2, sharpe:0.82, color:"#D1FAE5", region:"Dividend",     risk:"Med-Low",  expense:0.35, inception:2020, div:7.2,  exchange:"NYSE" },
+  { ticker:"JEPQ",  name:"JPM Nasdaq Equity Prem",     avgReturn:10.1, vol:14.8, sharpe:0.68, color:"#A5F3FC", region:"Dividend",     risk:"Medium",   expense:0.35, inception:2022, div:9.5,  exchange:"NYSE" },
+  // ── US SECTORS ────────────────────────────────────────────────────
+  { ticker:"XLV",   name:"Health Care Select",         avgReturn:10.1, vol:13.8, sharpe:0.73, color:"#FCA5A5", region:"Sector",       risk:"Medium",   expense:0.09, inception:1998, div:1.5,  exchange:"NYSE" },
+  { ticker:"XLF",   name:"Financials Select",          avgReturn:10.8, vol:17.2, sharpe:0.63, color:"#FED7AA", region:"Sector",       risk:"Med-High", expense:0.09, inception:1998, div:1.9,  exchange:"NYSE" },
+  { ticker:"XLE",   name:"Energy Select",              avgReturn:8.2,  vol:24.1, sharpe:0.34, color:"#FDE68A", region:"Sector",       risk:"High",     expense:0.09, inception:1998, div:3.4,  exchange:"NYSE" },
+  // ── US REAL ESTATE ────────────────────────────────────────────────
+  { ticker:"VNQ",   name:"Real Estate REIT",           avgReturn:9.1,  vol:16.8, sharpe:0.54, color:"#C4B5FD", region:"Real Estate",  risk:"Medium",   expense:0.12, inception:2004, div:3.8,  exchange:"NYSE" },
+  // ── GLOBAL BROAD ──────────────────────────────────────────────────
+  { ticker:"VEU",   name:"All World ex-US",            avgReturn:7.9,  vol:13.5, sharpe:0.58, color:"#A78BFA", region:"Global ex-US", risk:"Medium",   expense:0.07, inception:2007, div:2.8,  exchange:"NYSE" },
+  { ticker:"VT",    name:"Total World Stock",          avgReturn:10.2, vol:14.8, sharpe:0.69, color:"#818CF8", region:"Global",       risk:"Medium",   expense:0.07, inception:2008, div:2.0,  exchange:"NYSE" },
+  { ticker:"ACWI",  name:"MSCI All Country World",     avgReturn:10.4, vol:14.9, sharpe:0.70, color:"#6366F1", region:"Global",       risk:"Medium",   expense:0.32, inception:2008, div:1.9,  exchange:"NYSE" },
+  { ticker:"EFA",   name:"MSCI EAFE Developed",        avgReturn:8.3,  vol:13.8, sharpe:0.60, color:"#8B5CF6", region:"Developed",    risk:"Medium",   expense:0.32, inception:2001, div:2.9,  exchange:"NYSE" },
+  // ── EMERGING MARKETS ──────────────────────────────────────────────
+  { ticker:"VWO",   name:"Vanguard Emerging Mkts",     avgReturn:8.4,  vol:19.1, sharpe:0.44, color:"#F472B6", region:"Emerging",     risk:"High",     expense:0.08, inception:2005, div:2.9,  exchange:"NYSE" },
+  { ticker:"EEM",   name:"iShares Emerging Mkts",      avgReturn:8.2,  vol:19.4, sharpe:0.42, color:"#EC4899", region:"Emerging",     risk:"High",     expense:0.68, inception:2003, div:2.5,  exchange:"NYSE" },
+  // ── US FIXED INCOME ───────────────────────────────────────────────
+  { ticker:"BND",   name:"Total Bond Market",          avgReturn:4.2,  vol:5.8,  sharpe:0.72, color:"#94A3B8", region:"Fixed Income", risk:"Low",      expense:0.03, inception:2007, div:3.5,  exchange:"NYSE" },
+  { ticker:"TLT",   name:"20yr Treasury Bond",         avgReturn:5.1,  vol:13.8, sharpe:0.37, color:"#CBD5E1", region:"Fixed Income", risk:"Med-Low",  expense:0.15, inception:2002, div:4.2,  exchange:"NYSE" },
+  { ticker:"SHY",   name:"1-3yr Treasury",             avgReturn:2.8,  vol:1.8,  sharpe:1.56, color:"#E2E8F0", region:"Fixed Income", risk:"Very Low", expense:0.15, inception:2002, div:4.8,  exchange:"NYSE" },
+  // ── COMMODITIES ───────────────────────────────────────────────────
+  { ticker:"GLD",   name:"Gold SPDR",                  avgReturn:8.9,  vol:15.4, sharpe:0.57, color:"#FDE68A", region:"Commodities",  risk:"Medium",   expense:0.40, inception:2004, div:0.0,  exchange:"NYSE" },
+  { ticker:"IAU",   name:"Gold iShares",               avgReturn:8.9,  vol:15.4, sharpe:0.57, color:"#FCD34D", region:"Commodities",  risk:"Medium",   expense:0.25, inception:2005, div:0.0,  exchange:"NYSE" },
+  { ticker:"SLV",   name:"Silver iShares",             avgReturn:7.2,  vol:26.8, sharpe:0.27, color:"#E5E7EB", region:"Commodities",  risk:"High",     expense:0.50, inception:2006, div:0.0,  exchange:"NYSE" },
+  // ── US THEMATIC ───────────────────────────────────────────────────
+  { ticker:"ICLN",  name:"Clean Energy",               avgReturn:8.1,  vol:28.4, sharpe:0.29, color:"#6EE7B7", region:"Thematic",     risk:"High",     expense:0.40, inception:2008, div:0.8,  exchange:"NYSE" },
+  { ticker:"LIT",   name:"Lithium & Battery Tech",     avgReturn:11.2, vol:32.1, sharpe:0.35, color:"#67E8F9", region:"Thematic",     risk:"Very High",expense:0.75, inception:2010, div:0.4,  exchange:"NYSE" },
+  { ticker:"AIQ",   name:"Global AI & Technology",     avgReturn:16.8, vol:23.4, sharpe:0.72, color:"#A5F3FC", region:"Thematic",     risk:"High",     expense:0.68, inception:2018, div:0.3,  exchange:"NYSE" },
+  // ── ASX BROAD ─────────────────────────────────────────────────────
+  { ticker:"VAS",   name:"ASX 300 Vanguard",           avgReturn:9.6,  vol:13.1, sharpe:0.73, color:"#FBBF24", region:"Australia",    risk:"Medium",   expense:0.07, inception:2009, div:4.2,  exchange:"ASX" },
+  { ticker:"A200",  name:"ASX 200 BetaShares",         avgReturn:9.4,  vol:12.9, sharpe:0.72, color:"#F59E0B", region:"Australia",    risk:"Medium",   expense:0.04, inception:2018, div:4.0,  exchange:"ASX" },
+  { ticker:"IOZ",   name:"ASX 200 iShares",            avgReturn:9.3,  vol:12.9, sharpe:0.72, color:"#D97706", region:"Australia",    risk:"Medium",   expense:0.05, inception:2010, div:4.0,  exchange:"ASX" },
+  { ticker:"STW",   name:"ASX 200 SPDR",               avgReturn:9.2,  vol:13.0, sharpe:0.71, color:"#B45309", region:"Australia",    risk:"Medium",   expense:0.05, inception:2001, div:4.1,  exchange:"ASX" },
+  { ticker:"MVW",   name:"ASX Equal Weight",           avgReturn:9.8,  vol:13.8, sharpe:0.71, color:"#92400E", region:"Australia",    risk:"Medium",   expense:0.35, inception:2014, div:3.8,  exchange:"ASX" },
+  { ticker:"VSO",   name:"ASX Small Companies",        avgReturn:8.4,  vol:16.2, sharpe:0.52, color:"#78350F", region:"Australia",    risk:"Med-High", expense:0.30, inception:2013, div:2.9,  exchange:"ASX" },
+  // ── ASX GLOBAL ────────────────────────────────────────────────────
+  { ticker:"NDQ",   name:"Nasdaq 100 BetaShares",      avgReturn:18.2, vol:22.4, sharpe:0.82, color:"#00CC6E", region:"US Tech",      risk:"High",     expense:0.22, inception:2015, div:0.5,  exchange:"ASX" },
+  { ticker:"IOO",   name:"Global 100 iShares",         avgReturn:12.4, vol:14.8, sharpe:0.83, color:"#A78BFA", region:"Global",       risk:"Med-High", expense:0.40, inception:2000, div:1.8,  exchange:"ASX" },
+  { ticker:"VGS",   name:"MSCI World Vanguard",        avgReturn:11.8, vol:13.9, sharpe:0.84, color:"#818CF8", region:"Global",       risk:"Medium",   expense:0.18, inception:2014, div:2.1,  exchange:"ASX" },
+  { ticker:"BGBL",  name:"Global Shares BetaShares",   avgReturn:11.6, vol:13.8, sharpe:0.84, color:"#6366F1", region:"Global",       risk:"Medium",   expense:0.08, inception:2020, div:1.4,  exchange:"ASX" },
+  { ticker:"QUAL",  name:"MSCI World Quality",         avgReturn:13.2, vol:14.8, sharpe:0.89, color:"#8B5CF6", region:"Global",       risk:"Medium",   expense:0.40, inception:2014, div:1.1,  exchange:"ASX" },
+  { ticker:"MOAT",  name:"Wide Moat VanEck",           avgReturn:14.1, vol:18.2, sharpe:0.78, color:"#7C3AED", region:"US Value",     risk:"Med-High", expense:0.49, inception:2015, div:1.0,  exchange:"ASX" },
+  { ticker:"IVV",   name:"S&P 500 iShares ASX",        avgReturn:13.0, vol:15.2, sharpe:0.85, color:"#5B21B6", region:"US Broad",     risk:"Med-High", expense:0.04, inception:2012, div:1.3,  exchange:"ASX" },
+  // ── ASX DIVERSIFIED (ONE-FUND PORTFOLIOS) ─────────────────────────
+  { ticker:"DHHF",  name:"Diversified All Growth",     avgReturn:11.1, vol:14.2, sharpe:0.78, color:"#F472B6", region:"Diversified",  risk:"Med-High", expense:0.19, inception:2020, div:1.6,  exchange:"ASX" },
+  { ticker:"VDHG",  name:"Diversified High Growth",    avgReturn:10.2, vol:12.8, sharpe:0.79, color:"#FB7185", region:"Diversified",  risk:"Medium",   expense:0.27, inception:2017, div:2.0,  exchange:"ASX" },
+  { ticker:"VDGR",  name:"Diversified Growth",         avgReturn:8.9,  vol:11.2, sharpe:0.79, color:"#FDA4AF", region:"Diversified",  risk:"Medium",   expense:0.27, inception:2017, div:2.5,  exchange:"ASX" },
+  { ticker:"VDBA",  name:"Diversified Balanced",       avgReturn:7.8,  vol:9.4,  sharpe:0.83, color:"#FECDD3", region:"Diversified",  risk:"Med-Low",  expense:0.27, inception:2017, div:3.0,  exchange:"ASX" },
+  // ── ASX DIVIDEND ──────────────────────────────────────────────────
+  { ticker:"VHY",   name:"High Yield AUS Vanguard",    avgReturn:8.1,  vol:11.2, sharpe:0.72, color:"#6EE7B7", region:"Dividend",     risk:"Med-Low",  expense:0.25, inception:2011, div:5.8,  exchange:"ASX" },
+  { ticker:"SYI",   name:"MSCI High Div Yield SPDR",   avgReturn:8.4,  vol:12.1, sharpe:0.69, color:"#34D399", region:"Dividend",     risk:"Med-Low",  expense:0.35, inception:2010, div:5.2,  exchange:"ASX" },
+  { ticker:"MVB",   name:"Aus Banks VanEck",           avgReturn:11.2, vol:16.8, sharpe:0.67, color:"#10B981", region:"Financials",   risk:"Med-High", expense:0.28, inception:2017, div:5.8,  exchange:"ASX" },
+  // ── ASX FIXED INCOME & CASH ───────────────────────────────────────
+  { ticker:"AAA",   name:"High Interest Cash",         avgReturn:4.8,  vol:0.4,  sharpe:12.0, color:"#94A3B8", region:"Cash",         risk:"Very Low", expense:0.18, inception:2012, div:4.8,  exchange:"ASX" },
+  { ticker:"BILL",  name:"iShares Core Cash",          avgReturn:4.7,  vol:0.4,  sharpe:11.8, color:"#CBD5E1", region:"Cash",         risk:"Very Low", expense:0.07, inception:2012, div:4.7,  exchange:"ASX" },
+  { ticker:"VAF",   name:"Aus Fixed Interest",         avgReturn:4.4,  vol:4.8,  sharpe:0.92, color:"#E2E8F0", region:"Fixed Income", risk:"Low",      expense:0.20, inception:2012, div:3.9,  exchange:"ASX" },
+  { ticker:"VIF",   name:"Intl Fixed Interest",        avgReturn:3.9,  vol:5.2,  sharpe:0.75, color:"#F1F5F9", region:"Fixed Income", risk:"Low",      expense:0.20, inception:2014, div:3.4,  exchange:"ASX" },
+  // ── ASX SECTOR & THEMATIC ─────────────────────────────────────────
+  { ticker:"HACK",  name:"Cybersecurity BetaShares",   avgReturn:12.6, vol:20.8, sharpe:0.60, color:"#F0ABFC", region:"Sector",       risk:"High",     expense:0.67, inception:2016, div:0.2,  exchange:"ASX" },
+  { ticker:"ROBO",  name:"Robotics & AI BetaShares",   avgReturn:13.1, vol:21.4, sharpe:0.61, color:"#E879F9", region:"Sector",       risk:"High",     expense:0.95, inception:2017, div:0.1,  exchange:"ASX" },
+  { ticker:"CLDD",  name:"Cloud Computing",            avgReturn:16.2, vol:24.8, sharpe:0.65, color:"#D946EF", region:"Thematic",     risk:"High",     expense:0.67, inception:2020, div:0.0,  exchange:"ASX" },
+  { ticker:"ETHI",  name:"Global Sustainability",      avgReturn:14.8, vol:18.2, sharpe:0.81, color:"#86EFAC", region:"ESG",          risk:"Med-High", expense:0.59, inception:2017, div:0.3,  exchange:"ASX" },
+  { ticker:"ATEC",  name:"Asia Tech Tigers",           avgReturn:12.4, vol:22.8, sharpe:0.54, color:"#FCA5A5", region:"Asia Tech",    risk:"High",     expense:0.67, inception:2018, div:0.2,  exchange:"ASX" },
+  { ticker:"OZR",   name:"ASX 200 Resources",          avgReturn:10.8, vol:22.4, sharpe:0.48, color:"#FED7AA", region:"Resources",    risk:"High",     expense:0.40, inception:2001, div:4.8,  exchange:"ASX" },
+  { ticker:"DRUG",  name:"Global Healthcare",          avgReturn:9.8,  vol:14.2, sharpe:0.69, color:"#FCE7F3", region:"Sector",       risk:"Medium",   expense:0.45, inception:2016, div:0.5,  exchange:"ASX" },
+  // ── ASX COMMODITIES ───────────────────────────────────────────────
+  { ticker:"GOLD",  name:"Physical Gold AUD",          avgReturn:9.1,  vol:15.4, sharpe:0.59, color:"#FCD34D", region:"Commodities",  risk:"Medium",   expense:0.40, inception:2003, div:0.0,  exchange:"ASX" },
+  { ticker:"PMGOLD",name:"Perth Mint Gold",            avgReturn:9.0,  vol:15.4, sharpe:0.58, color:"#F59E0B", region:"Commodities",  risk:"Medium",   expense:0.15, inception:2003, div:0.0,  exchange:"ASX" },
 ];
 
 const EXPENSE_CATS = ["Housing","Food","Transport","Subscriptions","Entertainment","Health","Education","Clothing","Personal Care","Dining Out","Travel","Insurance","Utilities","Savings/Invest","Other"];
@@ -332,7 +394,55 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 const LiveCtx = React.createContext({ quotes: {}, status: "idle", apiKey: "", setApiKey: () => {} });
 
 const FINNHUB_BASE = "https://finnhub.io/api/v1";
-const LIVE_TICKERS = ["QQQ","VOO","IVV","VTI","IOO","VGS","VDHG","VAS","A200","VEU","VHY","VGE","BND","GLD","ARKK","VNQ","SCHD","VIG"];
+
+// US-listed tickers — fetched via Finnhub (real-time, free)
+const US_TICKERS = [
+  // Broad market
+  "SPY","VOO","IVV","VTI","IWM",
+  // Tech
+  "QQQ","QQQM","XLK","VGT","ARKK",
+  // Dividend
+  "SCHD","VIG","VYM","JEPI","JEPQ",
+  // Sectors
+  "XLV","XLF","XLE","XLI",
+  // Real estate
+  "VNQ",
+  // Global
+  "VEU","VT","ACWI","EFA",
+  // Emerging
+  "VWO","EEM",
+  // Fixed income
+  "BND","TLT","SHY",
+  // Commodities
+  "GLD","IAU","SLV",
+  // Thematic
+  "ICLN","LIT","AIQ",
+];
+
+// ASX-listed tickers — fetched via Vercel proxy → Yahoo Finance (real-time)
+// Yahoo Finance symbol format: TICKER.AX
+const ASX_TICKERS = {
+  // ASX Broad
+  "VAS": "VAS.AX", "A200": "A200.AX", "IOZ": "IOZ.AX", "STW": "STW.AX",
+  "MVW": "MVW.AX", "VSO": "VSO.AX",
+  // ASX Global
+  "NDQ": "NDQ.AX", "IOO": "IOO.AX", "VGS": "VGS.AX", "BGBL": "BGBL.AX",
+  "QUAL": "QUAL.AX", "MOAT": "MOAT.AX",
+  // ASX Diversified
+  "DHHF": "DHHF.AX", "VDHG": "VDHG.AX", "VDGR": "VDGR.AX", "VDBA": "VDBA.AX",
+  // ASX Dividend
+  "VHY": "VHY.AX", "SYI": "SYI.AX", "MVB": "MVB.AX",
+  // ASX Fixed Income & Cash
+  "AAA": "AAA.AX", "BILL": "BILL.AX", "VAF": "VAF.AX", "VIF": "VIF.AX",
+  // ASX Sector & Thematic
+  "HACK": "HACK.AX", "ROBO": "ROBO.AX", "CLDD": "CLDD.AX", "ETHI": "ETHI.AX",
+  "ATEC": "ATEC.AX", "OZR": "OZR.AX", "DRUG": "DRUG.AX", "MVB": "MVB.AX",
+  // ASX Commodities
+  "GOLD": "GOLD.AX", "PMGOLD": "PMGOLD.AX",
+};
+
+// Vercel serverless proxy — handles CORS for Yahoo Finance
+const PROXY_BASE = "/api/quote";
 
 function useLiveData(apiKey) {
   const [quotes, setQuotes] = useState({});
@@ -343,19 +453,33 @@ function useLiveData(apiKey) {
     if (!key || key.trim().length < 8) return;
     setStatus("loading");
     const results = {};
+
+    // Fetch US tickers from Finnhub
+    const finnhubPromises = US_TICKERS.map(async (ticker) => {
+      try {
+        const res = await fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${key}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d && d.c && d.c > 0) {
+          results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, high: d.h, low: d.l, open: d.o, prevClose: d.pc };
+        }
+      } catch {}
+    });
+
+    // Fetch ASX tickers via Vercel proxy → Yahoo Finance
+    const asxPromises = Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
+      try {
+        const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d && d.price && d.price > 0) {
+          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
+        }
+      } catch {}
+    });
+
     try {
-      await Promise.all(
-        LIVE_TICKERS.map(async (ticker) => {
-          try {
-            const res = await fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${key}`);
-            if (!res.ok) return;
-            const d = await res.json();
-            if (d && d.c && d.c > 0) {
-              results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, high: d.h, low: d.l, open: d.o, prevClose: d.pc };
-            }
-          } catch {}
-        })
-      );
+      await Promise.all([...finnhubPromises, ...asxPromises]);
       if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
       else setStatus("error");
     } catch { setStatus("error"); }
@@ -472,9 +596,10 @@ function TickerBar({ currency }) {
           const price = q ? q.price : null;
           const up = delta >= 0;
           return (
-            <span key={i} style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "0 14px", borderRight: "1px solid var(--b1)", color: up ? "var(--acc)" : "var(--acc4)" }}>
-              <span style={{ color: "var(--t3)" }}>{e.ticker} </span>
-              {price && <span style={{ color: "var(--t2)" }}>${price.toFixed(2)} </span>}
+            <span key={i} style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "0 14px", borderRight: "1px solid var(--b1)", color: up ? "var(--acc)" : "var(--acc4)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ color: "var(--t3)" }}>{e.ticker}</span>
+              <span style={{ fontSize: "7px", padding: "0 3px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
+              {price && <span style={{ color: "var(--t2)" }}>{e.exchange === "ASX" ? "A$" : "$"}{price.toFixed(2)}</span>}
               <span>{up ? "▲" : "▼"}{Math.abs(delta).toFixed(2)}%</span>
             </span>
           );
@@ -603,6 +728,8 @@ function ETFModule({ currency }) {
   const [cmpA, setCmpA] = useState("QQQ");
   const [cmpB, setCmpB] = useState("VOO");
   const [search, setSearch] = useState("");
+  const [exchFilter, setExchFilter] = useState("ALL");
+  const [regionFilter, setRegionFilter] = useState("ALL");
 
   const SCEN = { base: 1, bull: 1.35, bear: 0.6, crash: 0.35, stagflation: 0.5 };
   const scMult = SCEN[scenario];
@@ -630,7 +757,11 @@ function ETFModule({ currency }) {
   const milestones = [10000, 50000, 100000, 250000, 500000, 1000000, 2000000, 5000000, 10000000];
 
   const toggle = t => setSel(p => { if (p[t] !== undefined) { const n = { ...p }; delete n[t]; return n; } return { ...p, [t]: 0 }; });
-  const filtered = ETFs.filter(e => e.ticker.includes(search.toUpperCase()) || e.name.toLowerCase().includes(search.toLowerCase()) || e.region.toLowerCase().includes(search.toLowerCase()));
+  const filtered = ETFs.filter(e => {
+    const matchSearch = e.ticker.includes(search.toUpperCase()) || e.name.toLowerCase().includes(search.toLowerCase()) || e.region.toLowerCase().includes(search.toLowerCase());
+    const matchExch = exchFilter === "ALL" || e.exchange === exchFilter;
+    return matchSearch && matchExch;
+  });
 
   const compareProj = (etf, yrs) => { const r = etf.avgReturn / 100 / 12; const n = yrs * 12; return start * Math.pow(1 + r, n) + (r > 0 ? monthly * ((Math.pow(1 + r, n) - 1) / r) : monthly * n); };
 
@@ -648,6 +779,15 @@ function ETFModule({ currency }) {
         <div style={{ padding: "8px", borderBottom: "1px solid var(--b1)", display: "flex", flexDirection: "column", gap: "6px" }}>
           <input className="ti" placeholder="Search ETFs..." value={search} onChange={e => setSearch(e.target.value)}
             style={{ padding: "6px 8px", background: "var(--s1)", border: "1px solid var(--b1)", borderRadius: "3px", fontSize: "10px", color: "var(--t1)" }} />
+          {/* Exchange filter */}
+          <div style={{ display: "flex", gap: "4px" }}>
+            {["ALL","ASX","NYSE"].map(ex => (
+              <button key={ex} onClick={() => setExchFilter(ex)}
+                style={{ flex: 1, padding: "4px", background: exchFilter === ex ? (ex === "ASX" ? "rgba(251,191,36,0.1)" : ex === "NYSE" ? "rgba(96,239,255,0.1)" : "rgba(0,255,135,0.1)") : "transparent", border: `1px solid ${exchFilter === ex ? (ex === "ASX" ? "rgba(251,191,36,0.4)" : ex === "NYSE" ? "rgba(96,239,255,0.3)" : "rgba(0,255,135,0.3)") : "var(--b1)"}`, borderRadius: "2px", cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "1px", color: exchFilter === ex ? (ex === "ASX" ? "var(--acc5)" : ex === "NYSE" ? "var(--acc2)" : "var(--acc)") : "var(--t3)", transition: "all 0.15s" }}>
+                {ex === "ALL" ? `ALL (${ETFs.length})` : `${ex} (${ETFs.filter(e=>e.exchange===ex).length})`}
+              </button>
+            ))}
+          </div>
           <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
             {Object.keys(SCEN).map(s => (
               <button key={s} onClick={() => setScenario(s)} className={`subtab${scenario === s ? " on" : ""}`} style={{ color: scenario === s ? { base: "var(--acc)", bull: "var(--acc)", bear: "var(--acc5)", crash: "var(--acc4)", stagflation: "var(--acc6)" }[s] : "var(--t3)" }}>{s}</button>
@@ -665,6 +805,7 @@ function ETFModule({ currency }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: "5px", alignItems: "baseline" }}>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: on ? etf.color : "var(--t2)" }}>{etf.ticker}</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", letterSpacing: "1px", padding: "1px 4px", border: `1px solid ${etf.exchange === "ASX" ? "rgba(251,191,36,0.4)" : "rgba(96,239,255,0.3)"}`, color: etf.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px", flexShrink: 0 }}>{etf.exchange}</span>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>{etf.region}</span>
                     {q && <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--acc)", letterSpacing: "0px" }}>● live</span>}
                   </div>
@@ -673,7 +814,7 @@ function ETFModule({ currency }) {
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
                   {q ? (
                     <>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t1)", fontWeight: 600 }}>${q.price.toFixed(2)}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t1)", fontWeight: 600 }}>{etf.exchange === "ASX" ? "A$" : "$"}{q.price.toFixed(2)}</div>
                       <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: q.changePct >= 0 ? "var(--acc)" : "var(--acc4)" }}>
                         {q.changePct >= 0 ? "+" : ""}{q.changePct.toFixed(2)}%
                       </div>
