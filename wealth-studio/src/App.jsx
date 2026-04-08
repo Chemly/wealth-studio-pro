@@ -330,47 +330,7 @@ function useQuote(ticker) {
 
 // Inline API key bar — always visible below the main header
 function ApiKeyBar() {
-  const { apiKey, setApiKey, status, refetch } = React.useContext(LiveCtx);
-  const [input, setInput] = useState("");
-  const [show, setShow] = useState(false);
-
-  // When live, show minimal status. When error, allow re-entry.
-  const handleSave = () => {
-    const k = input.trim();
-    if (k.length > 5) { setApiKey(k); setInput(""); setShow(false); }
-  };
-  const handleClear = () => { setApiKey(""); setInput(""); setShow(false); };
-
-  // If live — show a clean minimal bar. Hide the connect prompt since key is baked in.
-  return (
-    <div style={{ borderBottom: `1px solid ${status === "live" ? "rgba(0,255,135,0.1)" : "var(--b1)"}`, background: status === "live" ? "rgba(0,255,135,0.02)" : "var(--s1)", padding: "0 20px", display: "flex", alignItems: "center", gap: "12px", height: "30px", flexShrink: 0, transition: "all 0.3s" }} className="hide-mob">
-      {status === "live" && (
-        <>
-          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block", animation: "pdot 2s ease-in-out infinite" }} />
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)", letterSpacing: "2px" }}>LIVE DATA</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", letterSpacing: "1px" }}>Refreshes every 30s</span>
-          <button onClick={refetch} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "2px 8px", cursor: "pointer" }}>↻ Now</button>
-        </>
-      )}
-      {status === "loading" && (
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc5)", letterSpacing: "2px" }}>⟳ Fetching live prices…</span>
-      )}
-      {(status === "error" || status === "nokey") && (
-        <>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc4)", letterSpacing: "1px" }}>⚠ Live data unavailable</span>
-          {show ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
-              <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSave()} placeholder="Enter Finnhub API key…" style={{ flex: 1, background: "var(--s2)", border: "1px solid rgba(0,255,135,0.3)", borderRadius: "2px", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "10px", padding: "3px 8px", outline: "none" }} />
-              <button onClick={handleSave} style={{ background: "rgba(0,255,135,0.1)", border: "1px solid rgba(0,255,135,0.3)", borderRadius: "2px", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "3px 8px", cursor: "pointer" }}>SAVE</button>
-              <button onClick={() => setShow(false)} style={{ background: "none", border: "none", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", cursor: "pointer" }}>✕</button>
-            </div>
-          ) : (
-            <button onClick={() => setShow(true)} style={{ background: "none", border: "1px solid var(--b2)", borderRadius: "2px", color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "8px", padding: "2px 8px", cursor: "pointer" }}>+ Enter Key</button>
-          )}
-        </>
-      )}
-    </div>
-  );
+  return null;
 }
 
 function ApiKeyPanel() {
