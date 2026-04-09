@@ -656,16 +656,19 @@ function Dashboard({ onNav, currency }) {
     return d;
   }, []);
 
-  const marketData = ETFs.slice(0, 10).map((e, i) => {
-    const q = quotes[e.ticker];
+  // Show a curated mix of popular ASX + US tickers in the market overview
+  const OVERVIEW_TICKERS = ["NDQ","VAS","VGS","A200","DHHF","QQQ","VOO","SPY","GLD","SCHD"];
+  const marketData = OVERVIEW_TICKERS.map(ticker => {
+    const e = ETFs.find(x => x.ticker === ticker);
+    if (!e) return null;
+    const q = quotes[ticker];
     return {
       ...e,
       livePrice: q?.price ?? null,
-      today: q ? q.changePct.toFixed(2) : ((Math.sin(i * 1.7 + 2) + 1) * 2 - 1.2).toFixed(2),
-      spark: Array.from({ length: 12 }, (_, j) => e.avgReturn + Math.sin(j * 0.8 + i) * 3),
+      changePct: q ? q.changePct : null,
       isLive: !!q,
     };
-  });
+  }).filter(Boolean);
 
   const modules = [
     { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 67 live ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
@@ -718,24 +721,42 @@ function Dashboard({ onNav, currency }) {
 
       {/* Market overview */}
       <div className="card" style={{ padding: "14px" }}>
-        <div className="lbl" style={{ marginBottom: "10px" }}>── Live Market Overview</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <div className="lbl">── Live Market Overview</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: isLive ? "var(--acc)" : "var(--t3)", display: "flex", alignItems: "center", gap: "5px" }}>
+            {isLive ? <><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block" }}/> LIVE DATA</> : "LOADING..."}
+          </div>
+        </div>
         <div className="heat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "6px" }}>
           {marketData.map(e => {
-            const up = parseFloat(e.today) >= 0;
+            const up = e.changePct !== null ? e.changePct >= 0 : true;
+            const priceSym = e.exchange === "ASX" ? "A$" : "$";
             return (
-              <div key={e.ticker} className="card" style={{ padding: "10px", background: "var(--s3)", borderColor: up ? "#00FF8715" : "#FF4D6D15" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+              <div key={e.ticker} className="card" style={{ padding: "10px", background: "var(--s3)", borderColor: e.isLive ? (up ? "#00FF8720" : "#FF4D6D20") : "var(--b1)", transition: "border-color 0.3s" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", alignItems: "center" }}>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: e.color }}>{e.ticker}</span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: up ? "var(--acc)" : "var(--acc4)" }}>{up ? "+" : ""}{e.today}%</span>
+                  {e.isLive && e.changePct !== null ? (
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: up ? "var(--acc)" : "var(--acc4)", fontWeight: 600 }}>
+                      {up ? "▲" : "▼"}{Math.abs(e.changePct).toFixed(2)}%
+                    </span>
+                  ) : (
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--b3)" }}>—</span>
+                  )}
                 </div>
-                {e.livePrice && (
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t1)", marginBottom: "3px", fontWeight: 600 }}>
-                    ${e.livePrice.toFixed(2)}
+                {e.livePrice ? (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--t1)", marginBottom: "4px", fontWeight: 600 }}>
+                    {priceSym}{e.livePrice.toFixed(2)}
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)", marginBottom: "4px" }}>
+                    {e.avgReturn}% avg
                   </div>
                 )}
-                <Spark data={e.spark} color={up ? "#00FF87" : "#FF4D6D"} h={28} w={80} />
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "3px" }}>
-                  {e.isLive ? <span style={{ color: "var(--acc)" }}>● live</span> : `${e.avgReturn}% hist avg`}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", padding: "1px 4px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: e.isLive ? "var(--acc)" : "var(--t3)" }}>
+                    {e.isLive ? "● live" : "hist"}
+                  </span>
                 </div>
               </div>
             );
