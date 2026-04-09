@@ -502,7 +502,7 @@ function useLiveData(apiKey) {
 }
 
 function LiveProvider({ children }) {
-  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
+  const [apiKey, setApiKey] = useState("d76auu1r01qm4b7tjq6g");
   const { quotes, status, refetch } = useLiveData(apiKey);
   return (
     <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
@@ -958,33 +958,55 @@ function ETFModule({ currency }) {
                   <span className="lbl">Compound Projection — {years}yr</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>SCENARIO: <span style={{ color: "var(--acc)" }}>{scenario.toUpperCase()}</span></span>
                 </div>
-                <svg width="100%" height="140" viewBox="0 0 600 200" preserveAspectRatio="none" style={{ maxWidth: "100%", display: "block" }}>
+                {/* CHART — proper Y axis, X axis, grid, labels */}
+                <svg width="100%" height="260" viewBox="0 0 660 260" style={{ display: "block" }}>
                   <defs>
-                    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
-                    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.10"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
-                    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.05"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
+                    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.25"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
+                    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#60EFFF" stopOpacity="0.12"/><stop offset="100%" stopColor="#60EFFF" stopOpacity="0"/></linearGradient>
+                    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.06"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                   </defs>
-                  {[0.25, 0.5, 0.75, 1.0].map(f => <line key={f} x1="0" y1={200 - f * 185} x2="600" y2={200 - f * 185} stroke="var(--b2)" strokeWidth="0.5" />)}
-                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.hi / maxV) * 185}`), ...proj.slice().reverse().map(p => `${(p.y/years)*600},${200 - (p.lo / maxV) * 185}`)].join(" ")} fill="url(#bg2)" />
-                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`), `600,200`].join(" ")} fill="url(#cg)" />
-                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.c / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1" strokeDasharray="4,6" opacity="0.25" />
-                  <polygon points={[`0,200`, ...proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`), `600,200`].join(" ")} fill="url(#pg)" />
-                  <polyline points={proj.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-                  {proj.filter((_, i) => i % Math.ceil(years/5) === 0 && i > 0).map(p => (
-                    <g key={p.y}>
-                      <circle cx={(p.y/years)*600} cy={200 - (p.v / maxV) * 185} r="3" fill="var(--acc)" style={{filter:"drop-shadow(0 0 4px #00FF87)"}} />
-                      <line x1={(p.y/years)*600} y1={200 - (p.v / maxV) * 185} x2={(p.y/years)*600} y2="195" stroke="var(--b2)" strokeWidth="0.5" strokeDasharray="2,2" />
-                    </g>
-                  ))}
+                  {/* Chart area: x=70 to 640, y=10 to 220 */}
+                  {/* Y grid lines + labels */}
+                  {[0, 0.25, 0.5, 0.75, 1.0].map(f => {
+                    const y = 220 - f * 210;
+                    const val = f * maxV;
+                    return (
+                      <g key={f}>
+                        <line x1="70" y1={y} x2="640" y2={y} stroke={f === 0 ? "var(--b2)" : "var(--b1)"} strokeWidth={f === 0 ? 1 : 0.5} />
+                        <text x="62" y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val >= 1000000 ? `${(val/1000000).toFixed(1)}M` : val >= 1000 ? `${(val/1000).toFixed(0)}K` : val.toFixed(0)}</text>
+                      </g>
+                    );
+                  })}
+                  {/* Confidence band */}
+                  <polygon points={[`70,220`, ...proj.map(p => `${70 + (p.y/years)*570},${220 - (p.hi / maxV) * 210}`), ...proj.slice().reverse().map(p => `${70 + (p.y/years)*570},${220 - (p.lo / maxV) * 210}`)].join(" ")} fill="url(#bg2)" />
+                  {/* Contributed line */}
+                  <polygon points={[`70,220`, ...proj.map(p => `${70 + (p.y/years)*570},${220 - (p.c / maxV) * 210}`), `640,220`].join(" ")} fill="url(#cg)" />
+                  <polyline points={proj.map(p => `${70 + (p.y/years)*570},${220 - (p.c / maxV) * 210}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="1.5" strokeDasharray="5,5" opacity="0.5" />
+                  {/* Portfolio line */}
+                  <polygon points={[`70,220`, ...proj.map(p => `${70 + (p.y/years)*570},${220 - (p.v / maxV) * 210}`), `640,220`].join(" ")} fill="url(#pg)" />
+                  <polyline points={proj.map(p => `${70 + (p.y/years)*570},${220 - (p.v / maxV) * 210}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
+                  {/* X axis + year labels + milestone dots */}
+                  {proj.filter((_, i) => i % Math.ceil(years/5) === 0).map(p => {
+                    const x = 70 + (p.y/years)*570;
+                    const y = 220 - (p.v / maxV) * 210;
+                    return (
+                      <g key={p.y}>
+                        <line x1={x} y1="220" x2={x} y2="225" stroke="var(--b2)" strokeWidth="1" />
+                        <text x={x} y="237" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{p.y}</text>
+                        {p.y > 0 && <>
+                          <circle cx={x} cy={y} r="4" fill="var(--bg)" stroke="var(--acc)" strokeWidth="2" />
+                          <text x={x} y={y - 10} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10" style={{filter:"drop-shadow(0 1px 2px var(--bg))"}}>
+                            {p.v >= 1000000 ? `${sym}${(p.v/1000000).toFixed(1)}M` : `${sym}${(p.v/1000).toFixed(0)}K`}
+                          </text>
+                        </>}
+                      </g>
+                    );
+                  })}
+                  {/* Legend */}
+                  <g><line x1="75" y1="250" x2="95" y2="250" stroke="var(--acc)" strokeWidth="2"/><text x="100" y="254" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">Portfolio</text></g>
+                  <g><line x1="175" y1="250" x2="195" y2="250" stroke="var(--acc2)" strokeWidth="1.5" strokeDasharray="5,5"/><text x="200" y="254" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">Contributed</text></g>
+                  <g><rect x="290" y="244" width="20" height="8" fill="url(#bg2)"/><text x="315" y="254" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">Confidence band</text></g>
                 </svg>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
-                  {proj.filter((_, i) => i % Math.ceil(years / 5) === 0).map(p => (
-                    <div key={p.y} style={{ textAlign: "center" }}>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)", marginBottom: "2px" }}>{p.y > 0 ? fmt(p.v, sym) : ""}</div>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>Yr{p.y}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
               {/* Year table */}
               <div className="card" style={{ padding: "12px" }}>
@@ -1126,23 +1148,39 @@ function ETFModule({ currency }) {
               {/* Risk scatter */}
               <div className="card scan-wrap" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Risk vs Return Scatter — All ETFs</div>
-                <svg width="100%" height="260" viewBox="0 0 520 260">
-                  {[0, 1, 2, 3, 4].map(i => <line key={i} x1="50" y1={i * 55 + 10} x2="515" y2={i * 55 + 10} stroke="var(--b1)" strokeWidth="0.5" />)}
-                  {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={i * 90 + 50} y1="10" x2={i * 90 + 50} y2="250" stroke="var(--b1)" strokeWidth="0.5" />)}
-                  <text x="280" y="258" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">VOLATILITY (σ) →</text>
-                  <text x="12" y="135" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10" transform="rotate(-90,12,135)">RETURN →</text>
-                  {/* Efficient frontier hint */}
-                  <path d="M 60 220 Q 200 150 350 60" fill="none" stroke="var(--acc)" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.25" />
-                  <text x="355" y="55" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="9" opacity="0.4">efficient frontier</text>
+                <svg width="100%" height="300" viewBox="0 0 620 300" style={{ display: "block" }}>
+                  {/* Y axis grid + return labels */}
+                  {[0, 5, 10, 15, 20].map(r => {
+                    const y = 260 - (r / 22) * 240;
+                    return <g key={r}>
+                      <line x1="55" y1={y} x2="600" y2={y} stroke="var(--b1)" strokeWidth="0.5"/>
+                      <text x="48" y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{r}%</text>
+                    </g>;
+                  })}
+                  {/* X axis grid + vol labels */}
+                  {[0, 10, 20, 30, 40, 50, 60].map(v => {
+                    const x = 55 + (v / 60) * 540;
+                    return <g key={v}>
+                      <line x1={x} y1="10" x2={x} y2="260" stroke="var(--b1)" strokeWidth="0.5"/>
+                      <text x={x} y="275" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{v}%</text>
+                    </g>;
+                  })}
+                  {/* Axis labels */}
+                  <text x="330" y="292" textAnchor="middle" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="11">VOLATILITY (σ) →</text>
+                  <text x="12" y="140" textAnchor="middle" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="11" transform="rotate(-90,12,140)">RETURN →</text>
+                  {/* Efficient frontier */}
+                  <path d="M 65 250 Q 200 160 380 50" fill="none" stroke="var(--acc)" strokeWidth="1" strokeDasharray="6,4" opacity="0.2"/>
+                  <text x="385" y="46" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="9" opacity="0.4">efficient frontier</text>
+                  {/* ETF dots */}
                   {ETFs.map(etf => {
-                    const x = 50 + (etf.vol / 60) * 460;
-                    const y = 240 - (etf.avgReturn / 22) * 220;
+                    const x = 55 + (etf.vol / 60) * 540;
+                    const y = 260 - (etf.avgReturn / 22) * 240;
                     const on = sel[etf.ticker] !== undefined;
                     return (
                       <g key={etf.ticker}>
-                        <circle cx={x} cy={y} r={on ? 7 : 4} fill={on ? etf.color : "var(--b3)"} opacity={on ? 0.9 : 0.5} />
-                        {on && <circle cx={x} cy={y} r={12} fill="none" stroke={etf.color} strokeWidth="0.8" opacity="0.4" />}
-                        <text x={x + 9} y={y + 3} fill={on ? etf.color : "var(--t3)"} fontFamily="var(--font-mono)" fontSize="10">{etf.ticker}</text>
+                        <circle cx={x} cy={y} r={on ? 8 : 5} fill={on ? etf.color : "var(--b3)"} opacity={on ? 0.95 : 0.55}/>
+                        {on && <circle cx={x} cy={y} r={14} fill="none" stroke={etf.color} strokeWidth="1" opacity="0.4"/>}
+                        <text x={x + 11} y={y + 4} fill={on ? etf.color : "var(--t3)"} fontFamily="var(--font-mono)" fontSize={on ? 11 : 9} fontWeight={on ? "bold" : "normal"}>{etf.ticker}</text>
                       </g>
                     );
                   })}
@@ -1339,23 +1377,38 @@ function DCAModule({ currency }) {
           </div>
           <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
             <div className="lbl" style={{ marginBottom: "10px" }}>DCA vs Lump Sum vs Hybrid</div>
-            <svg width="100%" height="200" viewBox={`0 0 ${years} 200`} preserveAspectRatio="none">
-              <defs>
-                {[["g1","#00FF87"],["g2","#60EFFF"],["g3","#A78BFA"]].map(([id, c]) => (
-                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity="0.15"/><stop offset="100%" stopColor={c} stopOpacity="0"/></linearGradient>
-                ))}
-              </defs>
-              {[0.25, 0.5, 0.75].map(f => <line key={f} x1="0" y1={200 - f * 185} x2={years} y2={200 - f * 185} stroke="var(--b1)" strokeWidth="0.5" />)}
-              {[dcaProj, lumpProj, hybridProj].map((data, i) => {
-                const c = ["#00FF87", "#60EFFF", "#A78BFA"][i];
-                const gid = ["g1", "g2", "g3"][i];
-                return (
-                  <g key={i}>
-                    <polygon points={[`0,200`, ...data.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`), `${years},200`].join(" ")} fill={`url(#${gid})`} />
-                    <polyline points={data.map(p => `${(p.y/years)*600},${200 - (p.v / maxV) * 185}`).join(" ")} fill="none" stroke={c} strokeWidth="1.2" />
-                  </g>
-                );
-              })}
+            <svg width="100%" height="260" viewBox="0 0 660 260" style={{display:"block"}}>
+              {(() => {
+                const allVals = dcaData.flatMap(d=>d.data.map(p=>p.v));
+                const maxDCA = Math.max(...allVals)*1.05||1;
+                const pad=70, bot=230, chartH=200, W=640;
+                return <>
+                  {[0,0.25,0.5,0.75,1.0].map(f=>{
+                    const val=f*maxDCA; const y=bot-f*chartH;
+                    return <g key={f}>
+                      <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f===0?1:0.5}/>
+                      <text x={pad-6} y={y+4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val>=1000000?`${(val/1000000).toFixed(1)}M`:val>=1000?`${(val/1000).toFixed(0)}K`:'0'}</text>
+                    </g>;
+                  })}
+                  {dcaData.map(({id,color:clr,data})=>{
+                    const gid=`dg${id}`;
+                    return <g key={id}>
+                      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={clr} stopOpacity="0.15"/><stop offset="100%" stopColor={clr} stopOpacity="0"/></linearGradient></defs>
+                      <polygon points={[`${pad},${bot}`,...data.map(p=>`${pad+(p.y/years)*(W-pad)},${bot-((p.v/maxDCA)*chartH)}`),`${W},${bot}`].join(" ")} fill={`url(#${gid})`}/>
+                      <polyline points={data.map(p=>`${pad+(p.y/years)*(W-pad)},${bot-((p.v/maxDCA)*chartH)}`).join(" ")} fill="none" stroke={clr} strokeWidth="2"/>
+                      {/* End label */}
+                      {data.length>0&&<text x={W+2} y={bot-((data[data.length-1].v/maxDCA)*chartH)+4} fill={clr} fontFamily="var(--font-mono)" fontSize="9">{data[data.length-1].v>=1000000?`${(data[data.length-1].v/1000000).toFixed(1)}M`:data[data.length-1].v>=1000?`${(data[data.length-1].v/1000).toFixed(0)}K`:''}</text>}
+                    </g>;
+                  })}
+                  {Array.from({length:6},(_,i)=>Math.round(i*years/5)).map(yr=>{
+                    const x=pad+(yr/years)*(W-pad);
+                    return <g key={yr}>
+                      <line x1={x} y1={bot} x2={x} y2={bot+5} stroke="var(--b2)" strokeWidth="1"/>
+                      <text x={x} y={bot+16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{yr}</text>
+                    </g>;
+                  })}
+                </>;
+              })()}
             </svg>
             <div style={{ display: "flex", gap: "16px", marginTop: "8px" }}>
               {[["var(--acc)", "DCA Only"], ["var(--acc2)", "Lump Sum"], ["var(--acc3)", "Hybrid"]].map(([c, l]) => (
@@ -1488,36 +1541,58 @@ function MonteCarloModule({ currency }) {
             {/* Fan chart */}
             <div className="card scan-wrap" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "8px" }}>{sims} Simulation Paths — Percentile Fan</div>
-              <svg width="100%" height="220" viewBox="0 0 600 220" preserveAspectRatio="none">
+              <svg width="100%" height="280" viewBox="0 0 660 280" style={{ display: "block" }}>
                 <defs>
-                  <linearGradient id="mc90" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.08"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
-                  <linearGradient id="mc75" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.12"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
+                  <linearGradient id="mc90" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.10"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
+                  <linearGradient id="mc75" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.15"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
                 </defs>
-                {/* Simulation paths (faint) */}
+                {/* Y grid + labels — chart area x=70-640, y=10-230 */}
+                {[0, 0.25, 0.5, 0.75, 1.0].map(f => {
+                  const y = 230 - f * 220; const val = f * maxPath;
+                  return <g key={f}>
+                    <line x1="70" y1={y} x2="640" y2={y} stroke="var(--b1)" strokeWidth={f===0?1:0.5} />
+                    <text x="62" y={y+4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val>=1000000?`${(val/1000000).toFixed(1)}M`:val>=1000?`${(val/1000).toFixed(0)}K`:'0'}</text>
+                  </g>;
+                })}
+                {/* Simulation paths */}
                 {results.paths.map((path, i) => (
-                  <polyline key={i} points={path.filter((_, j) => j % 12 === 0).map((v, y) => `${(y/(years))*600},${220 - (v / maxPath) * 200}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.4" opacity="0.08" />
+                  <polyline key={i} points={path.filter((_,j)=>j%12===0).map((v,y)=>`${70+(y/years)*570},${230-(v/maxPath)*220}`).join(" ")} fill="none" stroke="#00FF87" strokeWidth="0.4" opacity="0.06" />
                 ))}
-                {/* P90-P10 band */}
-                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p.p90 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p10 / maxPath) * 200}`)].join(" ")} fill="url(#mc90)" />
-                <polygon points={[`0,220`, ...results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p.p75 / maxPath) * 200}`), ...results.yearlyPcts.slice().reverse().map(p => `${p.y},${220 - (p.p25 / maxPath) * 200}`)].join(" ")} fill="url(#mc75)" />
+                {/* Bands */}
+                <polygon points={[`70,230`,...results.yearlyPcts.map(p=>`${70+(p.y/years)*570},${230-(p.p90/maxPath)*220}`),...results.yearlyPcts.slice().reverse().map(p=>`${70+(p.y/years)*570},${230-(p.p10/maxPath)*220}`)].join(" ")} fill="url(#mc90)" />
+                <polygon points={[`70,230`,...results.yearlyPcts.map(p=>`${70+(p.y/years)*570},${230-(p.p75/maxPath)*220}`),...results.yearlyPcts.slice().reverse().map(p=>`${70+(p.y/years)*570},${230-(p.p25/maxPath)*220}`)].join(" ")} fill="url(#mc75)" />
                 {/* Percentile lines */}
-                {[["p90", "#00FF87", 0.4], ["p75", "#00FF87", 0.6], ["p50", "#00FF87", 1.0], ["p25", "#60EFFF", 0.6], ["p10", "#FF4D6D", 0.5]].map(([key, c, op]) => (
-                  <polyline key={key} points={results.yearlyPcts.map(p => `${(p.y/years)*600},${220 - (p[key] / maxPath) * 200}`).join(" ")} fill="none" stroke={c} strokeWidth={key === "p50" ? 2.5 : 1.2} opacity={op} strokeDasharray={key !== "p50" ? "2,3" : ""} />
+                {[["p90","#00FF87",0.4],["p75","#00FF87",0.65],["p50","#00FF87",1.0],["p25","#60EFFF",0.65],["p10","#FF4D6D",0.6]].map(([key,col,op])=>(
+                  <polyline key={key} points={results.yearlyPcts.map(p=>`${70+(p.y/years)*570},${230-(p[key]/maxPath)*220}`).join(" ")} fill="none" stroke={col} strokeWidth={key==="p50"?2.5:1.5} opacity={op} strokeDasharray={key!=="p50"?"4,4":""} />
                 ))}
+                {/* End labels on percentile lines */}
+                {[["p90","#00FF87","P90"],["p50","#00FF87","P50"],["p10","#FF4D6D","P10"]].map(([key,col,lbl])=>{
+                  const last = results.yearlyPcts[results.yearlyPcts.length-1];
+                  const y = 230-(last[key]/maxPath)*220;
+                  const val = last[key];
+                  return <g key={key}>
+                    <text x="645" y={y+4} fill={col} fontFamily="var(--font-mono)" fontSize="10">{lbl}</text>
+                  </g>;
+                })}
+                {/* X axis labels */}
+                {results.yearlyPcts.filter((_,i)=>i%Math.ceil(years/5)===0).map(p=>{
+                  const x=70+(p.y/years)*570;
+                  return <g key={p.y}>
+                    <line x1={x} y1="230" x2={x} y2="235" stroke="var(--b2)" strokeWidth="1"/>
+                    <text x={x} y="248" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{p.y}</text>
+                  </g>;
+                })}
+                {/* Legend */}
+                <g><line x1="75" y1="268" x2="90" y2="268" stroke="#00FF87" strokeWidth="2.5"/><text x="95" y="272" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">P50 Median</text></g>
+                <g><line x1="190" y1="268" x2="205" y2="268" stroke="#00FF87" strokeWidth="1.5" strokeDasharray="4,4"/><text x="210" y="272" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">P90 Best</text></g>
+                <g><line x1="285" y1="268" x2="300" y2="268" stroke="#FF4D6D" strokeWidth="1.5" strokeDasharray="4,4"/><text x="305" y="272" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">P10 Worst</text></g>
+                <g><rect x="380" y="262" width="14" height="8" fill="url(#mc75)"/><text x="398" y="272" fill="var(--t2)" fontFamily="var(--font-mono)" fontSize="10">P25–P75 band</text></g>
               </svg>
-              <div style={{ display: "flex", gap: "12px", marginTop: "6px", flexWrap: "wrap" }}>
-                {[["#00FF87","P90 — Best 10%"],["#00FF87","P75"],["#00FF87","P50 — Median"],["#60EFFF","P25"],["#FF4D6D","P10 — Worst 10%"]].map(([c, l]) => (
-                  <div key={l} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                    <div style={{ width: "12px", height: "2px", background: c }} />
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>{l}</span>
-                  </div>
-                ))}
-              </div>
             </div>
             {/* Distribution histogram */}
             <div className="card" style={{ padding: "14px" }}>
-              <div className="lbl" style={{ marginBottom: "8px" }}>Outcome Distribution</div>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: "1px", height: "60px" }}>
+              <div className="lbl" style={{ marginBottom: "12px" }}>Final Outcome Distribution — {sims} Simulations</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "2px", height: "100px" }}>
                 {(() => {
                   const min = results.finals[0], max = results.finals[results.finals.length - 1];
                   const buckets = 40, bSize = (max - min) / buckets;
@@ -1525,17 +1600,27 @@ function MonteCarloModule({ currency }) {
                   results.finals.forEach(f => { const b = Math.min(Math.floor((f - min) / bSize), buckets - 1); counts[b]++; });
                   const maxC = Math.max(...counts);
                   const med = results.pct(50);
-                  return counts.map((c, i) => {
+                  return counts.map((cnt, i) => {
                     const val = min + i * bSize;
                     const isMedian = i === Math.floor((med - min) / bSize);
-                    return <div key={i} style={{ flex: 1, height: `${(c / maxC) * 60}px`, background: isMedian ? "var(--acc)" : val < start ? "var(--acc4)" : "var(--acc)", opacity: isMedian ? 1 : 0.4, minWidth: "2px" }} />;
+                    const isAbove = val >= start;
+                    return <div key={i} title={`${fmt(val, sym)}`} style={{ flex: 1, height: `${(cnt / maxC) * 100}px`, background: isMedian ? "var(--acc)" : isAbove ? "var(--acc)" : "var(--acc4)", opacity: isMedian ? 1 : 0.45, minWidth: "3px", borderRadius: "1px 1px 0 0", transition: "opacity 0.2s" }} />;
                   });
                 })()}
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>Worst: {fmt(results.finals[0], sym)}</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--acc)" }}>Median: {fmt(results.pct(50), sym)}</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>Best: {fmt(results.finals[results.finals.length - 1], sym)}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc4)" }}>WORST</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--t1)" }}>{fmt(results.finals[0], sym)}</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)" }}>MEDIAN</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--t1)" }}>{fmt(results.pct(50), sym)}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc2)" }}>BEST</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--t1)" }}>{fmt(results.finals[results.finals.length - 1], sym)}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -2028,16 +2113,44 @@ function FIREModule({ currency }) {
               </div>
               <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
                 <div className="lbl" style={{ marginBottom: "8px" }}>Path to FIRE</div>
-                <svg width="100%" height="190" viewBox="0 0 600 190" preserveAspectRatio="none">
-                  <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
-                  <line x1="0" y1={190 - (fireNum / maxV) * 175} x2="600" y2={190 - (fireNum / maxV) * 175} stroke="var(--acc4)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
-                  <polygon points={[`0,190`, ...yearlyProj.slice(0, 51).map(p => `${(p.y/50)*600},${190 - (p.v / maxV) * 175}`), `600,190`].join(" ")} fill="url(#fg2)" />
-                  <polyline points={yearlyProj.slice(0, 51).map(p => `${(p.y/50)*600},${190 - (p.v / maxV) * 175}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-                  {firePoint && firePoint.y <= 50 && <circle cx={(firePoint.y/50)*600} cy={190 - (firePoint.v / maxV) * 175} r="3" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 4px #00FF87)" }} />}
+                <svg width="100%" height="260" viewBox="0 0 660 260" style={{ display: "block" }}>
+                  <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
+                  {/* Y grid + labels — chart area x=70-640, y=10-220 */}
+                  {[0, 0.25, 0.5, 0.75, 1.0].map(f => {
+                    const y = 220 - f * 210; const val = f * maxV;
+                    return <g key={f}>
+                      <line x1="70" y1={y} x2="640" y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
+                      <text x="62" y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val >= 1000000 ? `${(val/1000000).toFixed(1)}M` : val >= 1000 ? `${(val/1000).toFixed(0)}K` : '0'}</text>
+                    </g>;
+                  })}
+                  {/* FIRE target line */}
+                  <line x1="70" y1={220 - (fireNum / maxV) * 210} x2="640" y2={220 - (fireNum / maxV) * 210} stroke="var(--acc4)" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.8"/>
+                  <text x="644" y={220 - (fireNum / maxV) * 210 - 4} fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="10">FIRE</text>
+                  {/* Portfolio area */}
+                  <polygon points={[`70,220`, ...yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${220 - (p.v / maxV) * 210}`), `640,220`].join(" ")} fill="url(#fg2)" />
+                  <polyline points={yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${220 - (p.v / maxV) * 210}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
+                  {/* Milestone dots every 10 years */}
+                  {yearlyProj.filter(p => p.y > 0 && p.y % 10 === 0 && p.y <= 50).map(p => {
+                    const x = 70 + (p.y/50)*570; const y = 220 - (p.v / maxV) * 210;
+                    return <g key={p.y}>
+                      <circle cx={x} cy={y} r="4" fill="var(--bg)" stroke="var(--acc)" strokeWidth="2"/>
+                      <text x={x} y={y - 10} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10">{p.v >= 1000000 ? `${(p.v/1000000).toFixed(1)}M` : p.v >= 1000 ? `${(p.v/1000).toFixed(0)}K` : ''}</text>
+                    </g>;
+                  })}
+                  {/* FIRE crossover dot */}
+                  {firePoint && firePoint.y <= 50 && <g>
+                    <circle cx={70 + (firePoint.y/50)*570} cy={220 - (firePoint.v / maxV) * 210} r="6" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 6px #00FF87)" }}/>
+                    <text x={70 + (firePoint.y/50)*570} y={220 - (firePoint.v / maxV) * 210 - 14} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">🎯 FIRE</text>
+                  </g>}
+                  {/* X axis labels */}
+                  {[0, 10, 20, 30, 40, 50].map(yr => {
+                    const x = 70 + (yr/50)*570;
+                    return <g key={yr}>
+                      <line x1={x} y1="220" x2={x} y2="226" stroke="var(--b2)" strokeWidth="1"/>
+                      <text x={x} y="240" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{yr}</text>
+                    </g>;
+                  })}
                 </svg>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  {[0, 10, 20, 30, 40, 50].map(y => <span key={y} style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>Yr{y}</span>)}
-                </div>
                 {firePoint && <div style={{ marginTop: "8px", padding: "8px 12px", background: "#00FF8710", border: "1px solid #00FF8725", borderRadius: "3px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)" }}>🎯 FIRE at age {firePoint.age.toFixed(0)} — Year {firePoint.y.toFixed(1)}</div>}
               </div>
             </div>
@@ -2457,37 +2570,44 @@ function CrashSimModule({ currency }) {
 
           <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
             <div className="lbl" style={{ marginBottom: "10px" }}>Recovery Simulation — {crash.name}</div>
-            <svg width="100%" height="180" viewBox={`0 0 ${path.length - 1} 180`} preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="crUp" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00FF87" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#00FF87" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="crDn" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#FF4D6D" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#FF4D6D" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {/* Original value line */}
-              <line
-                x1="0" y1={180 - ((portfolio - minP) / (maxP - minP)) * 165}
-                x2={path.length - 1} y2={180 - ((portfolio - minP) / (maxP - minP)) * 165}
-                stroke="var(--t3)" strokeWidth="0.6" strokeDasharray="3,3"
-              />
-              {/* Path area */}
-              <polygon
-                points={[`0,180`, ...path.map((v, i) => `${i},${180 - ((v - minP) / (maxP - minP)) * 165}`), `${path.length - 1},180`].join(" ")}
-                fill={path[path.length - 1] >= portfolio ? "url(#crUp)" : "url(#crDn)"}
-              />
-              <polyline
-                points={path.map((v, i) => `${i},${180 - ((v - minP) / (maxP - minP)) * 165}`).join(" ")}
-                fill="none"
-                stroke={path[path.length - 1] >= portfolio ? "var(--acc)" : "var(--acc4)"}
-                strokeWidth="1.5"
-              />
-              {/* Crash point dot */}
-              <circle cx={0} cy={180 - ((afterCrash - minP) / (maxP - minP)) * 165} r="3" fill="var(--acc4)" />
-            </svg>
+            <svg width="100%" height="260" viewBox="0 0 660 260" style={{display:"block"}}>
+                <defs>
+                  <linearGradient id="crUp2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
+                  <linearGradient id="crDn2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF4D6D" stopOpacity="0.2"/><stop offset="100%" stopColor="#FF4D6D" stopOpacity="0"/></linearGradient>
+                </defs>
+                {(() => {
+                  const W=640,H=220,pad=70,bot=230;
+                  const maxV2=Math.max(...path)*1.05||1;
+                  const minV2=Math.min(...path)*0.97||0;
+                  const rng=maxV2-minV2;
+                  const px=(i)=>pad+(i/(path.length-1))*(W-pad);
+                  const py=(v)=>bot-((v-minV2)/rng)*H;
+                  return <>
+                    {[0,0.25,0.5,0.75,1.0].map(f=>{
+                      const val=minV2+f*rng; const y=bot-f*H;
+                      return <g key={f}>
+                        <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f===0?1:0.5}/>
+                        <text x={pad-6} y={y+4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val>=1000000?`${(val/1000000).toFixed(1)}M`:val>=1000?`${(val/1000).toFixed(0)}K`:val.toFixed(0)}</text>
+                      </g>;
+                    })}
+                    <polyline points={path.map((v,i)=>`${px(i)},${py(v)}`).join(" ")} fill="none" stroke={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} strokeWidth="2.5"/>
+                    <polygon points={[`${pad},${bot}`,...path.map((v,i)=>`${px(i)},${py(v)}`),`${W},${bot}`].join(" ")} fill={path[path.length-1]>path[0]?"url(#crUp2)":"url(#crDn2)"}/>
+                    {/* Start/end markers */}
+                    <circle cx={pad} cy={py(path[0])} r="4" fill="var(--bg)" stroke="var(--acc2)" strokeWidth="2"/>
+                    <circle cx={W} cy={py(path[path.length-1])} r="4" fill="var(--bg)" stroke={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} strokeWidth="2"/>
+                    <text x={pad} y={py(path[0])-10} textAnchor="middle" fill="var(--acc2)" fontFamily="var(--font-mono)" fontSize="10">{path[0]>=1000000?`${(path[0]/1000000).toFixed(1)}M`:path[0]>=1000?`${(path[0]/1000).toFixed(0)}K`:path[0].toFixed(0)}</text>
+                    <text x={W} y={py(path[path.length-1])-10} textAnchor="end" fill={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} fontFamily="var(--font-mono)" fontSize="10">{path[path.length-1]>=1000000?`${(path[path.length-1]/1000000).toFixed(1)}M`:path[path.length-1]>=1000?`${(path[path.length-1]/1000).toFixed(0)}K`:path[path.length-1].toFixed(0)}</text>
+                    {/* X axis year labels */}
+                    {Array.from({length:6},(_,i)=>Math.round(i*(path.length-1)/5)).map((idx,i)=>{
+                      const x=px(idx);
+                      return <g key={i}>
+                        <line x1={x} y1={bot} x2={x} y2={bot+5} stroke="var(--b2)" strokeWidth="1"/>
+                        <text x={x} y={bot+16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{Math.round(idx/12)}</text>
+                      </g>;
+                    })}
+                  </>;
+                })()}
+              </svg>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "8px" }}>
               Key insight: staying invested + DCA during downturns dramatically accelerates recovery.
             </div>
