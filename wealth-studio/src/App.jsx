@@ -453,7 +453,7 @@ function useLiveData(apiKey) {
   // When cold, takes 5-10s (Vercel fetches all from Yahoo server-side)
   const fetchBatch = useCallback(async () => {
     try {
-      const res = await fetch("/api/quotes-all");
+      const res = await fetch("/api/quotes-all", { cache: "no-store" });
       if (!res.ok) return false;
       const d = await res.json();
       if (d && d.quotes && Object.keys(d.quotes).length > 20) {
@@ -521,7 +521,7 @@ function useLiveData(apiKey) {
     // Also pre-warm the cache every 50 seconds with a silent background ping
     // so the cache never goes cold between refreshes
     warmRef.current = setInterval(() => {
-      fetch("/api/quotes-all").catch(() => {});
+      fetch("/api/quotes-all", { cache: "no-store" }).catch(() => {});
     }, 50000);
 
     return () => {
