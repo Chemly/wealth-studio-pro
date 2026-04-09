@@ -442,7 +442,7 @@ const ASX_TICKERS = {
 // Vercel serverless proxy — handles CORS for Yahoo Finance
 const PROXY_BASE = "/api/quote";
 
-function useLiveData() {
+function useLiveData(apiKey) {
   const [quotes, setQuotes] = useState({});
   const [status, setStatus] = useState("loading");
   const intervalRef = useRef(null);
@@ -468,16 +468,14 @@ function useLiveData() {
   // Fallback: hit individual proxy endpoints in parallel
   // Used if batch endpoint fails or returns too few tickers
   const fetchIndividual = useCallback(async () => {
-    const allTickers = Object.fromEntries(
-  ETFs.map(t => [
-    t.ticker,
-    t.exchange === "ASX" ? `${t.ticker}.AX` : t.ticker
-  ])
-);
+    const allTickers = {
+      ...ASX_TICKERS,
+      ...Object.fromEntries(US_TICKERS.map(t => [t, t])),
+    };
     const results = {};
     await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
-        const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`, { cache: 'no-store' });
+        const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
@@ -661,28 +659,16 @@ function Dashboard({ onNav, currency }) {
   // Show a curated mix of popular ASX + US tickers in the market overview
   const OVERVIEW_TICKERS = ["NDQ","VAS","VGS","A200","DHHF","QQQ","VOO","SPY","GLD","SCHD"];
   const marketData = useMemo(() => OVERVIEW_TICKERS.map(ticker => {
-  const e = ETFs.find(x => x.ticker === ticker);
-  if (!e) return null;
-
-  const q = quotes[ticker];
-
-  let pct = null;
-
-  if (q) {
-    if (q.changePct !== undefined && q.changePct !== null) {
-      pct = Math.abs(q.changePct) < 1 ? q.changePct * 100 : q.changePct;
-    } else if (q.change !== undefined && q.prevClose) {
-      pct = (q.change / q.prevClose) * 100;
-    }
-  }
-
-  return {
-    ...e,
-    livePrice: q?.price ?? null,
-    changePct: pct,
-    isLive: !!q,
-  };
-}).filter(Boolean), [quotes]);
+    const e = ETFs.find(x => x.ticker === ticker);
+    if (!e) return null;
+    const q = quotes[ticker];
+    return {
+      ...e,
+      livePrice: q?.price ?? null,
+      changePct: q ? q.changePct : null,
+      isLive: !!q,
+    };
+  }).filter(Boolean), [quotes]);
 
   const modules = [
     { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 67 live ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
@@ -3310,7 +3296,7 @@ export default function WealthStudioPRO() {
 }
 
 function WealthStudioApp() {
-  const [tab, setTab] = useState("dashboard");
+  const [tab, setTab] = useState("etf");
   const [currency, setCurrency] = useState("AUD");
   const [time, setTime] = useState(new Date());
   useEffect(() => {
