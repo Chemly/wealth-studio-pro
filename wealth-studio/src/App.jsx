@@ -659,16 +659,28 @@ function Dashboard({ onNav, currency }) {
   // Show a curated mix of popular ASX + US tickers in the market overview
   const OVERVIEW_TICKERS = ["NDQ","VAS","VGS","A200","DHHF","QQQ","VOO","SPY","GLD","SCHD"];
   const marketData = useMemo(() => OVERVIEW_TICKERS.map(ticker => {
-    const e = ETFs.find(x => x.ticker === ticker);
-    if (!e) return null;
-    const q = quotes[ticker];
-    return {
-      ...e,
-      livePrice: q?.price ?? null,
-      changePct: q ? q.changePct : null,
-      isLive: !!q,
-    };
-  }).filter(Boolean), [quotes]);
+  const e = ETFs.find(x => x.ticker === ticker);
+  if (!e) return null;
+
+  const q = quotes[ticker];
+
+  let pct = null;
+
+  if (q) {
+    if (q.changePct !== undefined && q.changePct !== null) {
+      pct = Math.abs(q.changePct) < 1 ? q.changePct * 100 : q.changePct;
+    } else if (q.change !== undefined && q.prevClose) {
+      pct = (q.change / q.prevClose) * 100;
+    }
+  }
+
+  return {
+    ...e,
+    livePrice: q?.price ?? null,
+    changePct: pct,
+    isLive: !!q,
+  };
+}).filter(Boolean), [quotes]);
 
   const modules = [
     { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 67 live ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
