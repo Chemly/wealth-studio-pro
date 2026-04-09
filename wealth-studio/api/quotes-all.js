@@ -1,8 +1,6 @@
 // /api/quotes-all.js
-// Fetches ALL tickers (US via Finnhub + ASX via Yahoo) server-side in one request
-// Vercel caches the response for 60 seconds — app gets instant data on load
-
-const FINNHUB_KEY = "d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0";
+// Fetches ALL tickers via Yahoo Finance — no Finnhub, no rate limits
+// Vercel caches the response for 55 seconds — instant for all users
 
 const US_TICKERS = [
   "SPY","VOO","IVV","VTI","IWM",
@@ -25,41 +23,34 @@ const ASX_TICKERS = {
   "GOLD":"GOLD.AX","PMGOLD":"PMGOLD.AX",
 };
 
-const delay = (ms) => new Promise(r => setTimeout(r, ms));
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
-
-  // Cache for 55 seconds on Vercel CDN — instant response for all users
   res.setHeader("Cache-Control", "s-maxage=55, stale-while-revalidate=30");
 
   const results = {};
 
-  // Fetch US tickers from Finnhub — batched 5 at a time
-  for (let i = 0; i < US_TICKERS.length; i += 5) {
-    const batch = US_TICKERS.slice(i, i + 5);
-    await Promise.all(batch.map(async (ticker) => {
-      try {
-        const r = await fetch(
-          `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FINNHUB_KEY}`,
-          { headers: { "User-Agent": "Mozilla/5.0" } }
-        );
-        if (!r.ok) return;
-        const d = await r.json();
-        if (d && d.c && d.c > 0) {
-          results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, prevClose: d.pc };
-        }
-      } catch {}
-    }));
-    if (i + 5 < US_TICKERS.length) await delay(1200);
-  }
+  // Helper: fetch with timeout so slow tickers don't block the whole response
+  const fetchWithTimeout = async (url, options = {}, ms = 8000) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
 
-  // Fetch ASX tickers from Yahoo Finance
-  await Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, symbol]) => {
+  // All tickers via Yahoo Finance — US plain symbol, ASX with .AX suffix
+  const ALL_TICKERS = {
+    ...ASX_TICKERS,
+    ...Object.fromEntries(US_TICKERS.map(t => [t, t])),
+  };
+
+  await Promise.all(Object.entries(ALL_TICKERS).map(async ([ticker, symbol]) => {
     try {
       const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
-      const r = await fetch(url, {
+      const r = await fetchWithTimeout(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
           "Accept": "application/json",
