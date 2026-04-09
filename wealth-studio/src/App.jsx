@@ -502,7 +502,7 @@ function useLiveData(apiKey) {
 }
 
 function LiveProvider({ children }) {
-  const [apiKey, setApiKey] = useState("d76auu1r01qm4b7tjq6g");
+  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
   const { quotes, status, refetch } = useLiveData(apiKey);
   return (
     <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
