@@ -1311,10 +1311,25 @@ function ETFModule({ currency }) {
 function DCAModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const [ticker, setTicker] = useState("NDQ");
+  const [dcaSearch, setDcaSearch] = useState("");
+  const [dcaOpen, setDcaOpen] = useState(false);
+  const dcaRef = useRef(null);
   const [lump, setLump] = useState(10000);
   const [monthly, setMonthly] = useState(500);
   const [years, setYears] = useState(20);
   const [startDip, setStartDip] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => { if (dcaRef.current && !dcaRef.current.contains(e.target)) setDcaOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const dcaFiltered = ETFs.filter(e =>
+    e.ticker.includes(dcaSearch.toUpperCase()) ||
+    e.name.toLowerCase().includes(dcaSearch.toLowerCase()) ||
+    e.region.toLowerCase().includes(dcaSearch.toLowerCase())
+  );
 
   const etf = ETFs.find(e => e.ticker === ticker);
   const r = (etf?.avgReturn ?? 10) / 100 / 12;
@@ -1356,9 +1371,39 @@ function DCAModule({ currency }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>Select ETF</div>
-            <select className="si" value={ticker} onChange={e => setTicker(e.target.value)} style={{ width: "100%" }}>
-              {ETFs.map(e => <option key={e.ticker} value={e.ticker}>{e.ticker} — {e.avgReturn}%</option>)}
-            </select>
+            <div ref={dcaRef} style={{ position: "relative" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 8px", background: "var(--s2)", border: `1px solid ${dcaOpen ? "var(--acc)" : "var(--b2)"}`, borderRadius: "3px", cursor: "pointer", transition: "border-color 0.2s" }}
+                onClick={() => { setDcaOpen(o => !o); setDcaSearch(""); }}>
+                {!dcaOpen ? (
+                  <>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: etf?.color || "var(--acc)" }}>{ticker}</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", flex: 1 }}>{etf?.name}</span>
+                    <span style={{ color: "var(--t3)", fontSize: "10px" }}>▾</span>
+                  </>
+                ) : (
+                  <input autoFocus value={dcaSearch} onChange={e => setDcaSearch(e.target.value)} onClick={e => e.stopPropagation()}
+                    placeholder="Search ETFs..." style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t1)" }} />
+                )}
+              </div>
+              {dcaOpen && (
+                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 50, background: "var(--s2)", border: "1px solid var(--b2)", borderTop: "none", maxHeight: "240px", overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+                  {dcaFiltered.length === 0 ? (
+                    <div style={{ padding: "12px", fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>No ETFs found</div>
+                  ) : dcaFiltered.map(e => (
+                    <div key={e.ticker}
+                      onClick={() => { setTicker(e.ticker); setDcaOpen(false); setDcaSearch(""); }}
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", cursor: "pointer", background: e.ticker === ticker ? "rgba(0,255,135,0.05)" : "transparent", borderLeft: e.ticker === ticker ? "2px solid var(--acc)" : "2px solid transparent" }}
+                      onMouseEnter={ev => ev.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                      onMouseLeave={ev => ev.currentTarget.style.background = e.ticker === ticker ? "rgba(0,255,135,0.05)" : "transparent"}>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: e.color, width: "52px", flexShrink: 0 }}>{e.ticker}</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", padding: "1px 4px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px", flexShrink: 0 }}>{e.exchange}</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)", flexShrink: 0 }}>{e.avgReturn}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {etf && (
               <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "4px" }}>
                 {[["Avg Return", `${etf.avgReturn}%`, "var(--acc)"], ["Volatility", `${etf.vol}%`, "var(--acc5)"], ["Sharpe", etf.sharpe, "var(--acc3)"], ["Expense", `${etf.expense}%`, "var(--acc4)"]].map(([l, v, c]) => (
@@ -1476,14 +1521,31 @@ function DCAModule({ currency }) {
 function MonteCarloModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const [ticker, setTicker] = useState("QQQ");
+  const [mcSearch, setMcSearch] = useState("");
+  const [mcOpen, setMcOpen] = useState(false);
   const [start, setStart] = useState(10000);
   const [monthly, setMonthly] = useState(500);
   const [years, setYears] = useState(20);
   const [sims, setSims] = useState(500);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState(null);
+  const mcRef = useRef(null);
 
-  const etf = ETFs.find(e => e.ticker === ticker);
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => { if (mcRef.current && !mcRef.current.contains(e.target)) setMcOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const mcFiltered = ETFs.filter(e =>
+    e.ticker.includes(mcSearch.toUpperCase()) ||
+    e.name.toLowerCase().includes(mcSearch.toLowerCase()) ||
+    e.region.toLowerCase().includes(mcSearch.toLowerCase())
+  );
+
+  const selectedEtf = ETFs.find(e => e.ticker === ticker);
+  const etf = selectedEtf;
 
   const runSim = useCallback(() => {
     setRunning(true);
@@ -1532,9 +1594,47 @@ function MonteCarloModule({ currency }) {
             <div key={l} className="card" style={{ padding: "10px 12px" }}>
               <div className="lbl" style={{ marginBottom: "4px" }}>{l}</div>
               {type === "sel" ? (
-                <select className="si" value={ticker} onChange={e => setTicker(e.target.value)} style={{ width: "100%", marginTop: "4px" }}>
-                  {ETFs.map(e => <option key={e.ticker} value={e.ticker}>{e.ticker} — {e.avgReturn}% σ{e.vol}%</option>)}
-                </select>
+                <div ref={mcRef} style={{ position: "relative" }}>
+                  {/* Search input that doubles as display */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 8px", background: "var(--s2)", border: `1px solid ${mcOpen ? "var(--acc)" : "var(--b2)"}`, borderRadius: "3px", cursor: "pointer", transition: "border-color 0.2s" }}
+                    onClick={() => { setMcOpen(o => !o); setMcSearch(""); }}>
+                    {!mcOpen ? (
+                      <>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: selectedEtf?.color || "var(--acc)" }}>{ticker}</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", flex: 1 }}>{selectedEtf?.name}</span>
+                        <span style={{ color: "var(--t3)", fontSize: "10px" }}>▾</span>
+                      </>
+                    ) : (
+                      <input
+                        autoFocus
+                        value={mcSearch}
+                        onChange={e => setMcSearch(e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        placeholder="Search ETFs..."
+                        style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t1)" }}
+                      />
+                    )}
+                  </div>
+                  {/* Dropdown list */}
+                  {mcOpen && (
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 50, background: "var(--s2)", border: "1px solid var(--b2)", borderTop: "none", maxHeight: "240px", overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+                      {mcFiltered.length === 0 ? (
+                        <div style={{ padding: "12px", fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>No ETFs found</div>
+                      ) : mcFiltered.map(e => (
+                        <div key={e.ticker}
+                          onClick={() => { setTicker(e.ticker); setMcOpen(false); setMcSearch(""); setResults(null); }}
+                          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", cursor: "pointer", background: e.ticker === ticker ? "rgba(0,255,135,0.05)" : "transparent", borderLeft: e.ticker === ticker ? "2px solid var(--acc)" : "2px solid transparent", transition: "background 0.15s" }}
+                          onMouseEnter={ev => ev.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={ev => ev.currentTarget.style.background = e.ticker === ticker ? "rgba(0,255,135,0.05)" : "transparent"}>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: e.color, width: "52px", flexShrink: 0 }}>{e.ticker}</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", padding: "1px 4px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px", flexShrink: 0 }}>{e.exchange}</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</span>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)", flexShrink: 0 }}>{e.avgReturn}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
                   {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>{pre}</span>}
@@ -2055,13 +2155,13 @@ function NetWorthModule({ currency }) {
 function FIREModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const [portfolio, setPortfolio] = useState(50000);
-  const [annIncome, setAnnIncome] = useState(60000);
+  const [annIncome, setAnnIncome] = useState(80000);
   const [annExpenses, setAnnExpenses] = useState(40000);
   const [growthRate, setGrowthRate] = useState(10);
   const [wr, setWr] = useState(4);
   const [inflation, setInflation] = useState(3);
   const [age, setAge] = useState(25);
-  const [sub, setSub] = useState("overview");
+  const [sub, setSub] = useState("calculator");
 
   const fireNum = useMemo(() => (annExpenses * Math.pow(1 + inflation / 100, 10)) / (wr / 100), [annExpenses, wr, inflation]);
   const annSavings = annIncome - annExpenses;
@@ -2079,14 +2179,12 @@ function FIREModule({ currency }) {
   const firePoint = proj.find(p => p.v >= fireNum);
   const maxV = Math.max(...yearlyProj.map(p => p.v), fireNum * 1.1, 1);
 
-  // SWR analysis
   const swrRows = [3, 3.5, 4, 4.5, 5].map(rate => {
     const num = annExpenses / (rate / 100);
     const hit = proj.find(p => p.v >= num);
     return { rate, num, hit };
   });
 
-  // Coast FIRE
   const coastRows = [55, 60, 65, 67, 70].map(retAge => {
     const yrsToRet = retAge - age;
     const coast = fireNum / Math.pow(1 + growthRate / 100, yrsToRet);
@@ -2096,16 +2194,39 @@ function FIREModule({ currency }) {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <div style={{ display: "flex", gap: "4px", padding: "8px", borderBottom: "1px solid var(--b1)" }}>
+    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }} className="fade-up mob-scroll">
+
+      {/* ── TOP HERO STATS — always visible, no sub-tab needed ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1px", background: "var(--b1)", borderBottom: "1px solid var(--b1)", flexShrink: 0 }}>
+        {[
+          { l: "FIRE Number", v: fmt(fireNum, sym), c: "var(--acc)", sub: `${wr}% withdrawal rate` },
+          { l: "Years to FIRE", v: firePoint ? `${firePoint.y.toFixed(1)} yrs` : "50+ yrs", c: firePoint ? "var(--acc)" : "var(--acc4)", sub: firePoint ? `Age ${firePoint.age.toFixed(0)}` : "Increase savings" },
+          { l: "Monthly Passive", v: fmt(fireNum * (wr / 100) / 12, sym), c: "var(--acc2)", sub: "At retirement" },
+          { l: "Savings Rate", v: `${savingsRate.toFixed(1)}%`, c: savingsRate >= 50 ? "var(--acc)" : savingsRate >= 30 ? "var(--acc5)" : "var(--acc4)", sub: `${fmt(annSavings, sym)} / yr` },
+        ].map(({ l, v, c, sub: s }) => (
+          <div key={l} style={{ padding: "18px 20px", background: "var(--s1)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "6px" }}>{l}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "26px", color: c, lineHeight: 1 }}>{v}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginTop: "6px" }}>{s}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── SUB TABS ── */}
+      <div style={{ display: "flex", gap: "4px", padding: "8px", borderBottom: "1px solid var(--b1)", flexShrink: 0 }}>
         {[["calculator", "Calculator"], ["swr", "SWR Analysis"], ["coast", "Coast FIRE"], ["scenarios", "Scenarios"]].map(([id, l]) => (
           <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
         ))}
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+
+      <div style={{ flex: 1, padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+
+        {/* ── CALCULATOR ── */}
         {sub === "calculator" && (
-          <div className="fade-up side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+            {/* Inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "1px", padding: "4px 0" }}>YOUR NUMBERS</div>
               {[
                 { l: "Current Portfolio", v: portfolio, set: setPortfolio, pre: sym },
                 { l: "Annual Income", v: annIncome, set: setAnnIncome, pre: sym },
@@ -2115,85 +2236,130 @@ function FIREModule({ currency }) {
                 { l: "Inflation Rate", v: inflation, set: setInflation, suf: "%" },
                 { l: "Current Age", v: age, set: setAge, suf: "yrs" },
               ].map(({ l, v, set, pre, suf }) => (
-                <div key={l} className="card" style={{ padding: "9px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span className="lbl">{l}</span>
+                <div key={l} className="card" style={{ padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t2)" }}>{l}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
                     {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>{pre}</span>}
-                    <input type="number" value={v} onChange={e => set(+e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "90px", textAlign: "right", outline: "none" }} />
+                    <input type="number" value={v} onChange={e => set(+e.target.value)}
+                      style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "90px", textAlign: "right", outline: "none" }} />
                     {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{suf}</span>}
                   </div>
                 </div>
               ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
-                {[
-                  { l: "FIRE Number", v: fmt(fireNum, sym), c: "var(--acc)", sub: `${wr}% SWR on inflated expenses` },
-                  { l: "Years to FIRE", v: firePoint ? `${firePoint.y.toFixed(1)} yrs` : "50+ yrs", c: firePoint ? "var(--acc)" : "var(--t3)", sub: firePoint ? `Age ${firePoint.age.toFixed(0)}` : "Increase savings rate" },
-                  { l: "Annual Savings", v: fmt(annSavings, sym), c: annSavings > 0 ? "var(--acc2)" : "var(--acc4)", sub: `${savingsRate.toFixed(1)}% of income` },
-                  { l: "Monthly Passive", v: fmt(fireNum * (wr / 100) / 12, sym), c: "var(--acc5)", sub: "At withdrawal rate" },
-                ].map(({ l, v, c, sub: s }) => (
-                  <div key={l} className={`card${l === "FIRE Number" ? " card-acc" : ""}`} style={{ padding: "14px" }}>
-                    <div className="lbl">{l}</div>
-                    <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "22px", color: c, marginTop: "4px" }}>{v}</div>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "3px" }}>{s}</div>
-                  </div>
-                ))}
+
+              {/* Savings rate bar */}
+              <div className="card" style={{ padding: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>SAVINGS RATE</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: savingsRate >= 50 ? "var(--acc)" : savingsRate >= 30 ? "var(--acc5)" : "var(--acc4)" }}>{savingsRate.toFixed(1)}%</span>
+                </div>
+                <div style={{ height: "4px", background: "var(--b1)", borderRadius: "2px" }}>
+                  <div style={{ height: "100%", width: `${Math.min(savingsRate, 100)}%`, background: savingsRate >= 50 ? "var(--acc)" : savingsRate >= 30 ? "var(--acc5)" : "var(--acc4)", borderRadius: "2px", transition: "width 0.4s" }} />
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginTop: "6px" }}>
+                  {savingsRate >= 50 ? "🔥 Excellent — FIRE fast track" : savingsRate >= 30 ? "✓ Good savings discipline" : "↑ Increase savings to accelerate FIRE"}
+                </div>
               </div>
+            </div>
+
+            {/* Chart + FIRE modes */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {/* FIRE modes */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+                {[
+                  { name: "Lean FIRE", mult: 0.7, desc: "Frugal lifestyle" },
+                  { name: "Regular FIRE", mult: 1.0, desc: "Current expenses" },
+                  { name: "Fat FIRE", mult: 1.5, desc: "Comfortable lifestyle" },
+                  { name: "Coast FIRE", coast: true, desc: "Stop contributing" },
+                ].map(({ name, mult, desc, coast }) => {
+                  if (coast) {
+                    const coastNum = fireNum / Math.pow(1 + growthRate / 100, 40);
+                    const coastHit = proj.find(p => p.v >= coastNum);
+                    return (
+                      <div key={name} className="card" style={{ padding: "12px", borderColor: "rgba(96,239,255,0.2)" }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc2)", marginBottom: "4px" }}>{name}</div>
+                        <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: "var(--acc2)" }}>{coastHit ? `${coastHit.y.toFixed(1)} yrs` : "—"}</div>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "4px" }}>{desc}</div>
+                      </div>
+                    );
+                  }
+                  const modeNum = annExpenses * mult / (wr / 100);
+                  const modeHit = proj.find(p => p.v >= modeNum);
+                  return (
+                    <div key={name} className="card" style={{ padding: "12px" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginBottom: "4px" }}>{name}</div>
+                      <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "18px", color: modeHit ? "var(--acc)" : "var(--t3)" }}>{modeHit ? `${modeHit.y.toFixed(1)} yrs` : "50+ yrs"}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "4px" }}>{fmt(modeNum, sym)} · {desc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Path to FIRE chart */}
               <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
-                <div className="lbl" style={{ marginBottom: "8px" }}>Path to FIRE</div>
-                <svg width="100%" height="260" viewBox="0 0 660 260" style={{ display: "block" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+                  <div className="lbl">Path to FIRE</div>
+                  {firePoint && <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)", background: "#00FF8710", padding: "3px 10px", border: "1px solid #00FF8725" }}>🎯 FIRE at age {firePoint.age.toFixed(0)} — Yr {firePoint.y.toFixed(1)}</div>}
+                </div>
+                <svg width="100%" height="240" viewBox="0 0 660 240" style={{ display: "block" }}>
                   <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.22"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
-                  {/* Y grid + labels — chart area x=70-640, y=10-220 */}
                   {[0, 0.25, 0.5, 0.75, 1.0].map(f => {
-                    const y = 220 - f * 210; const val = f * maxV;
+                    const y = 200 - f * 190; const val = f * maxV;
                     return <g key={f}>
                       <line x1="70" y1={y} x2="640" y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
                       <text x="62" y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val >= 1000000 ? `${(val/1000000).toFixed(1)}M` : val >= 1000 ? `${(val/1000).toFixed(0)}K` : '0'}</text>
                     </g>;
                   })}
-                  {/* FIRE target line */}
-                  <line x1="70" y1={220 - (fireNum / maxV) * 210} x2="640" y2={220 - (fireNum / maxV) * 210} stroke="var(--acc4)" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.8"/>
-                  <text x="644" y={220 - (fireNum / maxV) * 210 - 4} fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="10">FIRE</text>
-                  {/* Portfolio area */}
-                  <polygon points={[`70,220`, ...yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${220 - (p.v / maxV) * 210}`), `640,220`].join(" ")} fill="url(#fg2)" />
-                  <polyline points={yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${220 - (p.v / maxV) * 210}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-                  {/* Milestone dots every 10 years */}
+                  <line x1="70" y1={200 - (fireNum / maxV) * 190} x2="640" y2={200 - (fireNum / maxV) * 190} stroke="var(--acc4)" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.8"/>
+                  <text x="644" y={200 - (fireNum / maxV) * 190 - 4} fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="10">FIRE</text>
+                  <polygon points={[`70,200`, ...yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${200 - (p.v / maxV) * 190}`), `640,200`].join(" ")} fill="url(#fg2)" />
+                  <polyline points={yearlyProj.slice(0, 51).map(p => `${70 + (p.y/50)*570},${200 - (p.v / maxV) * 190}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
                   {yearlyProj.filter(p => p.y > 0 && p.y % 10 === 0 && p.y <= 50).map(p => {
-                    const x = 70 + (p.y/50)*570; const y = 220 - (p.v / maxV) * 210;
+                    const x = 70 + (p.y/50)*570; const y = 200 - (p.v / maxV) * 190;
                     return <g key={p.y}>
                       <circle cx={x} cy={y} r="4" fill="var(--bg)" stroke="var(--acc)" strokeWidth="2"/>
                       <text x={x} y={y - 10} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10">{p.v >= 1000000 ? `${(p.v/1000000).toFixed(1)}M` : p.v >= 1000 ? `${(p.v/1000).toFixed(0)}K` : ''}</text>
                     </g>;
                   })}
-                  {/* FIRE crossover dot */}
                   {firePoint && firePoint.y <= 50 && <g>
-                    <circle cx={70 + (firePoint.y/50)*570} cy={220 - (firePoint.v / maxV) * 210} r="6" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 6px #00FF87)" }}/>
-                    <text x={70 + (firePoint.y/50)*570} y={220 - (firePoint.v / maxV) * 210 - 14} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">🎯 FIRE</text>
+                    <circle cx={70 + (firePoint.y/50)*570} cy={200 - (firePoint.v / maxV) * 190} r="6" fill="var(--acc)" style={{ filter: "drop-shadow(0 0 6px #00FF87)" }}/>
+                    <text x={70 + (firePoint.y/50)*570} y={200 - (firePoint.v / maxV) * 190 - 14} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">🎯</text>
                   </g>}
-                  {/* X axis labels */}
                   {[0, 10, 20, 30, 40, 50].map(yr => {
                     const x = 70 + (yr/50)*570;
                     return <g key={yr}>
-                      <line x1={x} y1="220" x2={x} y2="226" stroke="var(--b2)" strokeWidth="1"/>
-                      <text x={x} y="240" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{yr}</text>
+                      <line x1={x} y1="200" x2={x} y2="206" stroke="var(--b2)" strokeWidth="1"/>
+                      <text x={x} y="220" textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{yr}</text>
                     </g>;
                   })}
                 </svg>
-                {firePoint && <div style={{ marginTop: "8px", padding: "8px 12px", background: "#00FF8710", border: "1px solid #00FF8725", borderRadius: "3px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc)" }}>🎯 FIRE at age {firePoint.age.toFixed(0)} — Year {firePoint.y.toFixed(1)}</div>}
               </div>
             </div>
           </div>
         )}
+
+        {/* ── SWR ── */}
         {sub === "swr" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+              {[
+                { l: "Annual Income at 4% SWR", v: fmt(fireNum * 0.04, sym), c: "var(--acc)" },
+                { l: "Monthly at 4% SWR", v: fmt(fireNum * 0.04 / 12, sym), c: "var(--acc2)" },
+                { l: "Your FIRE Number", v: fmt(fireNum, sym), c: "var(--acc5)" },
+              ].map(({ l, v, c }) => (
+                <div key={l} className="card" style={{ padding: "14px" }}>
+                  <div className="lbl">{l}</div>
+                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "24px", color: c, marginTop: "4px" }}>{v}</div>
+                </div>
+              ))}
+            </div>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Safe Withdrawal Rate Analysis</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr>{["SWR", "FIRE Number", "Reached Year", "Age", "Monthly Income", "Safety"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+                <thead><tr>{["SWR", "FIRE Number", "Reached Year", "Age at FIRE", "Monthly Income", "Safety"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
                   {swrRows.map(row => (
-                    <tr key={row.rate} className="row-h" style={{ background: row.rate === 4 ? "#00FF8708" : "" }}>
+                    <tr key={row.rate} className="row-h" style={{ background: row.rate === wr ? "#00FF8708" : "" }}>
                       <td className="td td-acc">{row.rate}%</td>
                       <td className="td">{fmt(row.num, sym)}</td>
                       <td className="td" style={{ color: row.hit ? "var(--acc)" : "var(--acc4)" }}>{row.hit ? `Yr ${Math.ceil(row.hit.y)}` : "Not reached"}</td>
@@ -2207,32 +2373,36 @@ function FIREModule({ currency }) {
             </div>
           </div>
         )}
+
+        {/* ── COAST ── */}
         {sub === "coast" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", lineHeight: 1.6, padding: "10px", background: "var(--s1)", borderRadius: "3px", border: "1px solid var(--b1)" }}>
-              Coast FIRE: the portfolio value at which, even if you stop contributing, your investments will grow to your FIRE number by retirement age.
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t2)", lineHeight: 1.8, padding: "14px", background: "var(--s1)", border: "1px solid var(--b1)" }}>
+              <strong style={{ color: "var(--acc)" }}>Coast FIRE</strong> is the portfolio value at which you can <strong style={{ color: "var(--t1)" }}>stop contributing entirely</strong> and your investments will still grow to your FIRE number by retirement age on their own.
             </div>
-            <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
               {coastRows.map(row => (
-                <div key={row.retAge} className={`card${row.reached ? " card-acc" : ""}`} style={{ padding: "12px" }}>
-                  <div className="lbl">Retire {row.retAge}</div>
-                  <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: row.reached ? "var(--acc)" : "var(--t2)", marginTop: "4px" }}>{fmt(row.coast, sym)}</div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: row.reached ? "var(--acc)" : "var(--t3)", marginTop: "4px" }}>
-                    {row.reached ? "✓ Already coasted!" : row.yrToCoast ? `${row.yrToCoast.toFixed(1)}yr to coast` : "—"}
+                <div key={row.retAge} className={`card${row.reached ? " card-acc" : ""}`} style={{ padding: "14px" }}>
+                  <div className="lbl">Retire at {row.retAge}</div>
+                  <div style={{ fontFamily: "var(--font-ui)", fontSize: "20px", color: row.reached ? "var(--acc)" : "var(--t1)", marginTop: "6px", fontWeight: 700 }}>{fmt(row.coast, sym)}</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: row.reached ? "var(--acc)" : "var(--t3)", marginTop: "6px" }}>
+                    {row.reached ? "✓ Already coasted!" : row.yrToCoast ? `${row.yrToCoast.toFixed(1)} yrs away` : "—"}
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* ── SCENARIOS ── */}
         {sub === "scenarios" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Scenario Comparison</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr>{["Scenario", "Return", "FIRE Number", "Years to FIRE", "Age at FIRE"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+                <thead><tr>{["Scenario", "Return", "FIRE Number", "Years to FIRE", "Age at FIRE", "Monthly Passive"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
-                  {[["Conservative", 7, 0.9], ["Base Case", 10, 1.0], ["Optimistic", 13, 1.05], ["Aggressive", 16, 1.1]].map(([name, ret, expMult]) => {
+                  {[["Conservative", 7, 0.9], ["Base Case", growthRate, 1.0], ["Optimistic", 13, 1.05], ["Aggressive", 16, 1.1]].map(([name, ret, expMult]) => {
                     const fn = annExpenses * expMult / (wr / 100);
                     const r = ret / 100 / 12, mo = annSavings / 12;
                     let hit = null;
@@ -2241,12 +2411,13 @@ function FIREModule({ currency }) {
                       if (v >= fn) { hit = { y: m / 12, age: age + m / 12 }; break; }
                     }
                     return (
-                      <tr key={name} className="row-h">
+                      <tr key={name} className="row-h" style={{ background: name === "Base Case" ? "#00FF8706" : "" }}>
                         <td className="td td-acc">{name}</td>
                         <td className="td">{ret}%</td>
                         <td className="td">{fmt(fn, sym)}</td>
                         <td className="td" style={{ color: hit ? "var(--acc)" : "var(--acc4)" }}>{hit ? `${hit.y.toFixed(1)} yrs` : "50+ yrs"}</td>
                         <td className="td td-b">{hit ? hit.age.toFixed(0) : "—"}</td>
+                        <td className="td td-y">{fmt(fn * (wr/100) / 12, sym)}</td>
                       </tr>
                     );
                   })}
