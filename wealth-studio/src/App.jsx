@@ -468,10 +468,12 @@ function useLiveData() {
   // Fallback: hit individual proxy endpoints in parallel
   // Used if batch endpoint fails or returns too few tickers
   const fetchIndividual = useCallback(async () => {
-    const allTickers = {
-      ...ASX_TICKERS,
-      ...Object.fromEntries(US_TICKERS.map(t => [t, t])),
-    };
+    const allTickers = Object.fromEntries(
+  ETFs.map(t => [
+    t.ticker,
+    t.exchange === "ASX" ? `${t.ticker}.AX` : t.ticker
+  ])
+);
     const results = {};
     await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
