@@ -26,7 +26,7 @@ const ASX_TICKERS = {
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
-  res.setHeader("Cache-Control", "s-maxage=55, stale-while-revalidate=30");
+  res.setHeader("Cache-Control", "public, s-maxage=55, max-age=0, must-revalidate");
 
   const results = {};
 
