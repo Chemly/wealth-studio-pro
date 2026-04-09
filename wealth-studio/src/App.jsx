@@ -644,7 +644,7 @@ function Dashboard({ onNav, currency }) {
   });
 
   const modules = [
-    { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 22 ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
+    { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 67 live ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
     { id: "dca", label: "DCA Engine", desc: "Dollar-cost averaging simulator with lump sum comparison and timing analysis.", icon: "⟳", color: "var(--acc2)" },
     { id: "monte", label: "Monte Carlo", desc: "10,000 simulation paths. Probability of success, percentile outcomes, risk of ruin.", icon: "⊞", color: "var(--acc3)" },
     { id: "budget", label: "Budget Tracker", desc: "Income vs expenses, 50/30/20 analysis, health score, surplus forecasting.", icon: "≡", color: "var(--acc5)" },
@@ -2947,7 +2947,7 @@ function WealthStudioApp() {
       <div className="content desk-footer" style={{ padding: "5px 20px", borderTop: "1px solid var(--b1)", background: "rgba(2,2,5,0.95)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>⚠ Based on historical data. Not financial advice. Past performance ≠ future results.</span>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>12 MODULES · 22 ETFs · {Object.keys(CURRENCIES).length} CURRENCIES</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>12 MODULES · 67 ETFs · {Object.keys(CURRENCIES).length} CURRENCIES</span>
           <div style={{ width: "1px", height: "12px", background: "var(--b2)" }} />
           <span style={{ fontFamily: "var(--font-ui)", fontSize: "12px", letterSpacing: "3px", color: "var(--acc)" }} className="glow-g">WEALTH STUDIO PRO</span>
         </div>
