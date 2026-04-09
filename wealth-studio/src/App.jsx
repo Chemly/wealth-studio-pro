@@ -457,7 +457,17 @@ function useLiveData(apiKey) {
       if (!res.ok) return false;
       const d = await res.json();
       if (d && d.quotes && Object.keys(d.quotes).length > 20) {
-        setQuotes(d.quotes);
+        // Recalculate changePct from price/prevClose for accuracy
+        const cleaned = {};
+        for (const [ticker, q] of Object.entries(d.quotes)) {
+          cleaned[ticker] = {
+            ...q,
+            changePct: (q.price && q.prevClose)
+              ? ((q.price - q.prevClose) / q.prevClose) * 100
+              : (q.changePct ?? 0),
+          };
+        }
+        setQuotes(cleaned);
         setStatus("live");
         return true;
       }
@@ -479,7 +489,12 @@ function useLiveData(apiKey) {
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
+          results[ticker] = {
+            price: d.price,
+            change: d.change ?? 0,
+            changePct: (d.price && d.previousClose) ? ((d.price - d.previousClose) / d.previousClose) * 100 : (d.changePct ?? 0),
+            prevClose: d.previousClose,
+          };
         }
       } catch {}
     }));
@@ -665,7 +680,7 @@ function Dashboard({ onNav, currency }) {
     return {
       ...e,
       livePrice: q?.price ?? null,
-      changePct: q ? q.changePct : null,
+      changePct: q ? ((q.price && q.prevClose) ? ((q.price - q.prevClose) / q.prevClose) * 100 : q.changePct) : null,
       isLive: !!q,
     };
   }).filter(Boolean), [quotes]);
@@ -3296,7 +3311,7 @@ export default function WealthStudioPRO() {
 }
 
 function WealthStudioApp() {
-  const [tab, setTab] = useState("etf");
+  const [tab, setTab] = useState("dashboard");
   const [currency, setCurrency] = useState("AUD");
   const [time, setTime] = useState(new Date());
   useEffect(() => {
