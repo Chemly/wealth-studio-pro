@@ -769,6 +769,13 @@ function ETFModule({ currency }) {
     const matchSearch = e.ticker.includes(search.toUpperCase()) || e.name.toLowerCase().includes(search.toLowerCase()) || e.region.toLowerCase().includes(search.toLowerCase());
     const matchExch = exchFilter === "ALL" || e.exchange === exchFilter;
     return matchSearch && matchExch;
+  }).sort((a, b) => {
+    // Selected ETFs float to top
+    const aOn = sel[a.ticker] !== undefined;
+    const bOn = sel[b.ticker] !== undefined;
+    if (aOn && !bOn) return -1;
+    if (!aOn && bOn) return 1;
+    return 0;
   });
 
   const compareProj = (etf, yrs) => { const r = etf.avgReturn / 100 / 12; const n = yrs * 12; return start * Math.pow(1 + r, n) + (r > 0 ? monthly * ((Math.pow(1 + r, n) - 1) / r) : monthly * n); };
@@ -803,10 +810,21 @@ function ETFModule({ currency }) {
           </div>
         </div>
         <div style={{ overflowY: "auto", flex: 1, padding: "4px" }}>
-          {filtered.map(etf => {
+          {filtered.map((etf, idx) => {
             const on = sel[etf.ticker] !== undefined;
             const q = quotes[etf.ticker];
+            // Show divider between selected and unselected
+            const prevOn = idx > 0 ? sel[filtered[idx-1].ticker] !== undefined : true;
+            const showDivider = idx > 0 && !on && prevOn && Object.keys(sel).length > 0;
             return (
+              <React.Fragment key={etf.ticker}>
+                {showDivider && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px", margin: "4px 0" }}>
+                    <div style={{ flex: 1, height: "1px", background: "var(--b2)" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", letterSpacing: "1px", whiteSpace: "nowrap" }}>ALL ETFs</span>
+                    <div style={{ flex: 1, height: "1px", background: "var(--b2)" }} />
+                  </div>
+                )}
               <div key={etf.ticker} onClick={() => toggle(etf.ticker)} className="row-h"
                 style={{ display: "flex", alignItems: "center", gap: "7px", padding: "7px 8px", borderRadius: "3px", cursor: "pointer", marginBottom: "1px", border: `1px solid ${on ? etf.color + "30" : "transparent"}`, background: on ? etf.color + "08" : "transparent" }}>
                 <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: on ? etf.color : "var(--b3)", flexShrink: 0, boxShadow: on ? `0 0 6px ${etf.color}` : "" }} />
@@ -840,6 +858,7 @@ function ETFModule({ currency }) {
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>%</span>
                 </div>}
               </div>
+              </React.Fragment>
             );
           })}
         </div>
