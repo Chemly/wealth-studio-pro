@@ -1286,7 +1286,7 @@ function ETFModule({ currency }) {
 
 function DCAModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
-  const [ticker, setTicker] = useState("QQQ");
+  const [ticker, setTicker] = useState("NDQ");
   const [lump, setLump] = useState(10000);
   const [monthly, setMonthly] = useState(500);
   const [years, setYears] = useState(20);
@@ -1640,7 +1640,7 @@ function MonteCarloModule({ currency }) {
 function BudgetModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const [income, setIncome] = useState(5000);
-  const [period, setPeriod] = useState("monthly");
+  const [period, setPeriod] = useState("1y");
   const [expenses, setExpenses] = useState([
     { id: 1, name: "Rent / Mortgage", cat: "Housing", amount: 1500, essential: true },
     { id: 2, name: "Groceries", cat: "Food", amount: 400, essential: true },
@@ -2032,7 +2032,7 @@ function FIREModule({ currency }) {
   const [wr, setWr] = useState(4);
   const [inflation, setInflation] = useState(3);
   const [age, setAge] = useState(25);
-  const [sub, setSub] = useState("calculator");
+  const [sub, setSub] = useState("overview");
 
   const fireNum = useMemo(() => (annExpenses * Math.pow(1 + inflation / 100, 10)) / (wr / 100), [annExpenses, wr, inflation]);
   const annSavings = annIncome - annExpenses;
@@ -2569,47 +2569,148 @@ function CrashSimModule({ currency }) {
           </div>
 
           <div className="card scan-wrap" style={{ padding: "14px", flex: 1 }}>
-            <div className="lbl" style={{ marginBottom: "10px" }}>Recovery Simulation — {crash.name}</div>
-            <svg width="100%" height="260" viewBox="0 0 660 260" style={{display:"block"}}>
-                <defs>
-                  <linearGradient id="crUp2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient>
-                  <linearGradient id="crDn2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF4D6D" stopOpacity="0.2"/><stop offset="100%" stopColor="#FF4D6D" stopOpacity="0"/></linearGradient>
-                </defs>
-                {(() => {
-                  const W=640,H=220,pad=70,bot=230;
-                  const maxV2=Math.max(...path)*1.05||1;
-                  const minV2=Math.min(...path)*0.97||0;
-                  const rng=maxV2-minV2;
-                  const px=(i)=>pad+(i/(path.length-1))*(W-pad);
-                  const py=(v)=>bot-((v-minV2)/rng)*H;
-                  return <>
-                    {[0,0.25,0.5,0.75,1.0].map(f=>{
-                      const val=minV2+f*rng; const y=bot-f*H;
-                      return <g key={f}>
-                        <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f===0?1:0.5}/>
-                        <text x={pad-6} y={y+4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{val>=1000000?`${(val/1000000).toFixed(1)}M`:val>=1000?`${(val/1000).toFixed(0)}K`:val.toFixed(0)}</text>
-                      </g>;
-                    })}
-                    <polyline points={path.map((v,i)=>`${px(i)},${py(v)}`).join(" ")} fill="none" stroke={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} strokeWidth="2.5"/>
-                    <polygon points={[`${pad},${bot}`,...path.map((v,i)=>`${px(i)},${py(v)}`),`${W},${bot}`].join(" ")} fill={path[path.length-1]>path[0]?"url(#crUp2)":"url(#crDn2)"}/>
-                    {/* Start/end markers */}
-                    <circle cx={pad} cy={py(path[0])} r="4" fill="var(--bg)" stroke="var(--acc2)" strokeWidth="2"/>
-                    <circle cx={W} cy={py(path[path.length-1])} r="4" fill="var(--bg)" stroke={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} strokeWidth="2"/>
-                    <text x={pad} y={py(path[0])-10} textAnchor="middle" fill="var(--acc2)" fontFamily="var(--font-mono)" fontSize="10">{path[0]>=1000000?`${(path[0]/1000000).toFixed(1)}M`:path[0]>=1000?`${(path[0]/1000).toFixed(0)}K`:path[0].toFixed(0)}</text>
-                    <text x={W} y={py(path[path.length-1])-10} textAnchor="end" fill={path[path.length-1]>path[0]?"var(--acc)":"var(--acc4)"} fontFamily="var(--font-mono)" fontSize="10">{path[path.length-1]>=1000000?`${(path[path.length-1]/1000000).toFixed(1)}M`:path[path.length-1]>=1000?`${(path[path.length-1]/1000).toFixed(0)}K`:path[path.length-1].toFixed(0)}</text>
-                    {/* X axis year labels */}
-                    {Array.from({length:6},(_,i)=>Math.round(i*(path.length-1)/5)).map((idx,i)=>{
-                      const x=px(idx);
-                      return <g key={i}>
-                        <line x1={x} y1={bot} x2={x} y2={bot+5} stroke="var(--b2)" strokeWidth="1"/>
-                        <text x={x} y={bot+16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">Yr{Math.round(idx/12)}</text>
-                      </g>;
-                    })}
-                  </>;
-                })()}
-              </svg>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)", marginTop: "8px" }}>
-              Key insight: staying invested + DCA during downturns dramatically accelerates recovery.
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+              <div className="lbl">Recovery Simulation — {crash.name}</div>
+              <div style={{ display: "flex", gap: "12px" }}>
+                {[
+                  { color: "var(--acc4)", label: "Crash phase" },
+                  { color: "var(--acc2)", label: "Pre-crash" },
+                  { color: "var(--acc)", label: "Recovery + DCA" },
+                ].map(({ color, label }) => (
+                  <div key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                    <div style={{ width: "10px", height: "3px", background: color, borderRadius: "2px" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <svg width="100%" height="300" viewBox="0 0 700 300" style={{ display: "block" }}>
+              <defs>
+                <linearGradient id="crUp3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.25"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0.02"/></linearGradient>
+                <linearGradient id="crDn3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF4D6D" stopOpacity="0.25"/><stop offset="100%" stopColor="#FF4D6D" stopOpacity="0.02"/></linearGradient>
+              </defs>
+              {(() => {
+                const PAD_L = 80, PAD_R = 20, PAD_T = 20, PAD_B = 50;
+                const W = 700 - PAD_L - PAD_R; // 600
+                const H = 300 - PAD_T - PAD_B; // 230
+                const crashIdx = 1; // index 0 is pre-crash value
+                const recoveryIdx = crash.recovery + 1;
+                const totalPts = path.length;
+
+                const maxV = Math.max(...path) * 1.08;
+                const minV = Math.min(...path) * 0.94;
+                const range = maxV - minV;
+
+                const px = (i) => PAD_L + (i / (totalPts - 1)) * W;
+                const py = (v) => PAD_T + H - ((v - minV) / range) * H;
+
+                // Key x positions
+                const xCrash = px(crashIdx);
+                const xRecovery = px(Math.min(recoveryIdx, totalPts - 1));
+                const xEnd = px(totalPts - 1);
+
+                // Key y positions
+                const yStart = py(path[0]);
+                const yBottom = py(path[1]);
+                const yRecovery = py(path[Math.min(recoveryIdx, totalPts - 1)]);
+                const yEnd = py(path[totalPts - 1]);
+
+                const fmtV = (v) => v >= 1000000 ? `${sym}${(v/1000000).toFixed(2)}M` : v >= 1000 ? `${sym}${(v/1000).toFixed(0)}K` : `${sym}${v.toFixed(0)}`;
+
+                // Split path into phases: pre (0-1), crash (1), recovery (1 to recoveryIdx), post (recoveryIdx onwards)
+                const crashPath = path.slice(0, 2); // just pre and immediately after
+                const recoveryPath = path.slice(1, Math.min(recoveryIdx + 1, totalPts));
+                const postPath = path.slice(Math.min(recoveryIdx, totalPts - 1));
+
+                return <>
+                  {/* ── BACKGROUND ZONES ── */}
+                  {/* Crash zone (red tint) */}
+                  <rect x={PAD_L} y={PAD_T} width={xCrash - PAD_L} height={H} fill="rgba(255,77,109,0.04)" rx="0"/>
+                  {/* Recovery zone (neutral) */}
+                  <rect x={xCrash} y={PAD_T} width={xRecovery - xCrash} height={H} fill="rgba(255,159,10,0.03)" rx="0"/>
+                  {/* Post-recovery zone (green tint) */}
+                  <rect x={xRecovery} y={PAD_T} width={xEnd - xRecovery} height={H} fill="rgba(0,255,135,0.03)" rx="0"/>
+
+                  {/* ── Y AXIS GRID + LABELS ── */}
+                  {[0, 0.25, 0.5, 0.75, 1.0].map(f => {
+                    const val = minV + f * range;
+                    const y = PAD_T + H - f * H;
+                    return <g key={f}>
+                      <line x1={PAD_L} y1={y} x2={PAD_L + W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5} strokeDasharray={f === 0 ? "" : "3,3"}/>
+                      <text x={PAD_L - 8} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="11">{fmtV(val)}</text>
+                    </g>;
+                  })}
+
+                  {/* ── ORIGINAL VALUE REFERENCE LINE ── */}
+                  <line x1={PAD_L} y1={yStart} x2={PAD_L + W} y2={yStart} stroke="var(--acc2)" strokeWidth="1" strokeDasharray="8,4" opacity="0.5"/>
+                  <text x={PAD_L + W + 3} y={yStart + 4} fill="var(--acc2)" fontFamily="var(--font-mono)" fontSize="10" opacity="0.7">Start</text>
+
+                  {/* ── AREA FILLS ── */}
+                  {/* Red fill under crash phase */}
+                  <polygon
+                    points={[`${PAD_L},${PAD_T + H}`, `${PAD_L},${yStart}`, `${xCrash},${yBottom}`, `${xCrash},${PAD_T + H}`].join(" ")}
+                    fill="url(#crDn3)"
+                  />
+                  {/* Green fill under recovery + post */}
+                  <polygon
+                    points={[`${xCrash},${PAD_T + H}`, ...path.slice(1).map((v, i) => `${px(i + 1)},${py(v)}`), `${xEnd},${PAD_T + H}`].join(" ")}
+                    fill="url(#crUp3)"
+                  />
+
+                  {/* ── MAIN LINE ── */}
+                  {/* Pre-crash segment */}
+                  <polyline points={path.slice(0, 2).map((v, i) => `${px(i)},${py(v)}`).join(" ")} fill="none" stroke="var(--acc2)" strokeWidth="2.5"/>
+                  {/* Crash drop segment */}
+                  <polyline points={`${px(0)},${py(path[0])} ${px(1)},${py(path[1])}`} fill="none" stroke="var(--acc4)" strokeWidth="3" strokeDasharray="6,3"/>
+                  {/* Recovery + post segment */}
+                  <polyline points={path.slice(1).map((v, i) => `${px(i + 1)},${py(v)}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5"/>
+
+                  {/* ── PHASE DIVIDERS ── */}
+                  <line x1={xCrash} y1={PAD_T} x2={xCrash} y2={PAD_T + H} stroke="var(--acc4)" strokeWidth="1" strokeDasharray="4,3" opacity="0.6"/>
+                  <line x1={xRecovery} y1={PAD_T} x2={xRecovery} y2={PAD_T + H} stroke="var(--acc)" strokeWidth="1" strokeDasharray="4,3" opacity="0.5"/>
+
+                  {/* ── KEY POINT MARKERS ── */}
+                  {/* Pre-crash value */}
+                  <circle cx={PAD_L} cy={yStart} r="5" fill="var(--bg)" stroke="var(--acc2)" strokeWidth="2.5"/>
+                  <text x={PAD_L + 8} y={yStart - 8} fill="var(--acc2)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">{fmtV(path[0])}</text>
+
+                  {/* Crash bottom */}
+                  <circle cx={xCrash} cy={yBottom} r="6" fill="var(--bg)" stroke="var(--acc4)" strokeWidth="2.5"/>
+                  <text x={xCrash + 8} y={yBottom + 4} fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">{fmtV(path[1])}</text>
+                  <text x={xCrash + 8} y={yBottom + 17} fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="10">{crash.drop}% drop ↓</text>
+
+                  {/* Recovery point */}
+                  {recoveryIdx < totalPts && <>
+                    <circle cx={xRecovery} cy={yRecovery} r="6" fill="var(--bg)" stroke="var(--acc)" strokeWidth="2.5" style={{ filter: "drop-shadow(0 0 6px #00FF87)" }}/>
+                    <text x={xRecovery + 8} y={yRecovery - 8} fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">{fmtV(path[Math.min(recoveryIdx, totalPts-1)])}</text>
+                    <text x={xRecovery + 8} y={yRecovery + 5} fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10">✓ Recovered</text>
+                  </>}
+
+                  {/* End value */}
+                  <circle cx={xEnd} cy={yEnd} r="5" fill="var(--bg)" stroke="var(--acc)" strokeWidth="2.5"/>
+                  <text x={xEnd - 8} y={yEnd - 10} textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="11" fontWeight="bold">{fmtV(path[totalPts - 1])}</text>
+
+                  {/* ── PHASE LABELS (TOP) ── */}
+                  <text x={(PAD_L + xCrash) / 2} y={PAD_T + 14} textAnchor="middle" fill="var(--acc4)" fontFamily="var(--font-mono)" fontSize="10" opacity="0.7">BEFORE</text>
+                  <text x={(xCrash + xRecovery) / 2} y={PAD_T + 14} textAnchor="middle" fill="var(--acc5)" fontFamily="var(--font-mono)" fontSize="10" opacity="0.7">RECOVERING</text>
+                  <text x={(xRecovery + xEnd) / 2} y={PAD_T + 14} textAnchor="middle" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10" opacity="0.7">ABOVE PEAK</text>
+
+                  {/* ── X AXIS LABELS (MONTHS) ── */}
+                  {Array.from({ length: 7 }, (_, i) => Math.round(i * (totalPts - 1) / 6)).map((idx, i) => {
+                    const x = px(idx);
+                    const months = idx;
+                    return <g key={i}>
+                      <line x1={x} y1={PAD_T + H} x2={x} y2={PAD_T + H + 5} stroke="var(--b2)" strokeWidth="1"/>
+                      <text x={x} y={PAD_T + H + 18} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">
+                        {months === 0 ? "Now" : months < 12 ? `${months}mo` : `${(months/12).toFixed(0)}yr`}
+                      </text>
+                    </g>;
+                  })}
+                </>;
+              })()}
+            </svg>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t2)", marginTop: "10px", padding: "10px 12px", background: "var(--s2)", borderRadius: "3px", border: "1px solid var(--b1)", lineHeight: 1.7 }}>
+              💡 <strong style={{ color: "var(--acc)" }}>Key insight:</strong> Continuing to DCA <strong style={{ color: "var(--acc2)" }}>{sym}{monthlyDCA.toLocaleString()}/mo</strong> during the crash means you buy more units at lower prices — accelerating recovery and ending <strong style={{ color: "var(--acc)" }}>{fmt(bonus, sym)} ahead</strong> of where you started.
             </div>
           </div>
         </div>
@@ -2974,8 +3075,8 @@ export default function WealthStudioPRO() {
 }
 
 function WealthStudioApp() {
-  const [tab, setTab] = useState("dashboard");
-  const [currency, setCurrency] = useState("USD");
+  const [tab, setTab] = useState("etf");
+  const [currency, setCurrency] = useState("AUD");
   const [time, setTime] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
