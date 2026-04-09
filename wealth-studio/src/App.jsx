@@ -448,71 +448,51 @@ function useLiveData(apiKey) {
   const intervalRef = useRef(null);
   const resultsRef = useRef({});
 
-  const fetchAll = useCallback(async (key) => {
-    if (!key || key.trim().length < 8) return;
-    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+  const fetchAll = useCallback(async () => {
+    // ALL tickers via Yahoo Finance proxy — no Finnhub, no rate limits, no 429s
+    // US tickers pass as plain symbol (QQQ, SPY), ASX use .AX suffix
+    const allTickers = {
+      ...ASX_TICKERS,
+      ...Object.fromEntries(US_TICKERS.map(t => [t, t])),
+    };
 
-    // Fire ASX and US fetches in parallel — don't wait for one before starting the other
-    // ASX via Yahoo proxy (fast, no rate limit)
-    const asxPromise = Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
+    await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          resultsRef.current[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
-          // Update quotes incrementally as ASX data arrives — no waiting for US
+          resultsRef.current[ticker] = {
+            price: d.price,
+            change: d.change ?? 0,
+            changePct: d.changePct ?? 0,
+            prevClose: d.previousClose,
+          };
+          // Update state incrementally as each ticker arrives
           setQuotes({ ...resultsRef.current });
           setStatus("live");
         }
       } catch {}
     }));
-
-    // US via Finnhub — batched 5 at a time
-    const usFetch = async () => {
-      for (let i = 0; i < US_TICKERS.length; i += 5) {
-        const batch = US_TICKERS.slice(i, i + 5);
-        await Promise.all(batch.map(async (ticker) => {
-          try {
-            const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${key}`);
-            if (!res.ok) return;
-            const d = await res.json();
-            if (d && d.c && d.c > 0) {
-              resultsRef.current[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, prevClose: d.pc };
-              // Update quotes incrementally as US data arrives
-              setQuotes({ ...resultsRef.current });
-              setStatus("live");
-            }
-          } catch {}
-        }));
-        if (i + 5 < US_TICKERS.length) await delay(1200);
-      }
-    };
-
-    // Run both in parallel
-    await Promise.all([asxPromise, usFetch()]);
   }, []);
 
   useEffect(() => {
     clearInterval(intervalRef.current);
     resultsRef.current = {};
-    if (!apiKey || apiKey.trim().length < 8) { setStatus("nokey"); setQuotes({}); return; }
-
     // Fetch immediately on mount
-    fetchAll(apiKey);
-    // Then refresh every 90 seconds
-    intervalRef.current = setInterval(() => fetchAll(apiKey), 90000);
+    fetchAll();
+    // Refresh every 60 seconds
+    intervalRef.current = setInterval(fetchAll, 60000);
     return () => clearInterval(intervalRef.current);
-  }, [apiKey, fetchAll]);
+  }, [fetchAll]);
 
-  return { quotes, status, refetch: () => { resultsRef.current = {}; fetchAll(apiKey); } };
+  return { quotes, status, refetch: () => { resultsRef.current = {}; fetchAll(); } };
 }
 
 function LiveProvider({ children }) {
-  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
-  const { quotes, status, refetch } = useLiveData(apiKey);
+  const { quotes, status, refetch } = useLiveData();
   return (
-    <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
+    <LiveCtx.Provider value={{ quotes, status, refetch }}>
       {children}
     </LiveCtx.Provider>
   );
