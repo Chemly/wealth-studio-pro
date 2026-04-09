@@ -444,77 +444,68 @@ const PROXY_BASE = "/api/quote";
 
 function useLiveData(apiKey) {
   const [quotes, setQuotes] = useState({});
-  const [status, setStatus] = useState("loading"); // start as loading not idle
+  const [status, setStatus] = useState("loading");
   const intervalRef = useRef(null);
+  const resultsRef = useRef({});
 
-  // Fast path: hit the pre-cached server endpoint — instant response on load
-  const fetchFast = useCallback(async () => {
-    try {
-      const res = await fetch("/api/quotes-all");
-      if (!res.ok) return false;
-      const d = await res.json();
-      if (d && d.quotes && Object.keys(d.quotes).length > 0) {
-        setQuotes(d.quotes);
-        setStatus("live");
-        return true;
-      }
-    } catch {}
-    return false;
-  }, []);
-
-  // Full refresh: also called on interval to keep data fresh
   const fetchAll = useCallback(async (key) => {
     if (!key || key.trim().length < 8) return;
-    const results = {};
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // US tickers via Finnhub — 5 per batch, 1.2s between batches
-    for (let i = 0; i < US_TICKERS.length; i += 5) {
-      const batch = US_TICKERS.slice(i, i + 5);
-      await Promise.all(batch.map(async (ticker) => {
-        try {
-          const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${key}`);
-          if (!res.ok) return;
-          const d = await res.json();
-          if (d && d.c && d.c > 0) {
-            results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, prevClose: d.pc };
-          }
-        } catch {}
-      }));
-      if (i + 5 < US_TICKERS.length) await delay(1200);
-    }
-
-    // ASX tickers via Vercel proxy → Yahoo Finance
-    await Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
+    // Fire ASX and US fetches in parallel — don't wait for one before starting the other
+    // ASX via Yahoo proxy (fast, no rate limit)
+    const asxPromise = Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
+          resultsRef.current[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
+          // Update quotes incrementally as ASX data arrives — no waiting for US
+          setQuotes({ ...resultsRef.current });
+          setStatus("live");
         }
       } catch {}
     }));
 
-    if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
+    // US via Finnhub — batched 5 at a time
+    const usFetch = async () => {
+      for (let i = 0; i < US_TICKERS.length; i += 5) {
+        const batch = US_TICKERS.slice(i, i + 5);
+        await Promise.all(batch.map(async (ticker) => {
+          try {
+            const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${key}`);
+            if (!res.ok) return;
+            const d = await res.json();
+            if (d && d.c && d.c > 0) {
+              resultsRef.current[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, prevClose: d.pc };
+              // Update quotes incrementally as US data arrives
+              setQuotes({ ...resultsRef.current });
+              setStatus("live");
+            }
+          } catch {}
+        }));
+        if (i + 5 < US_TICKERS.length) await delay(1200);
+      }
+    };
+
+    // Run both in parallel
+    await Promise.all([asxPromise, usFetch()]);
   }, []);
 
   useEffect(() => {
     clearInterval(intervalRef.current);
+    resultsRef.current = {};
     if (!apiKey || apiKey.trim().length < 8) { setStatus("nokey"); setQuotes({}); return; }
 
-    // On mount: hit fast cache endpoint first (instant), then schedule full refreshes
-    fetchFast().then(hit => {
-      // Whether cache hit or miss, schedule background full refreshes
-      intervalRef.current = setInterval(() => fetchAll(apiKey), 90000);
-      // If cache missed, do a full fetch now
-      if (!hit) fetchAll(apiKey);
-    });
-
+    // Fetch immediately on mount
+    fetchAll(apiKey);
+    // Then refresh every 90 seconds
+    intervalRef.current = setInterval(() => fetchAll(apiKey), 90000);
     return () => clearInterval(intervalRef.current);
-  }, [apiKey, fetchAll, fetchFast]);
+  }, [apiKey, fetchAll]);
 
-  return { quotes, status, refetch: () => fetchAll(apiKey) };
+  return { quotes, status, refetch: () => { resultsRef.current = {}; fetchAll(apiKey); } };
 }
 
 function LiveProvider({ children }) {
@@ -658,7 +649,7 @@ function Dashboard({ onNav, currency }) {
 
   // Show a curated mix of popular ASX + US tickers in the market overview
   const OVERVIEW_TICKERS = ["NDQ","VAS","VGS","A200","DHHF","QQQ","VOO","SPY","GLD","SCHD"];
-  const marketData = OVERVIEW_TICKERS.map(ticker => {
+  const marketData = useMemo(() => OVERVIEW_TICKERS.map(ticker => {
     const e = ETFs.find(x => x.ticker === ticker);
     if (!e) return null;
     const q = quotes[ticker];
@@ -668,7 +659,7 @@ function Dashboard({ onNav, currency }) {
       changePct: q ? q.changePct : null,
       isLive: !!q,
     };
-  }).filter(Boolean);
+  }).filter(Boolean), [quotes]);
 
   const modules = [
     { id: "etf", label: "ETF Simulator", desc: "Build & project portfolios across 67 live ETFs. Scenarios, confidence bands, fee impact.", icon: "◈", color: "var(--acc)" },
