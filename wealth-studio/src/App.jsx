@@ -454,20 +454,28 @@ function useLiveData(apiKey) {
     setStatus("loading");
     const results = {};
 
-    // Fetch US tickers from Finnhub
-    const finnhubPromises = US_TICKERS.map(async (ticker) => {
-      try {
-        const res = await fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${key}`);
-        if (!res.ok) return;
-        const d = await res.json();
-        if (d && d.c && d.c > 0) {
-          results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, high: d.h, low: d.l, open: d.o, prevClose: d.pc };
-        }
-      } catch {}
-    });
+    // Helper: delay between requests to respect Finnhub free tier (60 calls/min)
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // Fetch ASX tickers via Vercel proxy → Yahoo Finance
-    const asxPromises = Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
+    // Fetch US tickers from Finnhub — throttled, 6 at a time with small gaps
+    const batchSize = 6;
+    for (let i = 0; i < US_TICKERS.length; i += batchSize) {
+      const batch = US_TICKERS.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (ticker) => {
+        try {
+          const res = await fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${key}`);
+          if (!res.ok) return;
+          const d = await res.json();
+          if (d && d.c && d.c > 0) {
+            results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, high: d.h, low: d.l, open: d.o, prevClose: d.pc };
+          }
+        } catch {}
+      }));
+      if (i + batchSize < US_TICKERS.length) await delay(800);
+    }
+
+    // Fetch ASX tickers via Vercel proxy → Yahoo Finance (no rate limit needed)
+    await Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
@@ -476,20 +484,17 @@ function useLiveData(apiKey) {
           results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
         }
       } catch {}
-    });
+    }));
 
-    try {
-      await Promise.all([...finnhubPromises, ...asxPromises]);
-      if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
-      else setStatus("error");
-    } catch { setStatus("error"); }
+    if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
+    else setStatus("error");
   }, []);
 
   useEffect(() => {
     clearInterval(intervalRef.current);
     if (!apiKey || apiKey.trim().length < 8) { setStatus("nokey"); setQuotes({}); return; }
     fetchAll(apiKey);
-    intervalRef.current = setInterval(() => fetchAll(apiKey), 30000);
+    intervalRef.current = setInterval(() => fetchAll(apiKey), 60000); // 60s refresh - safer for free tier
     return () => clearInterval(intervalRef.current);
   }, [apiKey, fetchAll]);
 
