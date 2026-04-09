@@ -388,36 +388,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 `;
 
 // ─── LIVE DATA CONTEXT ───────────────────────────────────────────────────────
-// Finnhub free tier: 60 calls/min, real-time US quotes, CORS-enabled
-// Get a free key at https://finnhub.io (takes 30 seconds)
 
 const LiveCtx = React.createContext({ quotes: {}, status: "idle", apiKey: "", setApiKey: () => {} });
 
-const FINNHUB_BASE = "https://finnhub.io/api/v1";
 
-// US-listed tickers — fetched via Finnhub (real-time, free)
-const US_TICKERS = [
-  // Broad market
-  "SPY","VOO","IVV","VTI","IWM",
-  // Tech
-  "QQQ","QQQM","XLK","VGT","ARKK",
-  // Dividend
-  "SCHD","VIG","VYM","JEPI","JEPQ",
-  // Sectors
-  "XLV","XLF","XLE","XLI",
-  // Real estate
-  "VNQ",
-  // Global
-  "VEU","VT","ACWI","EFA",
-  // Emerging
-  "VWO","EEM",
-  // Fixed income
-  "BND","TLT","SHY",
-  // Commodities
-  "GLD","IAU","SLV",
-  // Thematic
-  "ICLN","LIT","AIQ",
-];
+// ALL US tickers now go through Yahoo Finance proxy — no Finnhub rate limits
+// Yahoo Finance symbol format: just the ticker (no suffix for US)
+const US_TICKERS = {
+  "SPY":"SPY","VOO":"VOO","IVV":"IVV","VTI":"VTI","IWM":"IWM",
+  "QQQ":"QQQ","QQQM":"QQQM","XLK":"XLK","VGT":"VGT","ARKK":"ARKK",
+  "SCHD":"SCHD","VIG":"VIG","VYM":"VYM","JEPI":"JEPI","JEPQ":"JEPQ",
+  "XLV":"XLV","XLF":"XLF","XLE":"XLE","XLI":"XLI",
+  "VNQ":"VNQ",
+  "VEU":"VEU","VT":"VT","ACWI":"ACWI","EFA":"EFA",
+  "VWO":"VWO","EEM":"EEM",
+  "BND":"BND","TLT":"TLT","SHY":"SHY",
+  "GLD":"GLD","IAU":"IAU","SLV":"SLV",
+  "ICLN":"ICLN","LIT":"LIT","AIQ":"AIQ",
+};
 
 // ASX-listed tickers — fetched via Vercel proxy → Yahoo Finance (real-time)
 // Yahoo Finance symbol format: TICKER.AX
@@ -444,44 +432,34 @@ const ASX_TICKERS = {
 // Vercel serverless proxy — handles CORS for Yahoo Finance
 const PROXY_BASE = "/api/quote";
 
-function useLiveData(apiKey) {
+function useLiveData() {
   const [quotes, setQuotes] = useState({});
   const [status, setStatus] = useState("idle");
   const intervalRef = useRef(null);
 
-  const fetchAll = useCallback(async (key) => {
-    if (!key || key.trim().length < 8) return;
+  const fetchAll = useCallback(async () => {
     setStatus("loading");
     const results = {};
 
-    // Helper: delay between requests to respect Finnhub free tier (60 calls/min)
-    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    // All tickers (US + ASX) go through Vercel proxy → Yahoo Finance
+    // No Finnhub, no rate limits, no API key needed
+    const allTickers = {
+      ...Object.fromEntries(Object.entries(US_TICKERS).map(([k, v]) => [k, v])),
+      ...Object.fromEntries(Object.entries(ASX_TICKERS)),
+    };
 
-    // Fetch US tickers from Finnhub — throttled, 6 at a time with small gaps
-    const batchSize = 6;
-    for (let i = 0; i < US_TICKERS.length; i += batchSize) {
-      const batch = US_TICKERS.slice(i, i + batchSize);
-      await Promise.all(batch.map(async (ticker) => {
-        try {
-          const res = await fetch(`${FINNHUB_BASE}/quote?symbol=${ticker}&token=${key}`);
-          if (!res.ok) return;
-          const d = await res.json();
-          if (d && d.c && d.c > 0) {
-            results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, high: d.h, low: d.l, open: d.o, prevClose: d.pc };
-          }
-        } catch {}
-      }));
-      if (i + batchSize < US_TICKERS.length) await delay(800);
-    }
-
-    // Fetch ASX tickers via Vercel proxy → Yahoo Finance (no rate limit needed)
-    await Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
+    await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
+          results[ticker] = {
+            price: d.price,
+            change: d.change ?? 0,
+            changePct: d.changePct ?? 0,
+            prevClose: d.previousClose,
+          };
         }
       } catch {}
     }));
@@ -492,20 +470,18 @@ function useLiveData(apiKey) {
 
   useEffect(() => {
     clearInterval(intervalRef.current);
-    if (!apiKey || apiKey.trim().length < 8) { setStatus("nokey"); setQuotes({}); return; }
-    fetchAll(apiKey);
-    intervalRef.current = setInterval(() => fetchAll(apiKey), 60000); // 60s refresh - safer for free tier
+    fetchAll();
+    intervalRef.current = setInterval(fetchAll, 60000);
     return () => clearInterval(intervalRef.current);
-  }, [apiKey, fetchAll]);
+  }, [fetchAll]);
 
   return { quotes, status, refetch: () => fetchAll(apiKey) };
 }
 
 function LiveProvider({ children }) {
-  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
-  const { quotes, status, refetch } = useLiveData(apiKey);
+  const { quotes, status, refetch } = useLiveData();
   return (
-    <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
+    <LiveCtx.Provider value={{ quotes, status, refetch }}>
       {children}
     </LiveCtx.Provider>
   );
