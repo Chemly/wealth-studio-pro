@@ -392,20 +392,30 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 const LiveCtx = React.createContext({ quotes: {}, status: "idle", apiKey: "", setApiKey: () => {} });
 
 
-// ALL US tickers now go through Yahoo Finance proxy — no Finnhub rate limits
-// Yahoo Finance symbol format: just the ticker (no suffix for US)
-const US_TICKERS = {
-  "SPY":"SPY","VOO":"VOO","IVV":"IVV","VTI":"VTI","IWM":"IWM",
-  "QQQ":"QQQ","QQQM":"QQQM","XLK":"XLK","VGT":"VGT","ARKK":"ARKK",
-  "SCHD":"SCHD","VIG":"VIG","VYM":"VYM","JEPI":"JEPI","JEPQ":"JEPQ",
-  "XLV":"XLV","XLF":"XLF","XLE":"XLE","XLI":"XLI",
-  "VNQ":"VNQ",
-  "VEU":"VEU","VT":"VT","ACWI":"ACWI","EFA":"EFA",
-  "VWO":"VWO","EEM":"EEM",
-  "BND":"BND","TLT":"TLT","SHY":"SHY",
-  "GLD":"GLD","IAU":"IAU","SLV":"SLV",
-  "ICLN":"ICLN","LIT":"LIT","AIQ":"AIQ",
-};
+// US tickers via Finnhub — all 34, batched 5 at a time (7 batches × 1s = ~7s total)
+// Free tier = 60 calls/min. 34 calls per refresh at 90s interval = well within limits.
+const US_TICKERS = [
+  // Broad market
+  "SPY","VOO","IVV","VTI","IWM",
+  // Tech
+  "QQQ","QQQM","XLK","VGT","ARKK",
+  // Dividend & Income
+  "SCHD","VIG","VYM","JEPI","JEPQ",
+  // Sectors
+  "XLV","XLF","XLE","XLI",
+  // Real estate
+  "VNQ",
+  // Global
+  "VEU","VT","ACWI","EFA",
+  // Emerging
+  "VWO","EEM",
+  // Fixed income
+  "BND","TLT","SHY",
+  // Commodities
+  "GLD","IAU","SLV",
+  // Thematic
+  "ICLN","LIT","AIQ",
+];
 
 // ASX-listed tickers — fetched via Vercel proxy → Yahoo Finance (real-time)
 // Yahoo Finance symbol format: TICKER.AX
@@ -424,7 +434,7 @@ const ASX_TICKERS = {
   "AAA": "AAA.AX", "BILL": "BILL.AX", "VAF": "VAF.AX", "VIF": "VIF.AX",
   // ASX Sector & Thematic
   "HACK": "HACK.AX", "ROBO": "ROBO.AX", "CLDD": "CLDD.AX", "ETHI": "ETHI.AX",
-  "ATEC": "ATEC.AX", "OZR": "OZR.AX", "DRUG": "DRUG.AX", "MVB": "MVB.AX",
+  "ATEC": "ATEC.AX", "OZR": "OZR.AX", "DRUG": "DRUG.AX",
   // ASX Commodities
   "GOLD": "GOLD.AX", "PMGOLD": "PMGOLD.AX",
 };
@@ -432,56 +442,86 @@ const ASX_TICKERS = {
 // Vercel serverless proxy — handles CORS for Yahoo Finance
 const PROXY_BASE = "/api/quote";
 
-function useLiveData() {
+function useLiveData(apiKey) {
   const [quotes, setQuotes] = useState({});
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("loading"); // start as loading not idle
   const intervalRef = useRef(null);
 
-  const fetchAll = useCallback(async () => {
-    setStatus("loading");
+  // Fast path: hit the pre-cached server endpoint — instant response on load
+  const fetchFast = useCallback(async () => {
+    try {
+      const res = await fetch("/api/quotes-all");
+      if (!res.ok) return false;
+      const d = await res.json();
+      if (d && d.quotes && Object.keys(d.quotes).length > 0) {
+        setQuotes(d.quotes);
+        setStatus("live");
+        return true;
+      }
+    } catch {}
+    return false;
+  }, []);
+
+  // Full refresh: also called on interval to keep data fresh
+  const fetchAll = useCallback(async (key) => {
+    if (!key || key.trim().length < 8) return;
     const results = {};
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // All tickers (US + ASX) go through Vercel proxy → Yahoo Finance
-    // No Finnhub, no rate limits, no API key needed
-    const allTickers = {
-      ...Object.fromEntries(Object.entries(US_TICKERS).map(([k, v]) => [k, v])),
-      ...Object.fromEntries(Object.entries(ASX_TICKERS)),
-    };
+    // US tickers via Finnhub — 5 per batch, 1.2s between batches
+    for (let i = 0; i < US_TICKERS.length; i += 5) {
+      const batch = US_TICKERS.slice(i, i + 5);
+      await Promise.all(batch.map(async (ticker) => {
+        try {
+          const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${key}`);
+          if (!res.ok) return;
+          const d = await res.json();
+          if (d && d.c && d.c > 0) {
+            results[ticker] = { price: d.c, change: d.d ?? 0, changePct: d.dp ?? 0, prevClose: d.pc };
+          }
+        } catch {}
+      }));
+      if (i + 5 < US_TICKERS.length) await delay(1200);
+    }
 
-    await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
+    // ASX tickers via Vercel proxy → Yahoo Finance
+    await Promise.all(Object.entries(ASX_TICKERS).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          results[ticker] = {
-            price: d.price,
-            change: d.change ?? 0,
-            changePct: d.changePct ?? 0,
-            prevClose: d.previousClose,
-          };
+          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
         }
       } catch {}
     }));
 
     if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
-    else setStatus("error");
   }, []);
 
   useEffect(() => {
     clearInterval(intervalRef.current);
-    fetchAll();
-    intervalRef.current = setInterval(fetchAll, 60000);
+    if (!apiKey || apiKey.trim().length < 8) { setStatus("nokey"); setQuotes({}); return; }
+
+    // On mount: hit fast cache endpoint first (instant), then schedule full refreshes
+    fetchFast().then(hit => {
+      // Whether cache hit or miss, schedule background full refreshes
+      intervalRef.current = setInterval(() => fetchAll(apiKey), 90000);
+      // If cache missed, do a full fetch now
+      if (!hit) fetchAll(apiKey);
+    });
+
     return () => clearInterval(intervalRef.current);
-  }, [fetchAll]);
+  }, [apiKey, fetchAll, fetchFast]);
 
   return { quotes, status, refetch: () => fetchAll(apiKey) };
 }
 
 function LiveProvider({ children }) {
-  const { quotes, status, refetch } = useLiveData();
+  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
+  const { quotes, status, refetch } = useLiveData(apiKey);
   return (
-    <LiveCtx.Provider value={{ quotes, status, refetch }}>
+    <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
       {children}
     </LiveCtx.Provider>
   );
@@ -572,22 +612,30 @@ function TickerBar({ currency }) {
         </div>
       )}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-        <div style={{ display: "inline-flex", animation: `ticker ${isLive ? 120 : 140}s linear infinite`, whiteSpace: "nowrap", willChange: "transform" }}>
+        {!isLive ? (
+          <div style={{ display: "inline-flex", alignItems: "center", height: "26px", padding: "0 16px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "1px", gap: "8px" }}>
+            <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "var(--t3)", animation: "blink 1s ease-in-out infinite" }}/>
+            LOADING LIVE PRICES...
+          </div>
+        ) : (
+        <div style={{ display: "inline-flex", animation: `ticker ${120}s linear infinite`, whiteSpace: "nowrap", willChange: "transform" }}>
           {items.map((e, i) => {
             const q = quotes[e.ticker];
-            const delta = q ? q.changePct : ((Math.sin(i * 2.3 + 1.1) + 1) * 2 - 1.5);
-            const price = q ? q.price : null;
+            if (!q) return null; // skip tickers with no live data
+            const delta = q.changePct;
+            const price = q.price;
             const up = delta >= 0;
             return (
               <span key={i} style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "0 14px", borderRight: "1px solid var(--b1)", color: up ? "var(--acc)" : "var(--acc4)", display: "inline-flex", alignItems: "center", gap: "4px", height: "26px" }}>
                 <span style={{ color: "var(--t3)" }}>{e.ticker}</span>
                 <span style={{ fontSize: "7px", padding: "0 3px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
-                {price && <span style={{ color: "var(--t2)" }}>{e.exchange === "ASX" ? "A$" : "$"}{price.toFixed(2)}</span>}
+                <span style={{ color: "var(--t2)" }}>{e.exchange === "ASX" ? "A$" : "$"}{price.toFixed(2)}</span>
                 <span>{up ? "▲" : "▼"}{Math.abs(delta).toFixed(2)}%</span>
               </span>
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );
