@@ -24,18 +24,11 @@ export default async function handler(req, res) {
     if (!meta) return res.status(404).json({ error: "no data for " + symbol });
 
     const price = meta.regularMarketPrice;
-    const prevClose = meta.chartPreviousClose || meta.previousClose;
+    // Use regularMarketPreviousClose for accurate daily % change
+    const prevClose = meta.regularMarketPreviousClose || meta.chartPreviousClose || meta.previousClose;
 
-    // Yahoo provides regularMarketChangePercent directly — always use it first
-    const changePct = meta.regularMarketChangePercent != null
-      ? meta.regularMarketChangePercent
-      : (prevClose && prevClose > 0)
-        ? ((price - prevClose) / prevClose) * 100
-        : 0;
-
-    const change = meta.regularMarketChange != null
-      ? meta.regularMarketChange
-      : prevClose ? price - prevClose : 0;
+    const changePct = (price && prevClose) ? ((price - prevClose) / prevClose) * 100 : 0;
+    const change = (price && prevClose) ? price - prevClose : 0;
 
     return res.json({
       symbol: meta.symbol,
