@@ -853,8 +853,22 @@ function ETFModule({ currency }) {
                   )}
                 </div>
                 {on && <div onClick={e => e.stopPropagation()} style={{ display: "flex", alignItems: "center", gap: "2px", flexShrink: 0 }}>
-                  <input type="number" value={sel[etf.ticker]} onChange={e => setSel(p => ({ ...p, [etf.ticker]: Math.max(0, Math.min(100, +e.target.value)) }))}
-                    style={{ background: "var(--s1)", border: `1px solid ${etf.color}40`, borderRadius: "3px", color: etf.color, fontFamily: "var(--font-mono)", fontSize: "10px", padding: "2px 4px", width: "42px", textAlign: "center", outline: "none" }} />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={sel[etf.ticker] === 0 ? "" : sel[etf.ticker]}
+                    onChange={e => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      const num = raw === "" ? 0 : Math.min(100, parseInt(raw, 10));
+                      setSel(p => ({ ...p, [etf.ticker]: num }));
+                    }}
+                    onFocus={e => {
+                      // Select all on focus so user can just type new value
+                      e.target.select();
+                    }}
+                    placeholder="0"
+                    style={{ background: "var(--s1)", border: `1px solid ${etf.color}40`, borderRadius: "3px", color: etf.color, fontFamily: "var(--font-mono)", fontSize: "10px", padding: "2px 4px", width: "42px", textAlign: "center", outline: "none" }}
+                  />
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>%</span>
                 </div>}
               </div>
