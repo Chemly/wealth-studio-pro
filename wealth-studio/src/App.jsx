@@ -442,7 +442,7 @@ const ASX_TICKERS = {
 // Vercel serverless proxy — handles CORS for Yahoo Finance
 const PROXY_BASE = "/api/quote";
 
-function useLiveData(apiKey) {
+function useLiveData() {
   const [quotes, setQuotes] = useState({});
   const [status, setStatus] = useState("loading");
   const intervalRef = useRef(null);
@@ -475,7 +475,7 @@ function useLiveData(apiKey) {
     const results = {};
     await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
-        const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
+        const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`, { cache: 'no-store' });
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
@@ -3296,7 +3296,7 @@ export default function WealthStudioPRO() {
 }
 
 function WealthStudioApp() {
-  const [tab, setTab] = useState("etf");
+  const [tab, setTab] = useState("dashboard");
   const [currency, setCurrency] = useState("AUD");
   const [time, setTime] = useState(new Date());
   useEffect(() => {
