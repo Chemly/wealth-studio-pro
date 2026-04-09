@@ -176,7 +176,7 @@ input[type=number]{-moz-appearance:textfield;}
 @keyframes scanline{0%{top:-20%;}100%{top:120%;}}
 .scan-wrap{position:relative;overflow:hidden;}
 .scan-wrap::after{content:'';position:absolute;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(0,255,135,0.04),transparent);animation:scanline 6s linear infinite;pointer-events:none;}
-@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-33.333%);}}
 @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 .shimmer{background:linear-gradient(90deg,transparent 0%,rgba(0,255,135,0.06) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 2s infinite;}
 @keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 rgba(0,255,135,0);}50%{box-shadow:0 0 0 4px rgba(0,255,135,0.08);}}
@@ -502,7 +502,7 @@ function useLiveData(apiKey) {
 }
 
 function LiveProvider({ children }) {
-  const [apiKey, setApiKey] = useState("d7bfuv1r01qgc9t794mgd7bfuv1r01qgc9t794n0");
+  const [apiKey, setApiKey] = useState("d76auu1r01qm4b7tjq6g");
   const { quotes, status, refetch } = useLiveData(apiKey);
   return (
     <LiveCtx.Provider value={{ quotes, status, apiKey, setApiKey, refetch }}>
@@ -585,7 +585,8 @@ function MiniDonut({ data, size = 60 }) {
 function TickerBar({ currency }) {
   const { quotes, status } = React.useContext(LiveCtx);
   const isLive = status === "live" && Object.keys(quotes).length > 0;
-  const items = [...ETFs, ...ETFs];
+  // Triple the items so the loop is guaranteed seamless at any screen width
+  const items = [...ETFs, ...ETFs, ...ETFs];
 
   return (
     <div style={{ overflow: "hidden", borderBottom: "1px solid var(--b1)", background: "var(--s1)", height: "26px", display: "flex", alignItems: "center", flexShrink: 0 }}>
@@ -594,21 +595,23 @@ function TickerBar({ currency }) {
           ● LIVE
         </div>
       )}
-      <div style={{ display: "flex", animation: `ticker ${isLive ? 70 : 80}s linear infinite`, whiteSpace: "nowrap", willChange: "transform", overflow: "hidden" }}>
-        {items.map((e, i) => {
-          const q = quotes[e.ticker];
-          const delta = q ? q.changePct : ((Math.sin(i * 2.3 + 1.1) + 1) * 2 - 1.5);
-          const price = q ? q.price : null;
-          const up = delta >= 0;
-          return (
-            <span key={i} style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "0 14px", borderRight: "1px solid var(--b1)", color: up ? "var(--acc)" : "var(--acc4)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-              <span style={{ color: "var(--t3)" }}>{e.ticker}</span>
-              <span style={{ fontSize: "7px", padding: "0 3px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
-              {price && <span style={{ color: "var(--t2)" }}>{e.exchange === "ASX" ? "A$" : "$"}{price.toFixed(2)}</span>}
-              <span>{up ? "▲" : "▼"}{Math.abs(delta).toFixed(2)}%</span>
-            </span>
-          );
-        })}
+      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+        <div style={{ display: "inline-flex", animation: `ticker ${isLive ? 120 : 140}s linear infinite`, whiteSpace: "nowrap", willChange: "transform" }}>
+          {items.map((e, i) => {
+            const q = quotes[e.ticker];
+            const delta = q ? q.changePct : ((Math.sin(i * 2.3 + 1.1) + 1) * 2 - 1.5);
+            const price = q ? q.price : null;
+            const up = delta >= 0;
+            return (
+              <span key={i} style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "0 14px", borderRight: "1px solid var(--b1)", color: up ? "var(--acc)" : "var(--acc4)", display: "inline-flex", alignItems: "center", gap: "4px", height: "26px" }}>
+                <span style={{ color: "var(--t3)" }}>{e.ticker}</span>
+                <span style={{ fontSize: "7px", padding: "0 3px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
+                {price && <span style={{ color: "var(--t2)" }}>{e.exchange === "ASX" ? "A$" : "$"}{price.toFixed(2)}</span>}
+                <span>{up ? "▲" : "▼"}{Math.abs(delta).toFixed(2)}%</span>
+              </span>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
