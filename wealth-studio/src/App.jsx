@@ -446,47 +446,76 @@ function useLiveData(apiKey) {
   const [quotes, setQuotes] = useState({});
   const [status, setStatus] = useState("loading");
   const intervalRef = useRef(null);
-  const resultsRef = useRef({});
+  const warmRef = useRef(null);
 
-  const fetchAll = useCallback(async () => {
-    // ALL tickers via Yahoo Finance proxy — no Finnhub, no rate limits, no 429s
-    // US tickers pass as plain symbol (QQQ, SPY), ASX use .AX suffix
+  // Primary: hit the batch endpoint — returns all tickers in one shot
+  // When cached by Vercel CDN, this takes ~30-50ms (instant)
+  // When cold, takes 5-10s (Vercel fetches all from Yahoo server-side)
+  const fetchBatch = useCallback(async () => {
+    try {
+      const res = await fetch("/api/quotes-all");
+      if (!res.ok) return false;
+      const d = await res.json();
+      if (d && d.quotes && Object.keys(d.quotes).length > 20) {
+        setQuotes(d.quotes);
+        setStatus("live");
+        return true;
+      }
+    } catch {}
+    return false;
+  }, []);
+
+  // Fallback: hit individual proxy endpoints in parallel
+  // Used if batch endpoint fails or returns too few tickers
+  const fetchIndividual = useCallback(async () => {
     const allTickers = {
       ...ASX_TICKERS,
       ...Object.fromEntries(US_TICKERS.map(t => [t, t])),
     };
-
+    const results = {};
     await Promise.all(Object.entries(allTickers).map(async ([ticker, yahooSymbol]) => {
       try {
         const res = await fetch(`${PROXY_BASE}?symbol=${yahooSymbol}`);
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.price && d.price > 0) {
-          resultsRef.current[ticker] = {
-            price: d.price,
-            change: d.change ?? 0,
-            changePct: d.changePct ?? 0,
-            prevClose: d.previousClose,
-          };
-          // Update state incrementally as each ticker arrives
-          setQuotes({ ...resultsRef.current });
-          setStatus("live");
+          results[ticker] = { price: d.price, change: d.change ?? 0, changePct: d.changePct ?? 0, prevClose: d.previousClose };
         }
       } catch {}
     }));
+    if (Object.keys(results).length > 0) { setQuotes(results); setStatus("live"); }
   }, []);
+
+  const fetchAll = useCallback(async () => {
+    const hit = await fetchBatch();
+    // If batch missed or returned too few, fall back to individual calls
+    if (!hit) await fetchIndividual();
+  }, [fetchBatch, fetchIndividual]);
 
   useEffect(() => {
     clearInterval(intervalRef.current);
-    resultsRef.current = {};
-    // Fetch immediately on mount
+    clearInterval(warmRef.current);
+
+    // Load immediately
     fetchAll();
-    // Refresh every 60 seconds
-    intervalRef.current = setInterval(fetchAll, 60000);
-    return () => clearInterval(intervalRef.current);
+
+    // Refresh every 55 seconds (keeps Vercel cache warm — cache expires at 55s)
+    // This means the NEXT user always gets cached data instantly
+    intervalRef.current = setInterval(fetchAll, 55000);
+
+    // Also pre-warm the cache every 50 seconds with a silent background ping
+    // so the cache never goes cold between refreshes
+    warmRef.current = setInterval(() => {
+      fetch("/api/quotes-all").catch(() => {});
+    }, 50000);
+
+    return () => {
+      clearInterval(intervalRef.current);
+      clearInterval(warmRef.current);
+    };
   }, [fetchAll]);
 
-  return { quotes, status, refetch: () => { resultsRef.current = {}; fetchAll(); } };
+  return { quotes, status, refetch: () => { setQuotes({}); fetchAll(); } };
 }
 
 function LiveProvider({ children }) {
