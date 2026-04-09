@@ -1403,6 +1403,11 @@ function DCAModule({ currency }) {
             <div className="lbl" style={{ marginBottom: "10px" }}>DCA vs Lump Sum vs Hybrid</div>
             <svg width="100%" height="260" viewBox="0 0 660 260" style={{display:"block"}}>
               {(() => {
+                const dcaData = [
+                  { id: "dca",    color: "var(--acc)",  data: dcaProj    },
+                  { id: "lump",   color: "var(--acc2)", data: lumpProj   },
+                  { id: "hybrid", color: "var(--acc3)", data: hybridProj },
+                ];
                 const allVals = dcaData.flatMap(d=>d.data.map(p=>p.v));
                 const maxDCA = Math.max(...allVals)*1.05||1;
                 const pad=70, bot=230, chartH=200, W=640;
