@@ -3809,7 +3809,7 @@ const TAB_CONFIG = [
   { id: "income",    label: "Income",    icon: "⊕",  short: "Income"   },
 ];
 
-export default function WealthStudioPRO() {
+function WealthStudioPRO() {
   return (
     <LiveProvider>
       <WealthStudioApp />
@@ -4024,5 +4024,5 @@ export default function App() {
   const [unlocked, setUnlocked] = useState(() => {
     try { return localStorage.getItem(LICENSE_VALID_KEY) === "true"; } catch { return false; }
   });
-  return unlocked ? <WealthStudioApp /> : <LicenseGate onUnlock={() => setUnlocked(true)} />;
+  return unlocked ? <WealthStudioPRO /> : <LicenseGate onUnlock={() => setUnlocked(true)} />;
 }
