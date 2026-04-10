@@ -951,9 +951,9 @@ function ETFModule({ currency }) {
   }, [blended, blendedExp, start, monthly, years]);
 
   return (
-    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"270px"), overflow: "hidden" }}>
+    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"270px"), gap: 0, overflow: mob ? "visible" : "hidden", ...(mob ? { flexDirection: "column" } : {}) }}>
       {/* Picker */}
-      <div className="etf-picker" style={{ borderRight: "1px solid var(--b1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div className="etf-picker" style={{ borderRight: mob ? "none" : "1px solid var(--b1)", borderBottom: mob ? "1px solid var(--b2)" : "none", display: "flex", flexDirection: "column", overflow: "hidden", ...(mob ? { maxHeight: "320px" } : {}) }}>
         <div style={{ padding: "8px", borderBottom: "1px solid var(--b1)", display: "flex", flexDirection: "column", gap: "6px" }}>
           <input className="ti" placeholder="Search ETFs..." value={search} onChange={e => setSearch(e.target.value)}
             style={{ padding: "6px 8px", background: "var(--s1)", border: "1px solid var(--b1)", borderRadius: "3px", fontSize: "10px", color: "var(--t1)" }} />
