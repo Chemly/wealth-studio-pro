@@ -374,10 +374,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* ── SVG / CHARTS */
   svg{max-width:100% !important;overflow:visible !important;}
   /* Prevent mobile browsers collapsing SVG height */
-  svg[height="260"]{height:260px !important;}
-  svg[height="280"]{height:280px !important;}
-  svg[height="300"]{height:300px !important;}
-  svg[height="240"]{height:240px !important;}
+  svg[height="260"]{height:260px !important;min-height:260px !important;}
+  svg[height="280"]{height:280px !important;min-height:280px !important;}
+  svg[height="300"]{height:300px !important;min-height:300px !important;}
+  svg[height="240"]{height:240px !important;min-height:240px !important;}
   .recharts-wrapper,.recharts-surface{max-width:100% !important;}
 
   /* ── TYPOGRAPHY */
@@ -2225,7 +2225,7 @@ function NetWorthModule({ currency }) {
             {nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month
           </span>
         </div>
-        <svg width="100%" height="260" viewBox="0 0 700 260" style={{ display: "block" }}>
+        <svg width="100%" height="260" viewBox="0 0 700 260" style={{ display: "block", minHeight: "260px", height: "260px" }}>
           {(() => {
             const pad = 65, bot = 230, chartH = 190, W = 690;
             const minV = Math.min(...nwSpark) * 0.97;
