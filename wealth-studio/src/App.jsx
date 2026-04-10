@@ -1600,7 +1600,7 @@ function DCAModule({ currency }) {
               <div className="lbl" style={{ marginBottom: "4px" }}>{l}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
                 {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>{pre}</span>}
-                <input className="ni" type="number" value={v} onChange={e => set(+e.target.value)} style={{ fontSize: "18px" }} />
+                <input className="ni" type="number" value={v || ""} onChange={e => { const n = e.target.value; set(n === "" ? "" : +n); }} style={{ fontSize: "18px" }} />
                 {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>{suf}</span>}
               </div>
             </div>
@@ -1818,7 +1818,7 @@ function MonteCarloModule({ currency }) {
               ) : (
                 <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
                   {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>{pre}</span>}
-                  <input className="ni" type="number" value={v} onChange={e => set(+e.target.value)} style={{ fontSize: "18px" }} />
+                  <input className="ni" type="number" value={v || ""} onChange={e => { const n = e.target.value; set(n === "" ? "" : +n); }} style={{ fontSize: "18px" }} />
                   {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>{suf}</span>}
                 </div>
               )}
@@ -2004,7 +2004,7 @@ function BudgetModule({ currency }) {
                 <select className="si" value={period} onChange={e => setPeriod(e.target.value)} style={{ marginBottom: "8px" }}><option value="monthly">Monthly</option><option value="annual">Annual ÷12</option></select>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
                   <span style={{ fontFamily: "var(--font-mono)", color: "var(--t3)" }}>{sym}</span>
-                  <input className="ni" type="number" value={income} onChange={e => setIncome(+e.target.value)} style={{ fontSize: "26px", color: "var(--acc)" }} />
+                  <input className="ni" type="number" value={income} onChange={e => { const v = e.target.value; setIncome(v === "" ? "" : +v); }} style={{ fontSize: "26px", color: "var(--acc)" }} />
                 </div>
               </div>
               <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
@@ -2034,7 +2034,7 @@ function BudgetModule({ currency }) {
                     <tr key={exp.id} className="row-h">
                       <td className="td"><input className="ti" value={exp.name} onChange={e => upd(exp.id, "name", e.target.value)} /></td>
                       <td className="td"><select className="si" value={exp.cat} onChange={e => upd(exp.id, "cat", e.target.value)} style={{ width: "100%" }}>{EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}</select></td>
-                      <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount} onChange={e => upd(exp.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
+                      <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount || ""} onChange={e => { const v = e.target.value; upd(exp.id, "amount", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
                       <td className="td"><span onClick={() => upd(exp.id, "essential", !exp.essential)} style={{ cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", color: exp.essential ? "var(--acc)" : "var(--t3)", padding: "2px 6px", border: `1px solid ${exp.essential ? "var(--acc)40" : "var(--b2)"}`, borderRadius: "2px" }}>{exp.essential ? "NEED" : "WANT"}</span></td>
                       <td className="td"><button className="btn-del" onClick={() => delExp(exp.id)}>×</button></td>
                     </tr>
@@ -2093,7 +2093,7 @@ function BudgetModule({ currency }) {
                         <div className="lbl">{l}</div>
                         <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>{sym}</span>
-                          <input type="number" value={v} onChange={e => updG(g.id, field, +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "100%", outline: "none" }} />
+                          <input type="number" value={v || ""} onChange={e => { const raw = e.target.value; updG(g.id, field, v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "100%", outline: "none" }} />
                         </div>
                       </div>
                     ))}
@@ -2338,8 +2338,8 @@ function NetWorthModule({ currency }) {
           {assets.map((a, i) => (
             <div key={a.id} style={{ display: "grid", gridTemplateColumns: mob ? "1fr auto auto auto" : "1fr 100px 60px 24px", gap: "6px", alignItems: "center", padding: "5px 0", borderBottom: "1px solid var(--b1)" }} className="row-h">
               <input className="ti" value={a.name} onChange={e => updA(a.id, "name", e.target.value)} />
-              <div style={{ display: "flex", gap: "2px" }}><span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span><input type="number" value={a.value} onChange={e => updA(a.id, "value", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc2)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "75px", outline: "none" }} /></div>
-              <div style={{ display: "flex", gap: "1px" }}><input type="number" value={a.growth} onChange={e => updA(a.id, "growth", +e.target.value)} style={{ background: "transparent", border: "none", color: a.growth >= 0 ? "var(--acc)" : "var(--acc4)", fontFamily: "var(--font-mono)", fontSize: "10px", width: "38px", outline: "none" }} /><span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>%</span></div>
+              <div style={{ display: "flex", gap: "2px" }}><span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span><input type="number" value={a.value || ""} onChange={e => { const v = e.target.value; updA(a.id, "value", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc2)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "75px", outline: "none" }} /></div>
+              <div style={{ display: "flex", gap: "1px" }}><input type="number" value={a.growth === 0 ? "" : a.growth} onChange={e => { const v = e.target.value; updA(a.id, "growth", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: a.growth >= 0 ? "var(--acc)" : "var(--acc4)", fontFamily: "var(--font-mono)", fontSize: "10px", width: "38px", outline: "none" }} /><span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>%</span></div>
               <button className="btn-del" onClick={() => delA(a.id)}>×</button>
             </div>
           ))}
@@ -2363,7 +2363,7 @@ function NetWorthModule({ currency }) {
                       <div className="lbl">{lbl}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: "1px" }}>
                         {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{pre}</span>}
-                        <input type="number" value={val} onChange={e => updL(l.id, field, +e.target.value)} style={{ background: "transparent", border: "none", color: c, fontFamily: "var(--font-mono)", fontSize: "12px", width: "75px", outline: "none" }} />
+                        <input type="number" value={val} onChange={e => { const v = e.target.value; updL(l.id, field, v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: c, fontFamily: "var(--font-mono)", fontSize: "12px", width: "75px", outline: "none" }} />
                         {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{suf}</span>}
                       </div>
                     </div>
@@ -2471,7 +2471,7 @@ function FIREModule({ currency }) {
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t2)" }}>{l}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
                     {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>{pre}</span>}
-                    <input type="number" value={v} onChange={e => set(+e.target.value)}
+                    <input type="number" value={v || ""} onChange={e => { const n = e.target.value; set(n === "" ? "" : +n); }}
                       style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "90px", textAlign: "right", outline: "none" }} />
                     {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{suf}</span>}
                   </div>
@@ -2717,7 +2717,7 @@ function TaxModule({ currency }) {
               <span className="lbl">{l}</span>
               <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
                 {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>{pre}</span>}
-                <input type="number" value={v} onChange={e => set(+e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "80px", textAlign: "right", outline: "none" }} />
+                <input type="number" value={v || ""} onChange={e => { const n = e.target.value; set(n === "" ? "" : +n); }} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "14px", width: "80px", textAlign: "right", outline: "none" }} />
                 {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{suf}</span>}
               </div>
             </div>
@@ -2840,7 +2840,7 @@ function RebalancerModule({ currency }) {
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "6px" }}>Drift Threshold</div>
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <input type="range" min="1" max="15" value={threshold} onChange={e => setThreshold(+e.target.value)} />
+              <input type="range" min="1" max="15" value={threshold} onChange={e => { const v = e.target.value; setThreshold(v === "" ? "" : +v); }} />
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--acc5)", width: "30px" }}>±{threshold}%</span>
             </div>
           </div>
@@ -2848,7 +2848,7 @@ function RebalancerModule({ currency }) {
             <div className="lbl" style={{ marginBottom: "6px" }}>New Cash to Deploy</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
               <span style={{ fontFamily: "var(--font-mono)", color: "var(--t3)" }}>{sym}</span>
-              <input className="ni" type="number" value={newCash} onChange={e => setNewCash(+e.target.value)} style={{ fontSize: "18px", color: "var(--acc2)" }} />
+              <input className="ni" type="number" value={newCash} onChange={e => { const v = e.target.value; setNewCash(v === "" ? "" : +v); }} style={{ fontSize: "18px", color: "var(--acc2)" }} />
             </div>
           </div>
           <button className="btn" onClick={addHolding}>+ Add Holding</button>
@@ -2870,9 +2870,9 @@ function RebalancerModule({ currency }) {
                           {ETFs.map(e => <option key={e.ticker} value={e.ticker}>{e.ticker}</option>)}
                         </select>
                       </td>
-                      <td className="td"><div style={{ display: "flex", gap: "1px" }}><span style={{ color: "var(--t3)", fontSize: "9px" }}>{sym}</span><input type="number" value={h.current} onChange={e => updH(h.id, "current", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "80px", outline: "none" }} /></div></td>
+                      <td className="td"><div style={{ display: "flex", gap: "1px" }}><span style={{ color: "var(--t3)", fontSize: "9px" }}>{sym}</span><input type="number" value={h.current || ""} onChange={e => { const v = e.target.value; updH(h.id, "current", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "80px", outline: "none" }} /></div></td>
                       <td className="td" style={{ color: "var(--t2)" }}>{currentPct.toFixed(1)}%</td>
-                      <td className="td"><div style={{ display: "flex", gap: "1px" }}><input type="number" value={h.target} onChange={e => updH(h.id, "target", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc3)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "40px", outline: "none" }} /><span style={{ color: "var(--t3)", fontSize: "9px" }}>%</span></div></td>
+                      <td className="td"><div style={{ display: "flex", gap: "1px" }}><input type="number" value={h.target || ""} onChange={e => { const v = e.target.value; updH(h.id, "target", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc3)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "40px", outline: "none" }} /><span style={{ color: "var(--t3)", fontSize: "9px" }}>%</span></div></td>
                       <td className="td" style={{ color: over ? (drift > 0 ? "var(--acc4)" : "var(--acc)") : "var(--t3)" }}>{drift > 0 ? "+" : ""}{drift.toFixed(1)}%{over ? " ⚠" : ""}</td>
                       <td className="td" style={{ color: action >= 0 ? "var(--acc)" : "var(--acc4)" }}>{action >= 0 ? "BUY" : "SELL"}</td>
                       <td className="td" style={{ color: action >= 0 ? "var(--acc)" : "var(--acc4)" }}>{fmt(Math.abs(action), sym)}</td>
@@ -2976,7 +2976,7 @@ function CrashSimModule({ currency }) {
                 className="ni"
                 type="number"
                 value={portfolio}
-                onChange={e => setPortfolio(+e.target.value)}
+                onChange={e => { const v = e.target.value; setPortfolio(v === "" ? "" : +v); }}
                 style={{ fontSize: "22px", color: "var(--acc)" }}
               />
             </div>
@@ -2990,7 +2990,7 @@ function CrashSimModule({ currency }) {
                 className="ni"
                 type="number"
                 value={monthlyDCA}
-                onChange={e => setMonthlyDCA(+e.target.value)}
+                onChange={e => { const v = e.target.value; setMonthlyDCA(v === "" ? "" : +v); }}
                 style={{ fontSize: "22px", color: "var(--acc2)" }}
               />
             </div>
@@ -3285,25 +3285,25 @@ function LoanModule({ currency }) {
                   <td className="td">
                     <div style={{ display: "flex", gap: "2px" }}>
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span>
-                      <input type="number" value={l.balance} onChange={e => updL(l.id, "balance", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc4)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "70px", outline: "none" }} />
+                      <input type="number" value={l.balance || ""} onChange={e => { const v = e.target.value; updL(l.id, "balance", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc4)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "70px", outline: "none" }} />
                     </div>
                   </td>
                   <td className="td">
                     <div style={{ display: "flex", gap: "1px" }}>
-                      <input type="number" value={l.rate} onChange={e => updL(l.id, "rate", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc5)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "45px", outline: "none" }} />
+                      <input type="number" value={l.rate || ""} onChange={e => { const v = e.target.value; updL(l.id, "rate", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc5)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "45px", outline: "none" }} />
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>%</span>
                     </div>
                   </td>
                   <td className="td">
                     <div style={{ display: "flex", gap: "2px" }}>
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span>
-                      <input type="number" value={l.minPay} onChange={e => updL(l.id, "minPay", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t2)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "60px", outline: "none" }} />
+                      <input type="number" value={l.minPay || ""} onChange={e => { const v = e.target.value; updL(l.id, "minPay", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--t2)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "60px", outline: "none" }} />
                     </div>
                   </td>
                   <td className="td">
                     <div style={{ display: "flex", gap: "2px" }}>
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span>
-                      <input type="number" value={l.extra} onChange={e => updL(l.id, "extra", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "60px", outline: "none" }} />
+                      <input type="number" value={l.extra || ""} onChange={e => { const v = e.target.value; updL(l.id, "extra", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "60px", outline: "none" }} />
                     </div>
                   </td>
                   <td className="td" style={{ color: "var(--acc4)" }}>{withExtra.totalInt < 999999 ? fmt(withExtra.totalInt, sym) : "Never"}</td>
@@ -3403,7 +3403,7 @@ function IncomeModule({ currency }) {
             <input
               type="number"
               value={target}
-              onChange={e => setTarget(+e.target.value)}
+              onChange={e => { const v = e.target.value; setTarget(v === "" ? "" : +v); }}
               style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "16px", width: "100px", textAlign: "right", outline: "none" }}
             />
           </div>
@@ -3444,7 +3444,7 @@ function IncomeModule({ currency }) {
                 <td className="td">
                   <div style={{ display: "flex", gap: "2px" }}>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span>
-                    <input type="number" value={s.amount} onChange={e => updS(s.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "70px", outline: "none" }} />
+                    <input type="number" value={s.amount || ""} onChange={e => { const v = e.target.value; updS(s.id, "amount", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "70px", outline: "none" }} />
                   </div>
                 </td>
                 <td className="td">
@@ -3456,7 +3456,7 @@ function IncomeModule({ currency }) {
                 </td>
                 <td className="td">
                   <div style={{ display: "flex", gap: "1px" }}>
-                    <input type="number" value={s.growth} onChange={e => updS(s.id, "growth", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc3)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "38px", outline: "none" }} />
+                    <input type="number" value={s.growth === 0 ? "" : s.growth} onChange={e => { const v = e.target.value; updS(s.id, "growth", v === "" ? "" : +v); }} style={{ background: "transparent", border: "none", color: "var(--acc3)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "38px", outline: "none" }} />
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>%</span>
                   </div>
                 </td>
@@ -3483,7 +3483,7 @@ function IncomeModule({ currency }) {
           <span className="lbl">Breakdown by Type</span>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span className="lbl">Projection horizon</span>
-            <select className="si" value={projYears} onChange={e => setProjYears(+e.target.value)}>
+            <select className="si" value={projYears} onChange={e => { const v = e.target.value; setProjYears(v === "" ? "" : +v); }}>
               {[5, 10, 15, 20].map(y => <option key={y} value={y}>{y} years</option>)}
             </select>
           </div>
