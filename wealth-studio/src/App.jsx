@@ -127,7 +127,7 @@ const G = `
   --font-body:'Syne',sans-serif;
   --mob-nav-h:60px;
 }
-html,body{height:100%;overflow:hidden;max-width:100vw;}
+html,body{height:100%;overflow:hidden;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 input[type=number]{-moz-appearance:textfield;}
 ::-webkit-scrollbar{width:3px;height:3px;}
@@ -183,7 +183,7 @@ input[type=number]{-moz-appearance:textfield;}
 @keyframes sheen{0%,60%{left:-100%;}100%{left:200%;}}
 
 /* ── DESKTOP TAB NAV */
-.tab{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px 14px;color:var(--t3);transition:all 0.2s;position:relative;white-space:nowrap;}
+.tab{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:14px 16px;color:var(--t3);transition:all 0.2s;position:relative;white-space:nowrap;}
 .tab::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:1px;background:var(--acc);transition:all 0.25s;box-shadow:0 0 8px var(--acc);}
 .tab.on{color:var(--acc);}
 .tab.on::after{left:8%;right:8%;}
@@ -203,12 +203,12 @@ input[type=number]{-moz-appearance:textfield;}
 .mob-title{font-family:var(--font-ui);font-size:18px;letter-spacing:3px;color:var(--acc);}
 
 /* ── SUBTABS */
-.subtab{background:none;border:1px solid var(--b2);border-radius:2px;cursor:pointer;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;color:var(--t3);transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.subtab{background:none;border:1px solid var(--b2);border-radius:2px;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;color:var(--t3);transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
 .subtab.on{color:var(--acc);border-color:rgba(0,255,135,0.4);background:rgba(0,255,135,0.06);}
 .subtab:hover{color:var(--t2);border-color:var(--b3);}
 
 /* ── CARDS */
-.card{background:var(--s2);border:1px solid var(--b1);border-radius:4px;transition:border-color 0.25s,box-shadow 0.25s;}
+.card{background:var(--s2);border:1px solid var(--b1);border-radius:6px;transition:border-color 0.25s,box-shadow 0.25s;}
 .card:hover{border-color:var(--b3);box-shadow:0 0 30px rgba(0,255,135,0.06),inset 0 0 30px rgba(0,255,135,0.02);}
 .card-acc{border-color:rgba(0,255,135,0.25);background:linear-gradient(135deg,var(--s2),rgba(0,255,135,0.05));box-shadow:0 0 20px rgba(0,255,135,0.05);}
 .card-b{border-color:rgba(96,239,255,0.2);}
@@ -220,23 +220,23 @@ input[type=number]{-moz-appearance:textfield;}
 .stat-card{background:var(--s2);border:1px solid var(--b1);border-radius:4px;padding:14px;position:relative;overflow:hidden;transition:border-color 0.25s,transform 0.25s;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:0.3;}
 .stat-card:hover{border-color:var(--b2);transform:translateY(-1px);}
-.stat-card-val{font-family:var(--font-ui);font-size:32px;letter-spacing:1px;line-height:1;margin-top:6px;}
+.stat-card-val{font-family:var(--font-ui);font-size:38px;letter-spacing:1px;line-height:1;margin-top:6px;}
 
 /* ── INPUTS */
 .ni{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:inherit;width:100%;outline:none;}
-.si{background:var(--s1);border:1px solid var(--b2);border-radius:2px;color:var(--t1);font-family:var(--font-mono);font-size:12px;padding:5px 8px;outline:none;cursor:pointer;transition:border-color 0.15s;}
+.si{background:var(--s1);border:1px solid var(--b2);border-radius:2px;color:var(--t1);font-family:var(--font-mono);font-size:13px;padding:6px 10px;outline:none;cursor:pointer;transition:border-color 0.15s;}
 .si:focus{border-color:rgba(0,255,135,0.4);}
-.ti{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:11px;outline:none;width:100%;}
-.lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
-.lbl-b{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
+.ti{background:transparent;border:none;color:var(--t1);font-family:var(--font-mono);font-size:12px;outline:none;width:100%;}
+.lbl{font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
+.lbl-b{font-family:var(--font-mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
 
 /* ── BUTTONS */
-.btn{background:none;border:1px solid var(--b2);border-radius:2px;color:var(--t3);font-family:var(--font-mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.btn{background:none;border:1px solid var(--b2);border-radius:2px;color:var(--t3);font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
 .btn:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 12px rgba(0,255,135,0.2);}
 .btn-acc{border-color:rgba(0,255,135,0.4);color:var(--acc);background:rgba(0,255,135,0.06);position:relative;overflow:hidden;}
 .btn-acc::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:sheen 2.5s ease-in-out infinite;}
 .btn-acc:hover{background:rgba(0,255,135,0.12);box-shadow:0 0 20px rgba(0,255,135,0.25);}
-.btn-ghost{background:none;border:1px solid var(--b2);border-radius:2px;color:var(--t3);font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;cursor:pointer;transition:all 0.15s;}
+.btn-ghost{background:none;border:1px solid var(--b2);border-radius:2px;color:var(--t3);font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;cursor:pointer;transition:all 0.15s;}
 .btn-ghost:hover{border-color:var(--acc);color:var(--acc);}
 .btn-danger{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;line-height:1;padding:0 4px;transition:color 0.15s;}
 .btn-danger:hover{color:var(--acc4);}
@@ -255,17 +255,17 @@ input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(-
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 8px var(--acc);}
 
 /* ── TABLE */
-.th{font-family:var(--font-mono);font-size:10px;color:var(--t3);letter-spacing:1px;padding:7px 10px;border-bottom:1px solid var(--b1);text-transform:uppercase;white-space:nowrap;background:var(--s1);}
-.td{font-family:var(--font-mono);font-size:12px;color:var(--t2);padding:7px 10px;border-bottom:1px solid var(--b1);}
+.th{font-family:var(--font-mono);font-size:11px;color:var(--t3);letter-spacing:1px;padding:10px 14px;border-bottom:1px solid var(--b1);text-transform:uppercase;white-space:nowrap;background:var(--s1);}
+.td{font-family:var(--font-mono);font-size:13px;color:var(--t2);padding:10px 14px;border-bottom:1px solid var(--b1);}
 .td-acc{color:var(--acc);}
 .td-b{color:var(--acc2);}
 .td-r{color:var(--acc4);}
 .td-y{color:var(--acc5);}
 
 /* ── MODULE HEADER TAG */
-.mod-tag{font-family:var(--font-mono);font-size:8px;letter-spacing:3px;color:var(--acc);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.mod-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--acc);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:4px;}
 .mod-tag::before{content:'//';color:var(--b3);}
-.mod-title{font-family:var(--font-ui);font-size:clamp(28px,4vw,44px);letter-spacing:2px;color:var(--t1);line-height:1;margin-bottom:16px;}
+.mod-title{font-family:var(--font-ui);font-size:clamp(32px,4vw,52px);letter-spacing:2px;color:var(--t1);line-height:1;margin-bottom:16px;}
 
 /* ── SECTION DIVIDER */
 .sec-divider{height:1px;background:linear-gradient(90deg,transparent,var(--b2),transparent);margin:0;}
@@ -374,29 +374,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* Chart containers - ensure they don't overflow */
   svg{max-width:100% !important;overflow:visible;}
   .chart-wrap{overflow-x:hidden !important;}
+}
 
-  /* Global mobile overflow lock */
-  .module-content,
-  .mob-content{overflow-x:hidden !important;}
-
-  /* All inline grid layouts collapse to single col */
-  [style*="gridTemplateColumns: 220px"],
-  [style*="gridTemplateColumns: 200px"],
-  [style*="gridTemplateColumns: 180px"],
-  [style*="gridTemplateColumns: repeat(4"],
-  [style*="gridTemplateColumns: repeat(3"]{
-    grid-template-columns:1fr 1fr !important;
-  }
-
-  /* Net Worth split panel stack */
-  .nw-split{
-    grid-template-columns:1fr !important;
-    flex-direction:column !important;
-  }
-
-  /* Prevent any child from busting out */
-  .card,
-  .card > *{max-width:100% !important;}
+/* ═══════════════════════════════════════════════
+   DESKTOP — min-width 1280px
+   ═══════════════════════════════════════════════ */
+@media (min-width:1280px){
+  .lbl{font-size:11px !important;}
+  .td{font-size:13px !important;padding:11px 16px !important;}
+  .th{font-size:11px !important;padding:11px 16px !important;}
+  .stat-card-val{font-size:40px !important;}
+  .btn,.btn-ghost{font-size:10px !important;padding:9px 16px !important;}
+  .subtab{font-size:10px !important;padding:8px 16px !important;}
+  .card{border-radius:8px !important;}
 }
 
 /* ═══════════════════════════════════════════════
@@ -720,9 +710,9 @@ function Dashboard({ onNav, currency }) {
   ];
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+    <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", WebkitOverflowScrolling: "touch" }} className="fade-up">
       {/* Hero stats */}
-      <div className="rg-5 dash-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "10px", marginBottom: "16px" }}>
+      <div className="rg-5 dash-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "12px", marginBottom: "20px" }}>
         {[
           { l: "Market Avg Return", v: "12.8%", sub: "Blended across all ETFs", c: "var(--acc)", spark: Array.from({length:16},(_,i)=>12+Math.sin(i*0.9)*2) },
           { l: "Best Performer", v: "NDQ +18.2%", sub: "Highest historical avg", c: "var(--acc2)", spark: Array.from({length:16},(_,i)=>15+Math.sin(i*1.2)*4) },
@@ -730,69 +720,69 @@ function Dashboard({ onNav, currency }) {
           { l: "Sharpe Champion", v: "IVV 0.86", sub: "Best risk-adj return", c: "var(--acc3)", spark: Array.from({length:16},(_,i)=>0.8+Math.sin(i*0.7)*0.1) },
           { l: "Current Time", v: time.toLocaleTimeString(), sub: time.toLocaleDateString(), c: "var(--t1)", blink: true },
         ].map(({ l, v, sub, c, spark: sp, blink }) => (
-          <div key={l} className="card scan-wrap" style={{ padding: "14px", borderColor: c === "var(--t1)" ? "var(--b1)" : `${c}25` }}>
-            <div className="lbl" style={{ marginBottom: "6px" }}>{l}</div>
-            <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: c }} className={blink ? "blink" : ""}>{v}</div>
-            {sp && <div style={{ marginTop: "6px" }}><Spark data={sp} color={c} h={24} w={80} /></div>}
-            {!sp && <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginTop: "4px" }}>{sub}</div>}
+          <div key={l} className="card scan-wrap" style={{ padding: "18px", borderColor: c === "var(--t1)" ? "var(--b1)" : `${c}25` }}>
+            <div className="lbl" style={{ marginBottom: "8px" }}>{l}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: "28px", color: c }} className={blink ? "blink" : ""}>{v}</div>
+            {sp && <div style={{ marginTop: "8px" }}><Spark data={sp} color={c} h={28} w={90} /></div>}
+            {!sp && <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", marginTop: "6px" }}>{sub}</div>}
           </div>
         ))}
       </div>
 
       {/* Module grid */}
-      <div style={{ marginBottom: "16px" }}>
-        <div className="lbl" style={{ marginBottom: "10px" }}>── Modules</div>
-        <div className="dash-modules" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <div className="lbl" style={{ marginBottom: "12px" }}>── Modules</div>
+        <div className="dash-modules" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px" }}>
           {modules.map(m => (
-            <button key={m.id} onClick={() => onNav(m.id)} style={{ background: "var(--s2)", border: `1px solid var(--b1)`, borderRadius: "4px", padding: "14px", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}
+            <button key={m.id} onClick={() => onNav(m.id)} style={{ background: "var(--s2)", border: `1px solid var(--b1)`, borderRadius: "6px", padding: "18px", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = m.color + "50"; e.currentTarget.style.background = "var(--s3)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--b1)"; e.currentTarget.style.background = "var(--s2)"; }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "16px", color: m.color }}>{m.icon}</span>
-                <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "13px", color: "var(--t1)" }}>{m.label}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "18px", color: m.color }}>{m.icon}</span>
+                <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "15px", color: "var(--t1)" }}>{m.label}</span>
               </div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", lineHeight: 1.5 }}>{m.desc}</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", lineHeight: 1.6 }}>{m.desc}</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Market overview */}
-      <div className="card" style={{ padding: "14px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+      <div className="card" style={{ padding: "18px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
           <div className="lbl">── Live Market Overview</div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: isLive ? "var(--acc)" : "var(--t3)", display: "flex", alignItems: "center", gap: "5px" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: isLive ? "var(--acc)" : "var(--t3)", display: "flex", alignItems: "center", gap: "5px" }}>
             {isLive ? <><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block" }}/> LIVE DATA</> : "LOADING..."}
           </div>
         </div>
-        <div className="heat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "6px" }}>
+        <div className="heat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
           {marketData.map(e => {
             const up = e.changePct !== null ? e.changePct >= 0 : true;
             const priceSym = e.exchange === "ASX" ? "A$" : "$";
             return (
-              <div key={e.ticker} className="card" style={{ padding: "10px", background: "var(--s3)", borderColor: e.isLive ? (up ? "#00FF8720" : "#FF4D6D20") : "var(--b1)", transition: "border-color 0.3s" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", alignItems: "center" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: e.color }}>{e.ticker}</span>
+              <div key={e.ticker} className="card" style={{ padding: "14px", background: "var(--s3)", borderColor: e.isLive ? (up ? "#00FF8720" : "#FF4D6D20") : "var(--b1)", transition: "border-color 0.3s" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", alignItems: "center" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: e.color }}>{e.ticker}</span>
                   {e.isLive && e.changePct !== null ? (
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: up ? "var(--acc)" : "var(--acc4)", fontWeight: 600 }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: up ? "var(--acc)" : "var(--acc4)", fontWeight: 600 }}>
                       {up ? "▲" : "▼"}{Math.abs(e.changePct).toFixed(2)}%
                     </span>
                   ) : (
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--b3)" }}>—</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--b3)" }}>—</span>
                   )}
                 </div>
                 {e.livePrice ? (
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--t1)", marginBottom: "4px", fontWeight: 600 }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "16px", color: "var(--t1)", marginBottom: "6px", fontWeight: 600 }}>
                     {priceSym}{e.livePrice.toFixed(2)}
                   </div>
                 ) : (
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)", marginBottom: "4px" }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--t3)", marginBottom: "6px" }}>
                     {e.avgReturn}% avg
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", padding: "1px 4px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: e.isLive ? "var(--acc)" : "var(--t3)" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", padding: "2px 5px", border: `1px solid ${e.exchange === "ASX" ? "rgba(251,191,36,0.3)" : "rgba(96,239,255,0.2)"}`, color: e.exchange === "ASX" ? "var(--acc5)" : "var(--acc2)", borderRadius: "2px" }}>{e.exchange}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: e.isLive ? "var(--acc)" : "var(--t3)" }}>
                     {e.isLive ? "● live" : "hist"}
                   </span>
                 </div>
@@ -1556,22 +1546,20 @@ function DCAModule({ currency }) {
       </div>
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "8px" }}>Strategy Comparison by Year</div>
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          <table style={{ width: "100%", minWidth: "420px", borderCollapse: "collapse" }}>
-            <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
-            <tbody>
-              {timingRows.map(row => (
-                <tr key={row.y} className="row-h">
-                  <td className="td">{row.y}yr</td>
-                  <td className="td td-acc">{fmt(row.dca, sym)}</td>
-                  <td className="td td-b">{fmt(row.ls, sym)}</td>
-                  <td className="td" style={{ color: row.diff > 0 ? "var(--acc2)" : "var(--acc)" }}>{fmt(Math.abs(row.diff), sym)}</td>
-                  <td className="td" style={{ color: row.winner === "Lump Sum" ? "var(--acc2)" : "var(--acc)" }}>{row.winner}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+          <tbody>
+            {timingRows.map(row => (
+              <tr key={row.y} className="row-h">
+                <td className="td">{row.y}yr</td>
+                <td className="td td-acc">{fmt(row.dca, sym)}</td>
+                <td className="td td-b">{fmt(row.ls, sym)}</td>
+                <td className="td" style={{ color: row.diff > 0 ? "var(--acc2)" : "var(--acc)" }}>{fmt(Math.abs(row.diff), sym)}</td>
+                <td className="td" style={{ color: row.winner === "Lump Sum" ? "var(--acc2)" : "var(--acc)" }}>{row.winner}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -1905,22 +1893,20 @@ function BudgetModule({ currency }) {
                 <span className="lbl">Expense Tracker</span>
                 <button className="btn" onClick={addExp}>+ Add</button>
               </div>
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-                <table style={{ width: "100%", minWidth: "480px", borderCollapse: "collapse" }}>
-                  <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
-                  <tbody>
-                    {expenses.map(exp => (
-                      <tr key={exp.id} className="row-h">
-                        <td className="td"><input className="ti" value={exp.name} onChange={e => upd(exp.id, "name", e.target.value)} /></td>
-                        <td className="td"><select className="si" value={exp.cat} onChange={e => upd(exp.id, "cat", e.target.value)} style={{ width: "100%" }}>{EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}</select></td>
-                        <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount} onChange={e => upd(exp.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
-                        <td className="td"><span onClick={() => upd(exp.id, "essential", !exp.essential)} style={{ cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", color: exp.essential ? "var(--acc)" : "var(--t3)", padding: "2px 6px", border: `1px solid ${exp.essential ? "var(--acc)40" : "var(--b2)"}`, borderRadius: "2px" }}>{exp.essential ? "NEED" : "WANT"}</span></td>
-                        <td className="td"><button className="btn-del" onClick={() => delExp(exp.id)}>×</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+                <tbody>
+                  {expenses.map(exp => (
+                    <tr key={exp.id} className="row-h">
+                      <td className="td"><input className="ti" value={exp.name} onChange={e => upd(exp.id, "name", e.target.value)} /></td>
+                      <td className="td"><select className="si" value={exp.cat} onChange={e => upd(exp.id, "cat", e.target.value)} style={{ width: "100%" }}>{EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}</select></td>
+                      <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount} onChange={e => upd(exp.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
+                      <td className="td"><span onClick={() => upd(exp.id, "essential", !exp.essential)} style={{ cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", color: exp.essential ? "var(--acc)" : "var(--t3)", padding: "2px 6px", border: `1px solid ${exp.essential ? "var(--acc)40" : "var(--b2)"}`, borderRadius: "2px" }}>{exp.essential ? "NEED" : "WANT"}</span></td>
+                      <td className="td"><button className="btn-del" onClick={() => delExp(exp.id)}>×</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -2164,7 +2150,7 @@ function NetWorthModule({ currency }) {
           </div>
         ))}
       </div>
-      <div className="nw-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         {/* Assets */}
         <div className="card" style={{ padding: "14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}><span className="lbl">Assets</span><button className="btn" onClick={addAsset}>+ Add</button></div>
