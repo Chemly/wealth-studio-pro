@@ -786,6 +786,7 @@ function Dashboard({ onNav, currency }) {
     { id: "fire", label: "FIRE Planner", desc: "Financial independence calculator, Coast FIRE, SWR analysis, retirement scenarios.", icon: "⬡", color: "var(--acc4)" },
     { id: "tax", label: "Tax & Returns", desc: "After-tax return modelling, capital gains, dividend tax drag, franking credits.", icon: "∑", color: "#86EFAC" },
     { id: "rebalance", label: "Rebalancer", desc: "Portfolio drift calculator, rebalancing triggers, buy/sell order generator.", icon: "⇌", color: "#F0ABFC" },
+    { id: "crossover", label: "Crossover Point", desc: "The exact date your passive income exceeds your expenses — your financial freedom moment.", icon: "✕", color: "#FF9F0A" },
   ];
 
   return (
@@ -3344,6 +3345,290 @@ function LoanModule({ currency }) {
 
 const INCOME_TYPES = ["Salary", "Freelance", "Dividends", "Rental", "Business", "Side Hustle", "Royalties", "Other"];
 
+// ─── CROSSOVER POINT MODULE ───────────────────────────────────────────────────
+
+function CrossoverModule({ currency }) {
+  const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
+  const [portfolio,    setPortfolio]    = useLocalStorage("xo_portfolio",    50000);
+  const [monthly,      setMonthly]      = useLocalStorage("xo_monthly",      1000);
+  const [expenses,     setExpenses]     = useLocalStorage("xo_expenses",     3500);
+  const [returnRate,   setReturnRate]   = useLocalStorage("xo_return",       10);
+  const [divYield,     setDivYield]     = useLocalStorage("xo_div",          3);
+  const [inflation,    setInflation]    = useLocalStorage("xo_inflation",    3);
+  const [age,          setAge]          = useLocalStorage("xo_age",          25);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const inputs = [
+    { l: "Current Portfolio",    v: portfolio,  set: setPortfolio,  pre: sym },
+    { l: "Monthly Contribution", v: monthly,    set: setMonthly,    pre: sym },
+    { l: "Monthly Expenses",     v: expenses,   set: setExpenses,   pre: sym },
+    { l: "Expected Return",      v: returnRate, set: setReturnRate, suf: "% p.a." },
+    { l: "Dividend Yield",       v: divYield,   set: setDivYield,   suf: "%" },
+    { l: "Inflation Rate",       v: inflation,  set: setInflation,  suf: "%" },
+    { l: "Current Age",          v: age,        set: setAge,        suf: "yrs" },
+  ];
+
+  // Project year by year
+  const projection = useMemo(() => {
+    const r = (returnRate || 0) / 100 / 12;
+    const inflR = (inflation || 0) / 100 / 12;
+    let port = portfolio || 0;
+    let mo = monthly || 0;
+    let exp = expenses || 0;
+    const rows = [];
+    let crossoverYear = null;
+
+    for (let yr = 0; yr <= 50; yr++) {
+      // Annual dividend income
+      const annualDiv = port * (divYield || 0) / 100;
+      const monthlyPassive = annualDiv / 12;
+      const annualExpenses = exp * 12;
+
+      if (crossoverYear === null && monthlyPassive >= exp) {
+        crossoverYear = yr;
+      }
+
+      rows.push({
+        yr,
+        age: (age || 25) + yr,
+        portfolio: port,
+        monthlyPassive,
+        monthlyExpenses: exp,
+        surplus: monthlyPassive - exp,
+        crossed: crossoverYear !== null && yr >= crossoverYear,
+      });
+
+      // Grow for next year
+      for (let m = 0; m < 12; m++) {
+        port = port * (1 + r) + mo;
+        exp = exp * (1 + inflR);
+      }
+    }
+
+    return { rows, crossoverYear };
+  }, [portfolio, monthly, expenses, returnRate, divYield, inflation, age]);
+
+  const { rows, crossoverYear } = projection;
+  const crossoverRow = crossoverYear !== null ? rows[crossoverYear] : null;
+  const currentRow = rows[0];
+  const pctToFreedom = crossoverYear !== null
+    ? Math.min(100, ((currentRow.monthlyPassive / currentRow.monthlyExpenses) * 100))
+    : 0;
+
+  // Chart data — show up to crossover + 5 years or 30 years max
+  const chartRows = rows.slice(0, Math.min(crossoverYear !== null ? crossoverYear + 6 : 30, 30));
+  const maxVal = Math.max(...chartRows.map(r => Math.max(r.monthlyPassive, r.monthlyExpenses)), 1);
+
+  const milestones = [25, 50, 75, 100];
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: mob ? "12px" : "20px 24px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+
+      {/* Hero — The Moment */}
+      <div className="card card-acc box-glow" style={{ padding: mob ? "20px" : "32px", marginBottom: "16px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 0%, rgba(255,159,10,0.08), transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "4px", color: "var(--acc6)", marginBottom: "12px" }}>// FINANCIAL FREEDOM DATE</div>
+        {crossoverYear !== null ? (
+          <>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: mob ? "52px" : "80px", color: "#FF9F0A", lineHeight: 1, marginBottom: "8px", textShadow: "0 0 40px rgba(255,159,10,0.4)" }}>
+              {new Date().getFullYear() + crossoverYear}
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "13px" : "16px", color: "var(--t2)", marginBottom: "16px" }}>
+              Age <span style={{ color: "var(--acc)", fontWeight: 700 }}>{(age || 25) + crossoverYear}</span> · In <span style={{ color: "var(--acc)", fontWeight: 700 }}>{crossoverYear} year{crossoverYear !== 1 ? "s" : ""}</span>
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--t3)", marginBottom: "20px" }}>
+              Passive income <span style={{ color: "#FF9F0A" }}>{fmt(crossoverRow.monthlyPassive, sym)}/mo</span> exceeds expenses <span style={{ color: "var(--acc4)" }}>{fmt(crossoverRow.monthlyExpenses, sym)}/mo</span>
+            </div>
+            {/* Freedom progress bar */}
+            <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>PROGRESS TO FREEDOM</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "#FF9F0A" }}>{pctToFreedom.toFixed(1)}%</span>
+              </div>
+              <div style={{ height: "6px", background: "var(--b2)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${pctToFreedom}%`, background: "linear-gradient(90deg, var(--acc5), #FF9F0A)", borderRadius: "3px", transition: "width 0.8s", boxShadow: "0 0 12px rgba(255,159,10,0.4)" }} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "16px", color: "var(--t3)" }}>
+            Adjust your inputs — your crossover point will appear here
+          </div>
+        )}
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: mob ? g2 : "repeat(4,1fr)", gap: "10px", marginBottom: "16px" }}>
+        {[
+          { l: "Current Passive/mo", v: fmt(currentRow.monthlyPassive, sym), c: "var(--acc)" },
+          { l: "Monthly Expenses", v: fmt(currentRow.monthlyExpenses, sym), c: "var(--acc4)" },
+          { l: "Gap to Close", v: fmt(Math.max(currentRow.monthlyExpenses - currentRow.monthlyPassive, 0), sym), c: "var(--acc5)" },
+          { l: "Freedom Portfolio", v: fmt(currentRow.monthlyExpenses * 12 / ((divYield || 3) / 100), sym), c: "#FF9F0A" },
+        ].map(({ l, v, c }) => (
+          <div key={l} className="card" style={{ padding: "14px", borderColor: c + "30" }}>
+            <div className="lbl">{l}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", color: c, marginTop: "4px" }}>{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* The Crossover Chart */}
+      <div className="card" style={{ padding: "16px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+          <span className="lbl">Passive Income vs Expenses</span>
+          <div style={{ display: "flex", gap: "16px" }}>
+            {[["#FF9F0A", "Passive Income"], ["var(--acc4)", "Expenses"]].map(([c, l]) => (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <div style={{ width: "16px", height: "2px", background: c }} />
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{l}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <svg width="100%" height="260" viewBox="0 0 700 260" style={{ display: "block" }}>
+          {(() => {
+            const pad = 65, bot = 230, chartH = 195, W = 690;
+            const toX = (i) => pad + (i / (chartRows.length - 1)) * (W - pad);
+            const toY = (v) => bot - (v / maxVal) * chartH;
+
+            const passivePts = chartRows.map((r, i) => `${toX(i)},${toY(r.monthlyPassive)}`).join(" ");
+            const expensePts = chartRows.map((r, i) => `${toX(i)},${toY(r.monthlyExpenses)}`).join(" ");
+            const fillPts = [`${toX(0)},${bot}`, ...chartRows.map((r, i) => `${toX(i)},${toY(r.monthlyPassive)}`), `${toX(chartRows.length-1)},${bot}`].join(" ");
+
+            // Find crossover x position
+            const xoX = crossoverYear !== null && crossoverYear < chartRows.length
+              ? toX(crossoverYear) : null;
+
+            return <>
+              <defs>
+                <linearGradient id="xograd" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#FF9F0A" stopOpacity="0.15"/>
+                  <stop offset="100%" stopColor="#FF9F0A" stopOpacity="0"/>
+                </linearGradient>
+              </defs>
+              {/* Grid lines */}
+              {[0, 0.25, 0.5, 0.75, 1].map(f => {
+                const val = f * maxVal;
+                const y = bot - f * chartH;
+                return <g key={f}>
+                  <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f===0?1:0.5}/>
+                  <text x={pad-6} y={y+4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">
+                    {val >= 1000 ? `${(val/1000).toFixed(0)}K` : Math.round(val)}
+                  </text>
+                </g>;
+              })}
+              {/* Crossover vertical line */}
+              {xoX && <>
+                <line x1={xoX} y1={20} x2={xoX} y2={bot} stroke="#FF9F0A" strokeWidth="1" strokeDasharray="4,3" opacity="0.6"/>
+                <text x={xoX} y={14} textAnchor="middle" fill="#FF9F0A" fontFamily="var(--font-mono)" fontSize="10" fontWeight="bold">
+                  CROSSOVER {new Date().getFullYear() + crossoverYear}
+                </text>
+              </>}
+              {/* Fill under passive */}
+              <polygon points={fillPts} fill="url(#xograd)"/>
+              {/* Expense line */}
+              <polyline points={expensePts} fill="none" stroke="var(--acc4)" strokeWidth="2" strokeDasharray="6,3"/>
+              {/* Passive income line */}
+              <polyline points={passivePts} fill="none" stroke="#FF9F0A" strokeWidth="2.5" strokeLinejoin="round"/>
+              {/* X axis labels */}
+              {chartRows.filter((_, i) => i % 5 === 0).map((r, i) => {
+                const idx = i * 5;
+                const x = toX(idx);
+                return <g key={r.yr}>
+                  <text x={x} y={bot+16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="9">Yr{r.yr}</text>
+                </g>;
+              })}
+            </>;
+          })()}
+        </svg>
+      </div>
+
+      {/* Milestone tracker */}
+      <div className="card" style={{ padding: "16px", marginBottom: "16px" }}>
+        <div className="lbl" style={{ marginBottom: "14px" }}>Freedom Milestones</div>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4,1fr)", gap: "10px" }}>
+          {milestones.map(pct => {
+            const hit = rows.find(r => (r.monthlyPassive / (r.monthlyExpenses || 1)) * 100 >= pct);
+            const reached = hit !== undefined;
+            return (
+              <div key={pct} className="card" style={{ padding: "14px", borderColor: reached ? "#FF9F0A40" : "var(--b1)", background: reached ? "rgba(255,159,10,0.05)" : "var(--s2)", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--font-ui)", fontSize: "28px", color: reached ? "#FF9F0A" : "var(--b3)", marginBottom: "4px" }}>{pct}%</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", marginBottom: "6px" }}>
+                  {pct === 25 ? "Foundation" : pct === 50 ? "Halfway" : pct === 75 ? "Almost Free" : "🎉 FREEDOM"}
+                </div>
+                {reached ? (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "#FF9F0A" }}>
+                    {new Date().getFullYear() + hit.yr} · Age {hit.age}
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--b3)" }}>—</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Inputs */}
+      <div className="card" style={{ padding: "16px", marginBottom: "16px" }}>
+        <div className="lbl" style={{ marginBottom: "12px" }}>Your Numbers</div>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4,1fr)", gap: "10px" }}>
+          {inputs.map(({ l, v, set, pre, suf }) => (
+            <div key={l} className="card" style={{ padding: "10px 12px", background: "var(--s3)" }}>
+              <div className="lbl" style={{ marginBottom: "4px" }}>{l}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "3px" }}>
+                {pre && <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>{pre}</span>}
+                <input className="ni" type="number" value={v || ""} onChange={e => { const n = e.target.value; set(n === "" ? "" : +n); }} style={{ fontSize: "18px", color: "#FF9F0A" }} />
+                {suf && <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{suf}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Year by year table */}
+      <div className="card" style={{ padding: "16px" }}>
+        <div className="lbl" style={{ marginBottom: "10px" }}>Year by Year Breakdown</div>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                {["Year", "Age", "Portfolio", "Passive/mo", "Expenses/mo", "Gap", "Status"].map(h => (
+                  <th key={h} className="th">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.filter((_, i) => i % 1 === 0).slice(0, crossoverYear !== null ? crossoverYear + 3 : 20).map(r => (
+                <tr key={r.yr} className="row-h" style={{ background: r.crossed ? "rgba(255,159,10,0.04)" : "transparent" }}>
+                  <td className="td">{r.yr === 0 ? "Now" : `Yr ${r.yr}`}</td>
+                  <td className="td" style={{ color: "var(--t3)" }}>{r.age}</td>
+                  <td className="td" style={{ color: "var(--acc2)" }}>{fmt(r.portfolio, sym)}</td>
+                  <td className="td" style={{ color: "#FF9F0A", fontWeight: r.crossed ? 700 : 400 }}>{fmt(r.monthlyPassive, sym)}</td>
+                  <td className="td" style={{ color: "var(--acc4)" }}>{fmt(r.monthlyExpenses, sym)}</td>
+                  <td className="td" style={{ color: r.surplus >= 0 ? "var(--acc)" : "var(--acc4)" }}>
+                    {r.surplus >= 0 ? "+" : ""}{fmt(r.surplus, sym)}
+                  </td>
+                  <td className="td">
+                    {r.crossed
+                      ? <span style={{ color: "#FF9F0A", fontFamily: "var(--font-mono)", fontSize: "10px" }}>✕ FREE</span>
+                      : <span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "9px" }}>{((r.monthlyPassive / (r.monthlyExpenses || 1)) * 100).toFixed(0)}%</span>
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+
 function IncomeModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
@@ -3520,6 +3805,7 @@ const TAB_CONFIG = [
   { id: "rebalance", label: "Rebalancer",icon: "⇌",  short: "Rebal"    },
   { id: "crash",     label: "Crash Sim", icon: "⚡", short: "Crash"    },
   { id: "loans",     label: "Loans",     icon: "⊖",  short: "Loans"    },
+  { id: "crossover", label: "Crossover", icon: "✕", short: "Cross" },
   { id: "income",    label: "Income",    icon: "⊕",  short: "Income"   },
 ];
 
@@ -3618,6 +3904,7 @@ function WealthStudioApp() {
         {tab === "rebalance"  && <RebalancerModule currency={currency} />}
         {tab === "crash"      && <CrashSimModule currency={currency} />}
         {tab === "loans"      && <LoanModule currency={currency} />}
+        {tab === "crossover"  && <CrossoverModule currency={currency} />}
         {tab === "income"     && <IncomeModule currency={currency} />}
       </div>
 
@@ -3625,7 +3912,7 @@ function WealthStudioApp() {
       <div className="content desk-footer" style={{ padding: "5px 20px", borderTop: "1px solid var(--b1)", background: "rgba(2,2,5,0.95)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>⚠ Based on historical data. Not financial advice. Past performance ≠ future results.</span>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>12 MODULES · 67 ETFs · {Object.keys(CURRENCIES).length} CURRENCIES</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)", letterSpacing: "1px" }}>13 MODULES · 67 ETFs · {Object.keys(CURRENCIES).length} CURRENCIES</span>
           <div style={{ width: "1px", height: "12px", background: "var(--b2)" }} />
           <span style={{ fontFamily: "var(--font-ui)", fontSize: "12px", letterSpacing: "3px", color: "var(--acc)" }} className="glow-g">WEALTH STUDIO PRO</span>
         </div>
@@ -3644,4 +3931,98 @@ function WealthStudioApp() {
       </nav>
     </div>
   );
+}
+
+// ─── LICENSE GATE ─────────────────────────────────────────────────────────────
+
+const PRODUCT_ID = "NK4LcF08rK8GTE5LvbSirA==";
+const LICENSE_VALID_KEY = "wsp_license_valid";
+
+function LicenseGate({ onUnlock }) {
+  const [key, setKey] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [errMsg, setErrMsg] = useState("");
+
+  const verify = async () => {
+    const k = key.trim();
+    if (!k) { setErrMsg("Please enter your license key."); setStatus("error"); return; }
+    setStatus("checking");
+    setErrMsg("");
+    try {
+      const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ product_id: PRODUCT_ID, license_key: k, increment_uses_count: "true" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem(LICENSE_VALID_KEY, "true");
+        setStatus("success");
+        setTimeout(() => onUnlock(), 800);
+      } else {
+        setStatus("error");
+        setErrMsg(data.message === "That license does not exist for the provided product."
+          ? "Invalid license key. Check your Gumroad receipt email."
+          : data.message || "License verification failed.");
+      }
+    } catch {
+      setStatus("error");
+      setErrMsg("Network error. Please check your connection and try again.");
+    }
+  };
+
+  return (
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg)", color: "var(--t1)", position: "relative", overflow: "hidden" }}>
+      <style>{G}</style>
+      <div className="grid-bg" />
+      <div className="noise-overlay" />
+      <div style={{ position: "absolute", width: "500px", height: "500px", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,255,135,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "420px", padding: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "5px", marginBottom: "4px" }}>WEALTH STUDIO</div>
+          <div style={{ fontFamily: "var(--font-ui)", fontSize: "42px", letterSpacing: "4px", color: "var(--acc)", lineHeight: 1 }} className="glow-g">PRO</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "3px", marginTop: "8px" }}>PROFESSIONAL FINANCIAL PLANNING SUITE</div>
+        </div>
+        <div className="card" style={{ padding: "32px", borderColor: "rgba(0,255,135,0.2)", boxShadow: "0 0 40px rgba(0,255,135,0.06)" }}>
+          <div style={{ textAlign: "center", marginBottom: "24px" }}>
+            <div style={{ fontSize: "32px", marginBottom: "8px" }}>🔑</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: "22px", letterSpacing: "2px", color: "var(--t1)", marginBottom: "6px" }}>ENTER LICENSE KEY</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)" }}>Check your Gumroad receipt email</div>
+          </div>
+          <input
+            type="text" value={key}
+            onChange={e => { setKey(e.target.value); setStatus("idle"); setErrMsg(""); }}
+            onKeyDown={e => e.key === "Enter" && verify()}
+            placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            style={{ width: "100%", padding: "14px 16px", background: "var(--s1)", border: `1px solid ${status === "error" ? "var(--acc4)" : status === "success" ? "var(--acc)" : "var(--b2)"}`, borderRadius: "4px", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", outline: "none", letterSpacing: "1px", marginBottom: "12px", boxSizing: "border-box", transition: "border-color 0.2s" }}
+          />
+          {errMsg && (
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc4)", marginBottom: "12px", padding: "8px 12px", background: "rgba(255,77,109,0.08)", border: "1px solid rgba(255,77,109,0.2)", borderRadius: "3px" }}>⚠ {errMsg}</div>
+          )}
+          {status === "success" && (
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)", marginBottom: "12px", padding: "8px 12px", background: "rgba(0,255,135,0.08)", border: "1px solid rgba(0,255,135,0.2)", borderRadius: "3px" }}>✓ License verified. Loading your app...</div>
+          )}
+          <button onClick={verify} disabled={status === "checking" || status === "success"}
+            style={{ width: "100%", padding: "14px", background: status === "success" ? "rgba(0,255,135,0.2)" : "var(--acc)", color: "#000", fontFamily: "var(--font-ui)", fontSize: "16px", letterSpacing: "2px", border: "none", borderRadius: "3px", cursor: status === "checking" ? "wait" : "pointer", opacity: status === "checking" ? 0.7 : 1, transition: "all 0.2s" }}>
+            {status === "checking" ? "VERIFYING..." : status === "success" ? "✓ VERIFIED" : "UNLOCK ACCESS"}
+          </button>
+        </div>
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <a href="https://maxnolla.gumroad.com/l/wealthstudiopro" target="_blank" rel="noreferrer"
+            style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", textDecoration: "none", borderBottom: "1px solid var(--t3)", paddingBottom: "1px" }}>
+            Don't have a license? Purchase here →
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ROOT ─────────────────────────────────────────────────────────────────────
+
+export default function App() {
+  const [unlocked, setUnlocked] = useState(() => {
+    try { return localStorage.getItem(LICENSE_VALID_KEY) === "true"; } catch { return false; }
+  });
+  return unlocked ? <WealthStudioApp /> : <LicenseGate onUnlock={() => setUnlocked(true)} />;
 }
