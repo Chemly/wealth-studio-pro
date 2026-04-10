@@ -174,7 +174,7 @@ input[type=number]{-moz-appearance:textfield;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
 .fade-up{animation:fadeUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards;}
 @keyframes scanline{0%{top:-20%;}100%{top:120%;}}
-.scan-wrap{position:relative;overflow:hidden;}
+.scan-wrap{position:relative;overflow:visible;}
 .scan-wrap::after{content:'';position:absolute;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(0,255,135,0.04),transparent);animation:scanline 6s linear infinite;pointer-events:none;}
 @keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-33.333%);}}
 @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
@@ -300,8 +300,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     max-width:100vw !important;
   }
 
-  /* ── ALL CHILDREN CONSTRAINED */
-  .module-content *{max-width:100% !important;box-sizing:border-box !important;}
+  /* ── ALL CHILDREN CONSTRAINED — but never touch SVG height */
+  .module-content *:not(svg):not(svg *){max-width:100% !important;box-sizing:border-box !important;}
+  .module-content svg{max-width:100% !important;box-sizing:border-box !important;}
+  svg[height="260"]{height:260px !important;min-height:260px !important;}
+  svg[height="280"]{height:280px !important;min-height:280px !important;}
+  svg[height="300"]{height:300px !important;min-height:300px !important;}
+  svg[height="240"]{height:240px !important;min-height:240px !important;}
 
   /* ── NAMED GRID CLASSES → single column */
   .rg-2,.rg-3,.rg-4,.rg-5{grid-template-columns:1fr !important;}
@@ -3546,7 +3551,7 @@ function WealthStudioApp() {
       {/* ApiKeyBar only shown once - after desktop header via desk-header class */}
 
       {/* ── CONTENT ── */}
-      <div className="content mob-content" className="module-content" style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div className="content mob-content" className="module-content" style={{ flex: 1, overflow: "hidden", overflowY: "auto", display: "flex", flexDirection: "column" }}>
         {tab === "dashboard"  && <Dashboard onNav={setTab} currency={currency} />}
         {tab === "etf"        && <ETFModule currency={currency} />}
         {tab === "dca"        && <DCAModule currency={currency} />}
