@@ -1207,7 +1207,6 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Retirement Income Calculator (4% SWR)</div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Monthly Target", "Nest Egg Needed", "Reached Year", "Age at FIRE", "Annual Dividends"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1226,7 +1225,6 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
-                </div>
               </div>
             </div>
           )}
@@ -1263,7 +1261,6 @@ function ETFModule({ currency }) {
               })}
               <div className="card" style={{ padding: "12px" }}>
                 <div className="lbl" style={{ marginBottom: "8px" }}>Head-to-Head Projections</div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", `${cmpA} Value`, `${cmpB} Value`, "Difference", `${cmpA} leads by`].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1282,7 +1279,6 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
-                </div>
               </div>
             </div>
           )}
@@ -1378,7 +1374,6 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Fee Comparison — What 0% Fee Would Look Like</div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", "Your Portfolio", "Zero-Fee Portfolio", "Fee Cost to Date"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1396,7 +1391,6 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
-                </div>
               </div>
             </div>
           )}
@@ -1418,7 +1412,6 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Dividend Income Growth Projection</div>
-                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", "Portfolio Value", "Annual Dividend", "Monthly Passive", "Yield on Cost"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1433,7 +1426,6 @@ function ETFModule({ currency }) {
                     ))}
                   </tbody>
                 </table>
-                </div>
               </div>
             </div>
           )}
@@ -1636,7 +1628,6 @@ function DCAModule({ currency }) {
       </div>
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "8px" }}>Strategy Comparison by Year</div>
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
           <tbody>
@@ -1651,7 +1642,6 @@ function DCAModule({ currency }) {
             ))}
           </tbody>
         </table>
-        </div>
       </div>
     </div>
   );
@@ -1989,7 +1979,6 @@ function BudgetModule({ currency }) {
                 <span className="lbl">Expense Tracker</span>
                 <button className="btn" onClick={addExp}>+ Add</button>
               </div>
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -2004,7 +1993,6 @@ function BudgetModule({ currency }) {
                   ))}
                 </tbody>
               </table>
-              </div>
             </div>
           </div>
         )}
@@ -2232,11 +2220,15 @@ function NetWorthModule({ currency }) {
             {nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month
           </span>
         </div>
-        <svg width="100%" height="160" viewBox="0 0 660 160" style={{ display: "block" }}>
+        <div style={{ width: "100%", overflowX: "hidden" }}>
           {(() => {
-            const pad = 60, bot = 140, chartH = 110, W = 640;
-            const minV = Math.min(...nwSpark) * 0.98;
-            const maxV = Math.max(...nwSpark) * 1.02 || 1;
+            const svgH = mob ? 200 : 320;
+            const pad = mob ? 50 : 70;
+            const bot = svgH - 30;
+            const chartH = bot - 20;
+            const W = 680;
+            const minV = Math.min(...nwSpark) * 0.97;
+            const maxV = Math.max(...nwSpark) * 1.03 || 1;
             const pts = nwSpark.map((v, i) => {
               const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
               const y = bot - ((v - minV) / (maxV - minV)) * chartH;
@@ -2244,51 +2236,53 @@ function NetWorthModule({ currency }) {
             });
             const polyPts = pts.map(p => `${p.x},${p.y}`).join(" ");
             const fillPts = [`${pts[0].x},${bot}`, ...pts.map(p => `${p.x},${p.y}`), `${pts[pts.length-1].x},${bot}`].join(" ");
-            return <>
-              <defs>
-                <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.18"/>
-                  <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              {/* Grid lines */}
-              {[0, 0.25, 0.5, 0.75, 1].map(f => {
-                const val = minV + f * (maxV - minV);
-                const y = bot - f * chartH;
-                return <g key={f}>
-                  <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
-                  <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="9">
-                    {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
-                  </text>
-                </g>;
-              })}
-              {/* Fill */}
-              <polygon points={fillPts} fill="url(#nwgrad)"/>
-              {/* Line */}
-              <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
-              {/* Dots */}
-              {pts.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y}
-                  r={i === pts.length - 1 ? 4 : 2.5}
-                  fill={i === pts.length - 1 ? "var(--acc)" : "var(--bg)"}
-                  stroke="var(--acc)" strokeWidth="1.5"
-                />
-              ))}
-              {/* End value label */}
-              <text x={pts[pts.length-1].x + 6} y={pts[pts.length-1].y + 4} fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10">
-                {fmt(nwSpark[nwSpark.length-1], sym)}
-              </text>
-              {/* X axis labels */}
-              {[...history.map(h => h.month), "Now"].map((m, i) => {
-                const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
-                return <g key={m}>
-                  <line x1={x} y1={bot} x2={x} y2={bot + 4} stroke="var(--b2)" strokeWidth="1"/>
-                  <text x={x} y={bot + 14} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="9">{m}</text>
-                </g>;
-              })}
-            </>;
+            return (
+              <svg width="100%" height={svgH} viewBox={`0 0 700 ${svgH}`} preserveAspectRatio="none" style={{ display: "block" }}>
+                <defs>
+                  <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.22"/>
+                    <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                {/* Grid lines */}
+                {[0, 0.25, 0.5, 0.75, 1].map(f => {
+                  const val = minV + f * (maxV - minV);
+                  const y = bot - f * chartH;
+                  return <g key={f}>
+                    <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
+                    <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize={mob ? "9" : "11"}>
+                      {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
+                    </text>
+                  </g>;
+                })}
+                {/* Fill */}
+                <polygon points={fillPts} fill="url(#nwgrad)"/>
+                {/* Line */}
+                <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
+                {/* Dots */}
+                {pts.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y}
+                    r={i === pts.length - 1 ? 5 : 3}
+                    fill={i === pts.length - 1 ? "var(--acc)" : "var(--bg)"}
+                    stroke="var(--acc)" strokeWidth="1.8"
+                  />
+                ))}
+                {/* End value label */}
+                <text x={pts[pts.length-1].x - 4} y={pts[pts.length-1].y - 10} textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize={mob ? "10" : "12"} fontWeight="bold">
+                  {fmt(nwSpark[nwSpark.length-1], sym)}
+                </text>
+                {/* X axis labels */}
+                {[...history.map(h => h.month), "Now"].map((m, i) => {
+                  const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
+                  return <g key={m}>
+                    <line x1={x} y1={bot} x2={x} y2={bot + 5} stroke="var(--b2)" strokeWidth="1"/>
+                    <text x={x} y={bot + 16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize={mob ? "9" : "10"}>{m}</text>
+                  </g>;
+                })}
+              </svg>
+            );
           })()}
-        </svg>
+        </div>
       </div>
       {/* Projections */}
       <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
@@ -2555,7 +2549,6 @@ function FIREModule({ currency }) {
             </div>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Safe Withdrawal Rate Analysis</div>
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["SWR", "FIRE Number", "Reached Year", "Age at FIRE", "Monthly Income", "Safety"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -2571,7 +2564,6 @@ function FIREModule({ currency }) {
                   ))}
                 </tbody>
               </table>
-              </div>
             </div>
           </div>
         )}
@@ -2601,7 +2593,6 @@ function FIREModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Scenario Comparison</div>
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["Scenario", "Return", "FIRE Number", "Years to FIRE", "Age at FIRE", "Monthly Passive"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -2626,7 +2617,6 @@ function FIREModule({ currency }) {
                   })}
                 </tbody>
               </table>
-              </div>
             </div>
           </div>
         )}
@@ -2712,7 +2702,6 @@ function TaxModule({ currency }) {
           </div>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>After-Tax Return by Marginal Rate</div>
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["Tax Rate", "Eff. CGT", "Tax on Gains", "Tax on Div", "Net Return", "Net %"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2728,11 +2717,9 @@ function TaxModule({ currency }) {
                 ))}
               </tbody>
             </table>
-            </div>
           </div>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>Capital Gains Tax Over Time</div>
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["Hold Period", "Gross Gain", "CGT", "Net Gain", "Saved vs No Discount"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2750,7 +2737,6 @@ function TaxModule({ currency }) {
                 })}
               </tbody>
             </table>
-            </div>
           </div>
         </div>
       </div>
@@ -2825,7 +2811,6 @@ function RebalancerModule({ currency }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "10px" }}>Portfolio Holdings & Drift</div>
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["ETF", "Current Value", "Current %", "Target %", "Drift", "Action", "Amount", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2851,7 +2836,6 @@ function RebalancerModule({ currency }) {
                 })}
               </tbody>
             </table>
-            </div>
           </div>
           {/* Visual allocation */}
           <div className="card" style={{ padding: "14px" }}>
@@ -3135,7 +3119,6 @@ function CrashSimModule({ currency }) {
       {/* Crash comparison table */}
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "10px" }}>All Crash Scenarios — Your Portfolio</div>
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3166,7 +3149,6 @@ function CrashSimModule({ currency }) {
             })}
           </tbody>
         </table>
-        </div>
       </div>
     </div>
   );
@@ -3233,7 +3215,6 @@ function LoanModule({ currency }) {
           <span className="lbl">Loan Tracker</span>
           <button className="btn-ghost" onClick={addLoan}>+ Add Loan</button>
         </div>
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3284,7 +3265,6 @@ function LoanModule({ currency }) {
             })}
           </tbody>
         </table>
-        </div>
       </div>
 
       <div className="card" style={{ padding: "14px" }}>
@@ -3392,7 +3372,6 @@ function IncomeModule({ currency }) {
           <span className="lbl">Income Streams</span>
           <button className="btn-ghost" onClick={addStream}>+ Add Stream</button>
         </div>
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3443,7 +3422,6 @@ function IncomeModule({ currency }) {
             ))}
           </tbody>
         </table>
-        </div>
       </div>
 
       {/* By type breakdown */}
