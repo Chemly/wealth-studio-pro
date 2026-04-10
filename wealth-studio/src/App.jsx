@@ -279,7 +279,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .mob-col{display:flex;flex-direction:column;}
 
 @media (max-width:768px){
-  /* Nav + header */
+  /* ── NAV + HEADER */
   .mob-nav{display:block;}
   .desk-header{display:none !important;}
   .mob-header{display:flex !important;}
@@ -287,34 +287,70 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .scanline-fx{display:none !important;}
   .ticker-wrap{display:none !important;}
 
-  /* Content area */
-  .mob-content{
-    padding-bottom:calc(var(--mob-nav-h) + 12px) !important;
+  /* ── ROOT OVERFLOW LOCK — nothing escapes the viewport */
+  html,body{overflow-x:hidden !important;}
+  #root,#root > div{overflow-x:hidden !important;max-width:100vw !important;}
+
+  /* ── CONTENT AREA */
+  .mob-content,.module-content{
+    overflow-x:hidden !important;
     overflow-y:auto !important;
     -webkit-overflow-scrolling:touch !important;
+    padding-bottom:calc(var(--mob-nav-h) + 12px) !important;
+    max-width:100vw !important;
   }
 
-  /* All grid classes collapse to 1 col by default */
-  .rg-2,.rg-3,.rg-4,.rg-5{grid-template-columns:1fr !important;}
-  /* 2-col grids that stay 2-col on mobile */
-  .rg-2-mob{grid-template-columns:1fr 1fr !important;}
-  /* Dashboard stat grid: 2 cols */
-  .rg-5.dash-stats{grid-template-columns:1fr 1fr !important;}
-  /* Dashboard module grid: 2x2 */
-  .dash-modules{grid-template-columns:1fr 1fr !important;}
-  /* Market heatmap: 2 cols */
-  .heat-grid{grid-template-columns:1fr 1fr !important;}
+  /* ── ALL CHILDREN CONSTRAINED */
+  .module-content *{max-width:100% !important;box-sizing:border-box !important;}
 
-  /* Panel/side layouts always stack */
+  /* ── NAMED GRID CLASSES → single column */
+  .rg-2,.rg-3,.rg-4,.rg-5{grid-template-columns:1fr !important;}
+  .rg-2-mob{grid-template-columns:1fr 1fr !important;}
+  .rg-5.dash-stats{grid-template-columns:1fr 1fr !important;}
+  .dash-modules{grid-template-columns:1fr 1fr !important;}
+  .heat-grid{grid-template-columns:1fr 1fr !important;}
+  .nw-split{grid-template-columns:1fr !important;}
+
+  /* ── SIDE LAYOUTS STACK */
   .panel-split,.side-layout{
     display:flex !important;
     flex-direction:column !important;
     grid-template-columns:1fr !important;
+    min-width:0 !important;
   }
   .side-layout > *{width:100% !important;min-width:0 !important;}
   .side-layout > *:first-child{max-height:none !important;}
 
-  /* ETF module - stack picker above chart */
+  /* ── INLINE GRIDS: catch fixed-col layouts by attribute pattern */
+  /* Any div using grid with fixed pixel left column → stack */
+  [style*="gridTemplateColumns: 220px"],
+  [style*="gridTemplateColumns: 200px"],
+  [style*="gridTemplateColumns: 180px"],
+  [style*="gridTemplateColumns: 160px"]{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  /* Multi-col repeating grids → 2 cols max on mobile */
+  [style*="gridTemplateColumns: repeat(4"],
+  [style*="gridTemplateColumns: repeat(5"],
+  [style*="gridTemplateColumns: 1fr 1fr 1fr 1fr"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+  /* 3-col grids → 1 col on mobile */
+  [style*="gridTemplateColumns: repeat(3"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+  /* Pure 2-col 1fr grids stay 2-col unless they contain wide content */
+  [style*="gridTemplateColumns: 1fr 1fr"]{
+    grid-template-columns:1fr 1fr !important;
+    min-width:0 !important;
+  }
+  /* Net Worth assets/liabilities 1fr 1fr → stack */
+  .nw-split[style*="gridTemplateColumns"]{
+    grid-template-columns:1fr !important;
+  }
+
+  /* ── ETF MODULE */
   .etf-layout{
     display:flex !important;
     flex-direction:column !important;
@@ -330,11 +366,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   }
   .mob-scroll{height:auto !important;padding-bottom:80px !important;}
 
-  /* Tables - horizontal scroll */
-  .table-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch !important;width:100%;}
-  table{min-width:500px;}
+  /* ── TABLES: contained horizontal scroll per table */
+  .table-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch !important;width:100% !important;}
+  table{min-width:0 !important;width:100% !important;}
+  .th,.td{white-space:nowrap;}
 
-  /* Typography scale */
+  /* ── SVG / CHARTS */
+  svg{max-width:100% !important;overflow:visible !important;}
+  .recharts-wrapper,.recharts-surface{max-width:100% !important;}
+
+  /* ── TYPOGRAPHY */
   .lbl{font-size:10px !important;letter-spacing:1px !important;}
   .lbl-b{font-size:11px !important;}
   .td{font-size:12px !important;padding:8px 10px !important;}
@@ -342,7 +383,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .stat-val{font-size:24px !important;}
   .stat-card-val{font-size:26px !important;}
 
-  /* Touch targets */
+  /* ── TOUCH TARGETS */
   .subtab{padding:10px 14px !important;font-size:11px !important;}
   .btn,.btn-ghost{padding:10px 16px !important;font-size:10px !important;}
   .btn-acc{padding:12px 18px !important;}
@@ -350,30 +391,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   input[type=range]::-webkit-slider-thumb{width:22px !important;height:22px !important;}
   input[type=range]{height:4px !important;}
 
-  /* Cards */
+  /* ── CARDS + MISC */
   .card{border-radius:8px;}
   .mob-pad{padding:14px !important;}
   .mob-full{width:100% !important;}
   .hide-mob{display:none !important;}
-
-  /* Subtab rows wrap */
   .subtab-row{flex-wrap:wrap !important;gap:6px !important;}
-
-  /* Inputs fill width on mobile */
   .ni{font-size:14px !important;}
-
-  /* Module content scrollable */
-  .module-content{overflow-y:auto !important;-webkit-overflow-scrolling:touch !important;}
-
-  /* Override any inline min-width that causes overflow */
   .mob-no-minw{min-width:0 !important;}
-
-  /* Stat cards in a 2-col grid */
   .stat-grid-mob{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;}
-
-  /* Chart containers - ensure they don't overflow */
-  svg{max-width:100% !important;overflow:visible;}
-  .chart-wrap{overflow-x:hidden !important;}
 }
 
 /* ═══════════════════════════════════════════════
@@ -2130,7 +2156,6 @@ function NetWorthModule({ currency }) {
   const updL = (id, f, v) => setLiabilities(p => p.map(x => x.id === id ? { ...x, [f]: v } : x));
 
   const nwSpark = [...history.map(h => h.nw), netWorth];
-  const minNW = Math.min(...nwSpark), maxNW = Math.max(...nwSpark, 1);
 
   // Projected NW in 5/10 years
   const projNW = (yrs) => {
@@ -2158,19 +2183,69 @@ function NetWorthModule({ currency }) {
       </div>
       {/* NW Trend */}
       <div className="card scan-wrap" style={{ padding: "14px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", alignItems: "center" }}>
           <span className="lbl">Net Worth Trend</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: nwChange >= 0 ? "var(--acc)" : "var(--acc4)" }}>{nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: nwChange >= 0 ? "var(--acc)" : "var(--acc4)" }}>
+            {nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month
+          </span>
         </div>
-        <svg width="100%" height="80" viewBox={`0 0 ${nwSpark.length - 1} 80`} preserveAspectRatio="none">
-          <defs><linearGradient id="nwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00FF87" stopOpacity="0.2"/><stop offset="100%" stopColor="#00FF87" stopOpacity="0"/></linearGradient></defs>
-          <polygon points={[`0,80`, ...nwSpark.map((v, i) => `${i},${80 - ((v - minNW) / (maxNW - minNW)) * 70}`), `${nwSpark.length - 1},80`].join(" ")} fill="url(#nwg)" />
-          <polyline points={nwSpark.map((v, i) => `${i},${80 - ((v - minNW) / (maxNW - minNW)) * 70}`).join(" ")} fill="none" stroke="var(--acc)" strokeWidth="2.5" />
-          {nwSpark.map((v, i) => <circle key={i} cx={i} cy={80 - ((v - minNW) / (maxNW - minNW)) * 70} r={i === nwSpark.length - 1 ? "2.5" : "1.2"} fill="var(--acc)" />)}
+        <svg width="100%" height="160" viewBox="0 0 660 160" style={{ display: "block" }}>
+          {(() => {
+            const pad = 60, bot = 140, chartH = 110, W = 640;
+            const minV = Math.min(...nwSpark) * 0.98;
+            const maxV = Math.max(...nwSpark) * 1.02 || 1;
+            const pts = nwSpark.map((v, i) => {
+              const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
+              const y = bot - ((v - minV) / (maxV - minV)) * chartH;
+              return { x, y, v };
+            });
+            const polyPts = pts.map(p => `${p.x},${p.y}`).join(" ");
+            const fillPts = [`${pts[0].x},${bot}`, ...pts.map(p => `${p.x},${p.y}`), `${pts[pts.length-1].x},${bot}`].join(" ");
+            return <>
+              <defs>
+                <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.18"/>
+                  <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
+                </linearGradient>
+              </defs>
+              {/* Grid lines */}
+              {[0, 0.25, 0.5, 0.75, 1].map(f => {
+                const val = minV + f * (maxV - minV);
+                const y = bot - f * chartH;
+                return <g key={f}>
+                  <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
+                  <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="9">
+                    {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
+                  </text>
+                </g>;
+              })}
+              {/* Fill */}
+              <polygon points={fillPts} fill="url(#nwgrad)"/>
+              {/* Line */}
+              <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
+              {/* Dots */}
+              {pts.map((p, i) => (
+                <circle key={i} cx={p.x} cy={p.y}
+                  r={i === pts.length - 1 ? 4 : 2.5}
+                  fill={i === pts.length - 1 ? "var(--acc)" : "var(--bg)"}
+                  stroke="var(--acc)" strokeWidth="1.5"
+                />
+              ))}
+              {/* End value label */}
+              <text x={pts[pts.length-1].x + 6} y={pts[pts.length-1].y + 4} fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="10">
+                {fmt(nwSpark[nwSpark.length-1], sym)}
+              </text>
+              {/* X axis labels */}
+              {[...history.map(h => h.month), "Now"].map((m, i) => {
+                const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
+                return <g key={m}>
+                  <line x1={x} y1={bot} x2={x} y2={bot + 4} stroke="var(--b2)" strokeWidth="1"/>
+                  <text x={x} y={bot + 14} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="9">{m}</text>
+                </g>;
+              })}
+            </>;
+          })()}
         </svg>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-          {[...history.map(h => h.month), "Now"].map(m => <span key={m} style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>{m}</span>)}
-        </div>
       </div>
       {/* Projections */}
       <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
@@ -2181,7 +2256,7 @@ function NetWorthModule({ currency }) {
           </div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div className="nw-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         {/* Assets */}
         <div className="card" style={{ padding: "14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}><span className="lbl">Assets</span><button className="btn" onClick={addAsset}>+ Add</button></div>
