@@ -1207,6 +1207,7 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Retirement Income Calculator (4% SWR)</div>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Monthly Target", "Nest Egg Needed", "Reached Year", "Age at FIRE", "Annual Dividends"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1225,6 +1226,7 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}
@@ -1261,6 +1263,7 @@ function ETFModule({ currency }) {
               })}
               <div className="card" style={{ padding: "12px" }}>
                 <div className="lbl" style={{ marginBottom: "8px" }}>Head-to-Head Projections</div>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", `${cmpA} Value`, `${cmpB} Value`, "Difference", `${cmpA} leads by`].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1279,6 +1282,7 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}
@@ -1374,6 +1378,7 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Fee Comparison — What 0% Fee Would Look Like</div>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", "Your Portfolio", "Zero-Fee Portfolio", "Fee Cost to Date"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1391,6 +1396,7 @@ function ETFModule({ currency }) {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}
@@ -1412,6 +1418,7 @@ function ETFModule({ currency }) {
               </div>
               <div className="card" style={{ padding: "14px" }}>
                 <div className="lbl" style={{ marginBottom: "10px" }}>Dividend Income Growth Projection</div>
+                <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead><tr>{["Year", "Portfolio Value", "Annual Dividend", "Monthly Passive", "Yield on Cost"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                   <tbody>
@@ -1426,6 +1433,7 @@ function ETFModule({ currency }) {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}
@@ -1628,6 +1636,7 @@ function DCAModule({ currency }) {
       </div>
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "8px" }}>Strategy Comparison by Year</div>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
           <tbody>
@@ -1642,6 +1651,7 @@ function DCAModule({ currency }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
@@ -1979,6 +1989,7 @@ function BudgetModule({ currency }) {
                 <span className="lbl">Expense Tracker</span>
                 <button className="btn" onClick={addExp}>+ Add</button>
               </div>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -1993,6 +2004,7 @@ function BudgetModule({ currency }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -2543,6 +2555,7 @@ function FIREModule({ currency }) {
             </div>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Safe Withdrawal Rate Analysis</div>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["SWR", "FIRE Number", "Reached Year", "Age at FIRE", "Monthly Income", "Safety"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -2558,6 +2571,7 @@ function FIREModule({ currency }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -2587,6 +2601,7 @@ function FIREModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Scenario Comparison</div>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead><tr>{["Scenario", "Return", "FIRE Number", "Years to FIRE", "Age at FIRE", "Monthly Passive"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
                 <tbody>
@@ -2611,6 +2626,7 @@ function FIREModule({ currency }) {
                   })}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -2696,6 +2712,7 @@ function TaxModule({ currency }) {
           </div>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>After-Tax Return by Marginal Rate</div>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["Tax Rate", "Eff. CGT", "Tax on Gains", "Tax on Div", "Net Return", "Net %"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2711,9 +2728,11 @@ function TaxModule({ currency }) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>Capital Gains Tax Over Time</div>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["Hold Period", "Gross Gain", "CGT", "Net Gain", "Saved vs No Discount"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2731,6 +2750,7 @@ function TaxModule({ currency }) {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -2805,6 +2825,7 @@ function RebalancerModule({ currency }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "14px" }}>
             <div className="lbl" style={{ marginBottom: "10px" }}>Portfolio Holdings & Drift</div>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr>{["ETF", "Current Value", "Current %", "Target %", "Drift", "Action", "Amount", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
               <tbody>
@@ -2830,6 +2851,7 @@ function RebalancerModule({ currency }) {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
           {/* Visual allocation */}
           <div className="card" style={{ padding: "14px" }}>
@@ -3113,6 +3135,7 @@ function CrashSimModule({ currency }) {
       {/* Crash comparison table */}
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "10px" }}>All Crash Scenarios — Your Portfolio</div>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3143,6 +3166,7 @@ function CrashSimModule({ currency }) {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
@@ -3209,6 +3233,7 @@ function LoanModule({ currency }) {
           <span className="lbl">Loan Tracker</span>
           <button className="btn-ghost" onClick={addLoan}>+ Add Loan</button>
         </div>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3259,6 +3284,7 @@ function LoanModule({ currency }) {
             })}
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="card" style={{ padding: "14px" }}>
@@ -3366,6 +3392,7 @@ function IncomeModule({ currency }) {
           <span className="lbl">Income Streams</span>
           <button className="btn-ghost" onClick={addStream}>+ Add Stream</button>
         </div>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -3416,6 +3443,7 @@ function IncomeModule({ currency }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* By type breakdown */}
