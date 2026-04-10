@@ -61,7 +61,7 @@ const ETFs = [
   { ticker:"BGBL",  name:"Global Shares BetaShares",   avgReturn:11.6, vol:13.8, sharpe:0.84, color:"#6366F1", region:"Global",       risk:"Medium",   expense:0.08, inception:2020, div:1.4,  exchange:"ASX" },
   { ticker:"QUAL",  name:"MSCI World Quality",         avgReturn:13.2, vol:14.8, sharpe:0.89, color:"#8B5CF6", region:"Global",       risk:"Medium",   expense:0.40, inception:2014, div:1.1,  exchange:"ASX" },
   { ticker:"MOAT",  name:"Wide Moat VanEck",           avgReturn:14.1, vol:18.2, sharpe:0.78, color:"#7C3AED", region:"US Value",     risk:"Med-High", expense:0.49, inception:2015, div:1.0,  exchange:"ASX" },
-  { ticker:"IVV",   name:"S&P 500 iShares ASX",        avgReturn:13.0, vol:15.2, sharpe:0.85, color:"#5B21B6", region:"US Broad",     risk:"Med-High", expense:0.04, inception:2012, div:1.3,  exchange:"ASX" },
+  { ticker:"IVV.AX", name:"S&P 500 iShares ASX",        avgReturn:13.0, vol:15.2, sharpe:0.85, color:"#5B21B6", region:"US Broad",     risk:"Med-High", expense:0.04, inception:2012, div:1.3,  exchange:"ASX" },
   // ── ASX DIVERSIFIED (ONE-FUND PORTFOLIOS) ─────────────────────────
   { ticker:"DHHF",  name:"Diversified All Growth",     avgReturn:11.1, vol:14.2, sharpe:0.78, color:"#F472B6", region:"Diversified",  risk:"Med-High", expense:0.19, inception:2020, div:1.6,  exchange:"ASX" },
   { ticker:"VDHG",  name:"Diversified High Growth",    avgReturn:10.2, vol:12.8, sharpe:0.79, color:"#FB7185", region:"Diversified",  risk:"Medium",   expense:0.27, inception:2017, div:2.0,  exchange:"ASX" },
@@ -1045,36 +1045,6 @@ function ETFModule({ currency }) {
             );
           })}
         </div>
-        {/* Alloc */}
-        <div style={{ padding: "8px 10px", borderTop: "1px solid var(--b1)", background: "var(--s1)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-            <span className="lbl">Allocated</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: totalAlloc === 100 ? "var(--acc)" : totalAlloc > 100 ? "var(--acc4)" : "var(--acc5)" }}>{totalAlloc}%</span>
-          </div>
-          <div style={{ height: "3px", background: "var(--b1)", borderRadius: "2px", marginBottom: "6px" }}>
-            <div style={{ height: "100%", width: `${Math.min(totalAlloc, 100)}%`, background: totalAlloc === 100 ? "var(--acc)" : totalAlloc > 100 ? "var(--acc4)" : "var(--acc5)", borderRadius: "2px", transition: "width 0.3s", boxShadow: totalAlloc === 100 ? "0 0 8px var(--acc)" : "" }} />
-          </div>
-          {/* colour bar */}
-          <div style={{ display: "flex", height: "5px", borderRadius: "3px", overflow: "hidden", gap: "1px" }}>
-            {Object.entries(sel).filter(([, v]) => v > 0).map(([t, v]) => {
-              const e = ETFs.find(x => x.ticker === t);
-              return <div key={t} title={`${t}: ${v}%`} style={{ flex: v, background: e?.color ?? "#fff", opacity: 0.9 }} />;
-            })}
-          </div>
-          {/* stats row */}
-          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "4px", marginTop: "8px" }}>
-            {[
-              { l: "Return", v: `${blended.toFixed(1)}%` },
-              { l: "Vol σ", v: `${blendedVol.toFixed(1)}%` },
-              { l: "MER", v: `${blendedExp.toFixed(2)}%` },
-            ].map(({ l, v }) => (
-              <div key={l} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "7px", color: "var(--t3)" }}>{l}</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--acc)" }}>{v}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Right */}
@@ -1094,6 +1064,34 @@ function ETFModule({ currency }) {
 
           {sub === "portfolio" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {/* Allocated summary card */}
+              <div className="card" style={{ padding: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                  <span className="lbl">Allocated</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: totalAlloc === 100 ? "var(--acc)" : totalAlloc > 100 ? "var(--acc4)" : "var(--acc5)" }}>{totalAlloc}%</span>
+                </div>
+                <div style={{ height: "4px", background: "var(--b1)", borderRadius: "2px", marginBottom: "6px" }}>
+                  <div style={{ height: "100%", width: `${Math.min(totalAlloc, 100)}%`, background: totalAlloc === 100 ? "var(--acc)" : totalAlloc > 100 ? "var(--acc4)" : "var(--acc5)", borderRadius: "2px", transition: "width 0.3s", boxShadow: totalAlloc === 100 ? "0 0 8px var(--acc)" : "" }} />
+                </div>
+                <div style={{ display: "flex", height: "5px", borderRadius: "3px", overflow: "hidden", gap: "1px", marginBottom: "8px" }}>
+                  {Object.entries(sel).filter(([, v]) => v > 0).map(([t, v]) => {
+                    const e = ETFs.find(x => x.ticker === t);
+                    return <div key={t} title={`${t}: ${v}%`} style={{ flex: v, background: e?.color ?? "#fff", opacity: 0.9 }} />;
+                  })}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "4px" }}>
+                  {[
+                    { l: "Return", v: `${blended.toFixed(1)}%` },
+                    { l: "Vol σ", v: `${blendedVol.toFixed(1)}%` },
+                    { l: "MER", v: `${blendedExp.toFixed(2)}%` },
+                  ].map(({ l, v }) => (
+                    <div key={l} style={{ textAlign: "center" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>{l}</div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--acc)" }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { l: "Starting Capital", v: start, set: setStart, pre: sym },
