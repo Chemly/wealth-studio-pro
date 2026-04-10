@@ -373,6 +373,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   /* ── SVG / CHARTS */
   svg{max-width:100% !important;overflow:visible !important;}
+  /* Prevent mobile browsers collapsing SVG height */
+  svg[height="260"]{height:260px !important;}
+  svg[height="280"]{height:280px !important;}
+  svg[height="300"]{height:300px !important;}
+  svg[height="240"]{height:240px !important;}
   .recharts-wrapper,.recharts-surface{max-width:100% !important;}
 
   /* ── TYPOGRAPHY */
