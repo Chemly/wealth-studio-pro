@@ -951,9 +951,15 @@ function ETFModule({ currency }) {
   }, [blended, blendedExp, start, monthly, years]);
 
   return (
-    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"270px"), gap: 0, overflow: mob ? "visible" : "hidden", ...(mob ? { flexDirection: "column" } : {}) }}>
+    <div style={mob
+      ? { flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch" }
+      : { display: "grid", gridTemplateColumns: "270px 1fr", overflow: "hidden", flex: 1 }
+    } className="etf-layout">
       {/* Picker */}
-      <div className="etf-picker" style={{ borderRight: mob ? "none" : "1px solid var(--b1)", borderBottom: mob ? "1px solid var(--b2)" : "none", display: "flex", flexDirection: "column", overflow: "hidden", ...(mob ? { maxHeight: "320px" } : {}) }}>
+      <div style={mob
+        ? { flexShrink: 0, display: "flex", flexDirection: "column", borderBottom: "1px solid var(--b2)", maxHeight: "300px", overflow: "hidden" }
+        : { borderRight: "1px solid var(--b1)", display: "flex", flexDirection: "column", overflow: "hidden" }
+      } className="etf-picker">
         <div style={{ padding: "8px", borderBottom: "1px solid var(--b1)", display: "flex", flexDirection: "column", gap: "6px" }}>
           <input className="ti" placeholder="Search ETFs..." value={search} onChange={e => setSearch(e.target.value)}
             style={{ padding: "6px 8px", background: "var(--s1)", border: "1px solid var(--b1)", borderRadius: "3px", fontSize: "10px", color: "var(--t1)" }} />
@@ -1072,13 +1078,19 @@ function ETFModule({ currency }) {
       </div>
 
       {/* Right */}
-      <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={mob
+        ? { flexShrink: 0, display: "flex", flexDirection: "column" }
+        : { display: "flex", flexDirection: "column", overflow: "hidden" }
+      }>
         <div className="subtab-row" style={{ display: "flex", gap: "4px", padding: "8px", borderBottom: "1px solid var(--b1)", flexWrap: "wrap" }}>
           {[["portfolio","Portfolio"],["milestones","Milestones"],["compare","Compare"],["risk","Risk"],["fees","Fee Impact"],["dividends","Dividends"]].map(([id, l]) => (
             <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
           ))}
         </div>
-        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={mob
+          ? { padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }
+          : { flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }
+        }>
 
           {sub === "portfolio" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
