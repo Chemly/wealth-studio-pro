@@ -448,7 +448,24 @@ function useIsMobile() {
   return mob;
 }
 
-// Responsive grid helpers
+// ─── LOCALSTORAGE HOOK ────────────────────────────────────────────────────────
+
+function useLocalStorage(key, defaultValue) {
+  const [value, setValue] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored !== null ? JSON.parse(stored) : defaultValue;
+    } catch { return defaultValue; }
+  });
+  const set = useCallback((v) => {
+    setValue(prev => {
+      const next = typeof v === 'function' ? v(prev) : v;
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, [key]);
+  return [value, set];
+}
 const g1    = "1fr";
 const g2    = "1fr 1fr";
 const g3    = (mob) => mob ? g2 : "repeat(3,1fr)";
@@ -890,14 +907,14 @@ function ETFModule({ currency }) {
   const mob = useIsMobile();
 
   const { quotes } = React.useContext(LiveCtx);
-  const [sel, setSel] = useState({ QQQ: 40, VOO: 35, VGS: 25 });
-  const [start, setStart] = useState(10000);
-  const [monthly, setMonthly] = useState(1000);
-  const [years, setYears] = useState(25);
+  const [sel, setSel] = useLocalStorage("etf_sel", { QQQ: 40, VOO: 35, VGS: 25 });
+  const [start, setStart] = useLocalStorage("etf_start", 10000);
+  const [monthly, setMonthly] = useLocalStorage("etf_monthly", 1000);
+  const [years, setYears] = useLocalStorage("etf_years", 25);
   const [sub, setSub] = useState("portfolio");
-  const [scenario, setScenario] = useState("base");
-  const [cmpA, setCmpA] = useState("QQQ");
-  const [cmpB, setCmpB] = useState("VOO");
+  const [scenario, setScenario] = useLocalStorage("etf_scenario", "base");
+  const [cmpA, setCmpA] = useLocalStorage("etf_cmpA", "QQQ");
+  const [cmpB, setCmpB] = useLocalStorage("etf_cmpB", "VOO");
   const [search, setSearch] = useState("");
   const [exchFilter, setExchFilter] = useState("ALL");
   const [regionFilter, setRegionFilter] = useState("ALL");
@@ -1469,13 +1486,13 @@ function DCAModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [ticker, setTicker] = useState("NDQ");
+  const [ticker, setTicker] = useLocalStorage("dca_ticker", "NDQ");
   const [dcaSearch, setDcaSearch] = useState("");
   const [dcaOpen, setDcaOpen] = useState(false);
   const dcaRef = useRef(null);
-  const [lump, setLump] = useState(10000);
-  const [monthly, setMonthly] = useState(500);
-  const [years, setYears] = useState(20);
+  const [lump, setLump] = useLocalStorage("dca_lump", 10000);
+  const [monthly, setMonthly] = useLocalStorage("dca_monthly", 500);
+  const [years, setYears] = useLocalStorage("dca_years", 20);
   const [startDip, setStartDip] = useState(false);
 
   useEffect(() => {
@@ -1683,13 +1700,13 @@ function MonteCarloModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [ticker, setTicker] = useState("QQQ");
+  const [ticker, setTicker] = useLocalStorage("mc_ticker", "QQQ");
   const [mcSearch, setMcSearch] = useState("");
   const [mcOpen, setMcOpen] = useState(false);
-  const [start, setStart] = useState(10000);
-  const [monthly, setMonthly] = useState(500);
-  const [years, setYears] = useState(20);
-  const [sims, setSims] = useState(500);
+  const [start, setStart] = useLocalStorage("mc_start", 10000);
+  const [monthly, setMonthly] = useLocalStorage("mc_monthly", 500);
+  const [years, setYears] = useLocalStorage("mc_years", 20);
+  const [sims, setSims] = useLocalStorage("mc_sims", 500);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState(null);
   const mcRef = useRef(null);
@@ -1933,9 +1950,9 @@ function BudgetModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [income, setIncome] = useState(5000);
-  const [period, setPeriod] = useState("1y");
-  const [expenses, setExpenses] = useState([
+  const [income, setIncome] = useLocalStorage("budget_income", 5000);
+  const [period, setPeriod] = useLocalStorage("budget_period", "1y");
+  const [expenses, setExpenses] = useLocalStorage("budget_expenses", [
     { id: 1, name: "Rent / Mortgage", cat: "Housing", amount: 1500, essential: true },
     { id: 2, name: "Groceries", cat: "Food", amount: 400, essential: true },
     { id: 3, name: "Transport", cat: "Transport", amount: 200, essential: true },
@@ -1947,7 +1964,7 @@ function BudgetModule({ currency }) {
     { id: 9, name: "Insurance", cat: "Insurance", amount: 120, essential: true },
     { id: 10, name: "Entertainment", cat: "Entertainment", amount: 100, essential: false },
   ]);
-  const [goals, setGoals] = useState([
+  const [goals, setGoals] = useLocalStorage("budget_goals", [
     { id: 1, name: "Emergency Fund", target: 15000, saved: 3000 },
     { id: 2, name: "Investment Account", target: 100000, saved: 12000 },
     { id: 3, name: "Holiday", target: 5000, saved: 800 },
@@ -2187,14 +2204,14 @@ function NetWorthModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [assets, setAssets] = useState([
+  const [assets, setAssets] = useLocalStorage("nw_assets", [
     { id: 1, name: "Investment Portfolio", cat: "Investments", value: 25000, growth: 12 },
     { id: 2, name: "Cash / HYSA", cat: "Cash", value: 8000, growth: 4.5 },
     { id: 3, name: "Super / 401k", cat: "Retirement", value: 15000, growth: 8 },
     { id: 4, name: "Vehicle", cat: "Depreciating", value: 12000, growth: -12 },
     { id: 5, name: "Other Assets", cat: "Other", value: 3000, growth: 0 },
   ]);
-  const [liabilities, setLiabilities] = useState([
+  const [liabilities, setLiabilities] = useLocalStorage("nw_liabilities", [
     { id: 1, name: "Student Loan", cat: "Loans", balance: 8000, rate: 5.0, minPay: 200 },
     { id: 2, name: "Credit Card", cat: "Credit", balance: 1200, rate: 19.99, minPay: 60 },
   ]);
@@ -2368,13 +2385,13 @@ function FIREModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [portfolio, setPortfolio] = useState(50000);
-  const [annIncome, setAnnIncome] = useState(80000);
-  const [annExpenses, setAnnExpenses] = useState(40000);
-  const [growthRate, setGrowthRate] = useState(10);
-  const [wr, setWr] = useState(4);
-  const [inflation, setInflation] = useState(3);
-  const [age, setAge] = useState(25);
+  const [portfolio, setPortfolio] = useLocalStorage("fire_portfolio", 50000);
+  const [annIncome, setAnnIncome] = useLocalStorage("fire_annIncome", 80000);
+  const [annExpenses, setAnnExpenses] = useLocalStorage("fire_annExpenses", 40000);
+  const [growthRate, setGrowthRate] = useLocalStorage("fire_growthRate", 10);
+  const [wr, setWr] = useLocalStorage("fire_wr", 4);
+  const [inflation, setInflation] = useLocalStorage("fire_inflation", 3);
+  const [age, setAge] = useLocalStorage("fire_age", 25);
   const [sub, setSub] = useState("calculator");
 
   const fireNum = useMemo(() => (annExpenses * Math.pow(1 + inflation / 100, 10)) / (wr / 100), [annExpenses, wr, inflation]);
@@ -2655,12 +2672,12 @@ function TaxModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [portfolio, setPortfolio] = useState(50000);
-  const [annGain, setAnnGain] = useState(12);
-  const [divYield, setDivYield] = useState(3);
-  const [marginalRate, setMarginalRate] = useState(32.5);
-  const [holdYears, setHoldYears] = useState(5);
-  const [cgtDiscount, setCgtDiscount] = useState(true);
+  const [portfolio, setPortfolio] = useLocalStorage("tax_portfolio", 50000);
+  const [annGain, setAnnGain] = useLocalStorage("tax_annGain", 12);
+  const [divYield, setDivYield] = useLocalStorage("tax_divYield", 3);
+  const [marginalRate, setMarginalRate] = useLocalStorage("tax_marginalRate", 32.5);
+  const [holdYears, setHoldYears] = useLocalStorage("tax_holdYears", 5);
+  const [cgtDiscount, setCgtDiscount] = useLocalStorage("tax_cgtDiscount", true);
 
   const grossGain = portfolio * annGain / 100;
   const grossDiv = portfolio * divYield / 100;
@@ -2778,12 +2795,12 @@ function RebalancerModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [holdings, setHoldings] = useState([
+  const [holdings, setHoldings] = useLocalStorage("reb_holdings", [
     { id: 1, ticker: "QQQ", current: 8000, target: 40 },
     { id: 2, ticker: "VOO", current: 7000, target: 35 },
     { id: 3, ticker: "VGS", current: 6500, target: 25 },
   ]);
-  const [threshold, setThreshold] = useState(5);
+  const [threshold, setThreshold] = useLocalStorage("reb_threshold", 5);
   const [newCash, setNewCash] = useState(0);
 
   const total = useMemo(() => holdings.reduce((a, h) => a + (h.current || 0), 0) + newCash, [holdings, newCash]);
@@ -2908,9 +2925,9 @@ function CrashSimModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [portfolio, setPortfolio] = useState(50000);
+  const [portfolio, setPortfolio] = useLocalStorage("crash_portfolio", 50000);
+  const [monthlyDCA, setMonthlyDCA] = useLocalStorage("crash_monthlyDCA", 500);
   const [crash, setCrash] = useState(CRASHES[2]);
-  const [monthlyDCA, setMonthlyDCA] = useState(500);
 
   const afterCrash = portfolio * (1 + crash.drop / 100);
   const loss = portfolio - afterCrash;
@@ -3192,12 +3209,12 @@ function LoanModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [loans, setLoans] = useState([
+  const [loans, setLoans] = useLocalStorage("loans_data", [
     { id: 1, name: "Student Loan", balance: 25000, rate: 5.5,  minPay: 300, extra: 0 },
     { id: 2, name: "Credit Card",  balance: 3500,  rate: 19.99, minPay: 100, extra: 0 },
     { id: 3, name: "Car Loan",     balance: 12000, rate: 7.9,  minPay: 250, extra: 0 },
   ]);
-  const [strategy, setStrategy] = useState("avalanche");
+  const [strategy, setStrategy] = useLocalStorage("loans_strategy", "avalanche");
 
   const addLoan = () => setLoans(p => [...p, { id: Date.now(), name: "New Loan", balance: 10000, rate: 6.0, minPay: 150, extra: 0 }]);
   const delLoan = id => setLoans(p => p.filter(l => l.id !== id));
@@ -3331,14 +3348,14 @@ function IncomeModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const mob = useIsMobile();
 
-  const [streams, setStreams] = useState([
+  const [streams, setStreams] = useLocalStorage("income_streams", [
     { id: 1, name: "Day Job",        type: "Salary",     amount: 5000, freq: "monthly", active: true,  growth: 3  },
     { id: 2, name: "Freelance",      type: "Freelance",  amount: 800,  freq: "monthly", active: true,  growth: 10 },
     { id: 3, name: "ETF Dividends",  type: "Dividends",  amount: 120,  freq: "monthly", active: true,  growth: 12 },
     { id: 4, name: "Rental Income",  type: "Rental",     amount: 0,    freq: "monthly", active: false, growth: 3  },
   ]);
-  const [target, setTarget] = useState(10000);
-  const [projYears, setProjYears] = useState(10);
+  const [target, setTarget] = useLocalStorage("income_target", 10000);
+  const [projYears, setProjYears] = useLocalStorage("income_projYears", 10);
 
   const addStream = () => setStreams(p => [...p, { id: Date.now(), name: "New Stream", type: "Other", amount: 0, freq: "monthly", active: true, growth: 5 }]);
   const delStream = id => setStreams(p => p.filter(s => s.id !== id));
@@ -3516,7 +3533,7 @@ export default function WealthStudioPRO() {
 
 function WealthStudioApp() {
   const [tab, setTab] = useState("dashboard");
-  const [currency, setCurrency] = useState("AUD");
+  const [currency, setCurrency] = useLocalStorage("app_currency", "AUD");
   const [time, setTime] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
