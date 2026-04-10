@@ -127,7 +127,7 @@ const G = `
   --font-body:'Syne',sans-serif;
   --mob-nav-h:60px;
 }
-html,body{height:100%;overflow:hidden;}
+html,body{height:100%;overflow:hidden;max-width:100vw;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 input[type=number]{-moz-appearance:textfield;}
 ::-webkit-scrollbar{width:3px;height:3px;}
@@ -374,6 +374,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   /* Chart containers - ensure they don't overflow */
   svg{max-width:100% !important;overflow:visible;}
   .chart-wrap{overflow-x:hidden !important;}
+
+  /* Global mobile overflow lock */
+  .module-content,
+  .mob-content{overflow-x:hidden !important;}
+
+  /* All inline grid layouts collapse to single col */
+  [style*="gridTemplateColumns: 220px"],
+  [style*="gridTemplateColumns: 200px"],
+  [style*="gridTemplateColumns: 180px"],
+  [style*="gridTemplateColumns: repeat(4"],
+  [style*="gridTemplateColumns: repeat(3"]{
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  /* Net Worth split panel stack */
+  .nw-split{
+    grid-template-columns:1fr !important;
+    flex-direction:column !important;
+  }
+
+  /* Prevent any child from busting out */
+  .card,
+  .card > *{max-width:100% !important;}
 }
 
 /* ═══════════════════════════════════════════════
@@ -1533,20 +1556,22 @@ function DCAModule({ currency }) {
       </div>
       <div className="card" style={{ padding: "14px" }}>
         <div className="lbl" style={{ marginBottom: "8px" }}>Strategy Comparison by Year</div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
-          <tbody>
-            {timingRows.map(row => (
-              <tr key={row.y} className="row-h">
-                <td className="td">{row.y}yr</td>
-                <td className="td td-acc">{fmt(row.dca, sym)}</td>
-                <td className="td td-b">{fmt(row.ls, sym)}</td>
-                <td className="td" style={{ color: row.diff > 0 ? "var(--acc2)" : "var(--acc)" }}>{fmt(Math.abs(row.diff), sym)}</td>
-                <td className="td" style={{ color: row.winner === "Lump Sum" ? "var(--acc2)" : "var(--acc)" }}>{row.winner}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", minWidth: "420px", borderCollapse: "collapse" }}>
+            <thead><tr>{["Year", "DCA Value", "Lump Sum Value", "Difference", "Winner"].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+            <tbody>
+              {timingRows.map(row => (
+                <tr key={row.y} className="row-h">
+                  <td className="td">{row.y}yr</td>
+                  <td className="td td-acc">{fmt(row.dca, sym)}</td>
+                  <td className="td td-b">{fmt(row.ls, sym)}</td>
+                  <td className="td" style={{ color: row.diff > 0 ? "var(--acc2)" : "var(--acc)" }}>{fmt(Math.abs(row.diff), sym)}</td>
+                  <td className="td" style={{ color: row.winner === "Lump Sum" ? "var(--acc2)" : "var(--acc)" }}>{row.winner}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -1880,20 +1905,22 @@ function BudgetModule({ currency }) {
                 <span className="lbl">Expense Tracker</span>
                 <button className="btn" onClick={addExp}>+ Add</button>
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
-                <tbody>
-                  {expenses.map(exp => (
-                    <tr key={exp.id} className="row-h">
-                      <td className="td"><input className="ti" value={exp.name} onChange={e => upd(exp.id, "name", e.target.value)} /></td>
-                      <td className="td"><select className="si" value={exp.cat} onChange={e => upd(exp.id, "cat", e.target.value)} style={{ width: "100%" }}>{EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}</select></td>
-                      <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount} onChange={e => upd(exp.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
-                      <td className="td"><span onClick={() => upd(exp.id, "essential", !exp.essential)} style={{ cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", color: exp.essential ? "var(--acc)" : "var(--t3)", padding: "2px 6px", border: `1px solid ${exp.essential ? "var(--acc)40" : "var(--b2)"}`, borderRadius: "2px" }}>{exp.essential ? "NEED" : "WANT"}</span></td>
-                      <td className="td"><button className="btn-del" onClick={() => delExp(exp.id)}>×</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <table style={{ width: "100%", minWidth: "480px", borderCollapse: "collapse" }}>
+                  <thead><tr>{["Item", "Category", "Amount", "Type", ""].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
+                  <tbody>
+                    {expenses.map(exp => (
+                      <tr key={exp.id} className="row-h">
+                        <td className="td"><input className="ti" value={exp.name} onChange={e => upd(exp.id, "name", e.target.value)} /></td>
+                        <td className="td"><select className="si" value={exp.cat} onChange={e => upd(exp.id, "cat", e.target.value)} style={{ width: "100%" }}>{EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}</select></td>
+                        <td className="td"><div style={{ display: "flex", gap: "2px", alignItems: "center" }}><span style={{ color: "var(--t3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>{sym}</span><input type="number" value={exp.amount} onChange={e => upd(exp.id, "amount", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--t1)", fontFamily: "var(--font-mono)", fontSize: "12px", width: "80px", outline: "none" }} /></div></td>
+                        <td className="td"><span onClick={() => upd(exp.id, "essential", !exp.essential)} style={{ cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "9px", color: exp.essential ? "var(--acc)" : "var(--t3)", padding: "2px 6px", border: `1px solid ${exp.essential ? "var(--acc)40" : "var(--b2)"}`, borderRadius: "2px" }}>{exp.essential ? "NEED" : "WANT"}</span></td>
+                        <td className="td"><button className="btn-del" onClick={() => delExp(exp.id)}>×</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
@@ -2137,7 +2164,7 @@ function NetWorthModule({ currency }) {
           </div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div className="nw-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         {/* Assets */}
         <div className="card" style={{ padding: "14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}><span className="lbl">Assets</span><button className="btn" onClick={addAsset}>+ Add</button></div>
