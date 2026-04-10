@@ -426,6 +426,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 }
 `;
 
+// ─── MOBILE HOOK ─────────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [mob, setMob] = useState(() => window.innerWidth <= 768);
+  useEffect(() => {
+    const fn = () => setMob(window.innerWidth <= 768);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return mob;
+}
+
+// Responsive grid helpers
+const g1    = "1fr";
+const g2    = "1fr 1fr";
+const g3    = (mob) => mob ? g2 : "repeat(3,1fr)";
+const g4    = (mob) => mob ? g2 : "repeat(4,1fr)";
+const g5    = (mob) => mob ? g2 : "repeat(5,1fr)";
+const gSide = (mob, w="220px") => mob ? g1 : `${w} 1fr`;
+
 // ─── LIVE DATA CONTEXT ───────────────────────────────────────────────────────
 
 const LiveCtx = React.createContext({ quotes: {}, status: "idle", apiKey: "", setApiKey: () => {} });
@@ -701,6 +721,7 @@ function Dashboard({ onNav, currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
   const { quotes, status } = React.useContext(LiveCtx);
   const isLive = status === "live";
+  const mob = useIsMobile();
   const [time, setTime] = useState(new Date());
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
 
@@ -741,9 +762,9 @@ function Dashboard({ onNav, currency }) {
   ];
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: mob ? "12px" : "20px 24px", WebkitOverflowScrolling: "touch" }} className="fade-up">
       {/* Hero stats */}
-      <div className="rg-5 dash-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "12px", marginBottom: "20px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: mob ? g2 : "repeat(5,1fr)", gap: mob ? "8px" : "12px", marginBottom: mob ? "12px" : "20px" }}>
         {[
           { l: "Market Avg Return", v: "12.8%", sub: "Blended across all ETFs", c: "var(--acc)", spark: Array.from({length:16},(_,i)=>12+Math.sin(i*0.9)*2) },
           { l: "Best Performer", v: "NDQ +18.2%", sub: "Highest historical avg", c: "var(--acc2)", spark: Array.from({length:16},(_,i)=>15+Math.sin(i*1.2)*4) },
@@ -751,9 +772,9 @@ function Dashboard({ onNav, currency }) {
           { l: "Sharpe Champion", v: "IVV 0.86", sub: "Best risk-adj return", c: "var(--acc3)", spark: Array.from({length:16},(_,i)=>0.8+Math.sin(i*0.7)*0.1) },
           { l: "Current Time", v: time.toLocaleTimeString(), sub: time.toLocaleDateString(), c: "var(--t1)", blink: true },
         ].map(({ l, v, sub, c, spark: sp, blink }) => (
-          <div key={l} className="card scan-wrap" style={{ padding: "18px", borderColor: c === "var(--t1)" ? "var(--b1)" : `${c}25` }}>
+          <div key={l} className="card scan-wrap" style={{ padding: mob ? "12px" : "18px", borderColor: c === "var(--t1)" ? "var(--b1)" : `${c}25` }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>{l}</div>
-            <div style={{ fontFamily: "var(--font-ui)", fontSize: "28px", color: c }} className={blink ? "blink" : ""}>{v}</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: mob ? "20px" : "28px", color: c }} className={blink ? "blink" : ""}>{v}</div>
             {sp && <div style={{ marginTop: "8px" }}><Spark data={sp} color={c} h={28} w={90} /></div>}
             {!sp && <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", marginTop: "6px" }}>{sub}</div>}
           </div>
@@ -761,18 +782,18 @@ function Dashboard({ onNav, currency }) {
       </div>
 
       {/* Module grid */}
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ marginBottom: mob ? "12px" : "20px" }}>
         <div className="lbl" style={{ marginBottom: "12px" }}>── Modules</div>
-        <div className="dash-modules" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: g2, gap: mob ? "8px" : "10px" }}>
           {modules.map(m => (
-            <button key={m.id} onClick={() => onNav(m.id)} style={{ background: "var(--s2)", border: `1px solid var(--b1)`, borderRadius: "6px", padding: "18px", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}
+            <button key={m.id} onClick={() => onNav(m.id)} style={{ background: "var(--s2)", border: `1px solid var(--b1)`, borderRadius: "6px", padding: mob ? "12px" : "18px", cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = m.color + "50"; e.currentTarget.style.background = "var(--s3)"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--b1)"; e.currentTarget.style.background = "var(--s2)"; }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "18px", color: m.color }}>{m.icon}</span>
-                <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "15px", color: "var(--t1)" }}>{m.label}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "14px" : "18px", color: m.color }}>{m.icon}</span>
+                <span style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: mob ? "13px" : "15px", color: "var(--t1)" }}>{m.label}</span>
               </div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", lineHeight: 1.6 }}>{m.desc}</div>
+              {!mob && <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--t3)", lineHeight: 1.6 }}>{m.desc}</div>}
             </button>
           ))}
         </div>
@@ -782,7 +803,7 @@ function Dashboard({ onNav, currency }) {
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
         {/* ASX Section */}
-        <div className="card" style={{ padding: "18px" }}>
+        <div className="card" style={{ padding: mob ? "12px" : "18px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <div className="lbl">── ASX Market</div>
@@ -792,13 +813,13 @@ function Dashboard({ onNav, currency }) {
               {isLive ? <><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block" }}/> LIVE DATA</> : "LOADING..."}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
-            {asxData.map(e => <MarketCard key={e.ticker} e={e} />)}
+          <div style={{ display: "grid", gridTemplateColumns: mob ? g2 : "repeat(5,1fr)", gap: "8px" }}>
+            {asxData.map(e => <MarketCard key={e.ticker} e={e} mob={mob} />)}
           </div>
         </div>
 
         {/* US Section */}
-        <div className="card" style={{ padding: "18px" }}>
+        <div className="card" style={{ padding: mob ? "12px" : "18px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <div className="lbl">── US Market</div>
@@ -808,8 +829,8 @@ function Dashboard({ onNav, currency }) {
               {isLive ? <><span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--acc)", boxShadow: "0 0 6px var(--acc)", display: "inline-block" }}/> LIVE DATA</> : "LOADING..."}
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
-            {usData.map(e => <MarketCard key={e.ticker} e={e} />)}
+          <div style={{ display: "grid", gridTemplateColumns: mob ? g2 : "repeat(5,1fr)", gap: "8px" }}>
+            {usData.map(e => <MarketCard key={e.ticker} e={e} mob={mob} />)}
           </div>
         </div>
 
@@ -818,15 +839,15 @@ function Dashboard({ onNav, currency }) {
   );
 }
 
-function MarketCard({ e }) {
+function MarketCard({ e, mob }) {
   const up = e.changePct !== null ? e.changePct >= 0 : true;
   const priceSym = e.exchange === "ASX" ? "A$" : "$";
   return (
-    <div className="card" style={{ padding: "14px", background: "var(--s3)", borderColor: e.isLive ? (up ? "#00FF8720" : "#FF4D6D20") : "var(--b1)", transition: "border-color 0.3s" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", alignItems: "center" }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: e.color }}>{e.ticker}</span>
+    <div className="card" style={{ padding: mob ? "10px" : "14px", background: "var(--s3)", borderColor: e.isLive ? (up ? "#00FF8720" : "#FF4D6D20") : "var(--b1)", transition: "border-color 0.3s" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", alignItems: "center" }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "11px" : "13px", color: e.color }}>{e.ticker}</span>
         {e.isLive && e.changePct !== null ? (
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: up ? "var(--acc)" : "var(--acc4)", fontWeight: 600 }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "10px" : "12px", color: up ? "var(--acc)" : "var(--acc4)", fontWeight: 600 }}>
             {up ? "▲" : "▼"}{Math.abs(e.changePct).toFixed(2)}%
           </span>
         ) : (
@@ -834,11 +855,11 @@ function MarketCard({ e }) {
         )}
       </div>
       {e.livePrice ? (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "16px", color: "var(--t1)", marginBottom: "6px", fontWeight: 600 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "13px" : "16px", color: "var(--t1)", marginBottom: "4px", fontWeight: 600 }}>
           {priceSym}{e.livePrice.toFixed(2)}
         </div>
       ) : (
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--t3)", marginBottom: "6px" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: mob ? "11px" : "13px", color: "var(--t3)", marginBottom: "4px" }}>
           {e.avgReturn}% avg
         </div>
       )}
@@ -856,6 +877,8 @@ function MarketCard({ e }) {
 
 function ETFModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const { quotes } = React.useContext(LiveCtx);
   const [sel, setSel] = useState({ QQQ: 40, VOO: 35, VGS: 25 });
   const [start, setStart] = useState(10000);
@@ -918,7 +941,7 @@ function ETFModule({ currency }) {
   }, [blended, blendedExp, start, monthly, years]);
 
   return (
-    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: "270px 1fr", overflow: "hidden" }}>
+    <div className="etf-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"270px"), overflow: "hidden" }}>
       {/* Picker */}
       <div className="etf-picker" style={{ borderRight: "1px solid var(--b1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{ padding: "8px", borderBottom: "1px solid var(--b1)", display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -1023,7 +1046,7 @@ function ETFModule({ currency }) {
             })}
           </div>
           {/* stats row */}
-          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "4px", marginTop: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "4px", marginTop: "8px" }}>
             {[
               { l: "Return", v: `${blended.toFixed(1)}%` },
               { l: "Vol σ", v: `${blendedVol.toFixed(1)}%` },
@@ -1045,11 +1068,11 @@ function ETFModule({ currency }) {
             <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
           ))}
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
 
           {sub === "portfolio" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { l: "Starting Capital", v: start, set: setStart, pre: sym },
                   { l: "Monthly DCA", v: monthly, set: setMonthly, pre: sym },
@@ -1066,7 +1089,7 @@ function ETFModule({ currency }) {
                   </div>
                 ))}
               </div>
-              <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
+              <div className="rg-5" style={{ display: "grid", gridTemplateColumns: g5(mob), gap: "8px" }}>
                 {[
                   { l: `Value (${years}y)`, v: final.v, c: "var(--acc)" },
                   { l: "Contributed", v: final.c, c: "var(--t1)" },
@@ -1170,7 +1193,7 @@ function ETFModule({ currency }) {
 
           {sub === "milestones" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "8px" }}>
                 {milestones.map(ms => {
                   const hit = proj.find(p => p.v >= ms);
                   return (
@@ -1225,7 +1248,7 @@ function ETFModule({ currency }) {
                 return (
                   <div key={t} className="card" style={{ padding: "14px", borderColor: i === 0 ? "#00FF8730" : "#60EFFF30" }}>
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: c, marginBottom: "10px" }}>{e.ticker} — {e.name}</div>
-                    <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: "8px" }}>
+                    <div className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                       {[["Return", `${e.avgReturn}%`], ["Volatility", `${e.vol}%`], ["Sharpe", e.sharpe], ["Expense", `${e.expense}%`], ["Dividend", `${e.div}%`], ["Inception", e.inception]].map(([k, v]) => (
                         <div key={k}>
                           <div className="lbl">{k}</div>
@@ -1262,7 +1285,7 @@ function ETFModule({ currency }) {
 
           {sub === "risk" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { l: "Portfolio Volatility", v: `${blendedVol.toFixed(1)}%`, c: "var(--acc5)" },
                   { l: "Blended Sharpe", v: (Object.entries(sel).reduce((a, [t, p]) => { const e = ETFs.find(x => x.ticker === t); return a + (e ? e.sharpe * (p / 100) : 0); }, 0)).toFixed(2), c: "var(--acc3)" },
@@ -1321,7 +1344,7 @@ function ETFModule({ currency }) {
 
           {sub === "fees" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "8px" }}>
                 {[
                   { l: "Blended MER", v: `${blendedExp.toFixed(3)}%`, c: "var(--acc4)" },
                   { l: `Fee Drag (${years}yr)`, v: fmt(expDrag, sym), c: "var(--acc4)" },
@@ -1338,7 +1361,7 @@ function ETFModule({ currency }) {
                 {Object.entries(sel).filter(([, v]) => v > 0).map(([t, p]) => {
                   const e = ETFs.find(x => x.ticker === t); if (!e) return null;
                   return (
-                    <div key={t} style={{ display: "grid", gridTemplateColumns: "55px 1fr 80px 60px", alignItems: "center", gap: "10px", padding: "6px 0", borderBottom: "1px solid var(--b1)" }}>
+                    <div key={t} style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "55px 1fr 80px 60px", alignItems: "center", gap: "10px", padding: "6px 0", borderBottom: "1px solid var(--b1)" }}>
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: e.color }}>{e.ticker}</span>
                       <div style={{ height: "4px", background: "var(--b1)", borderRadius: "2px" }}>
                         <div style={{ height: "100%", width: `${Math.min((e.expense / 0.95) * 100, 100)}%`, background: e.color, borderRadius: "2px", opacity: 0.7 }} />
@@ -1374,7 +1397,7 @@ function ETFModule({ currency }) {
 
           {sub === "dividends" && (
             <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { l: "Blended Yield", v: `${blendedDiv.toFixed(2)}%`, c: "var(--acc5)" },
                   { l: "Annual Dividends (Now)", v: fmt(start * blendedDiv / 100, sym), c: "var(--acc5)" },
@@ -1416,6 +1439,8 @@ function ETFModule({ currency }) {
 
 function DCAModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [ticker, setTicker] = useState("NDQ");
   const [dcaSearch, setDcaSearch] = useState("");
   const [dcaOpen, setDcaOpen] = useState(false);
@@ -1472,8 +1497,8 @@ function DCAModule({ currency }) {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
-      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"220px"), gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "8px" }}>Select ETF</div>
@@ -1537,7 +1562,7 @@ function DCAModule({ currency }) {
           ))}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "8px" }}>
             {[
               { l: `DCA Only (${years}yr)`, v: finalDCA.v, sub: `Contrib: ${fmt(finalDCA.c, sym)}`, c: "var(--acc)" },
               { l: `Lump Sum Only (${years}yr)`, v: finalLump.v, sub: `Invest: ${fmt(lump, sym)}`, c: "var(--acc2)" },
@@ -1626,6 +1651,8 @@ function DCAModule({ currency }) {
 
 function MonteCarloModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [ticker, setTicker] = useState("QQQ");
   const [mcSearch, setMcSearch] = useState("");
   const [mcOpen, setMcOpen] = useState(false);
@@ -1687,8 +1714,8 @@ function MonteCarloModule({ currency }) {
   const maxPath = results ? Math.max(...results.yearlyPcts.map(p => p.p90)) : 1;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
-      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"240px"), gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {[
             { l: "ETF", type: "sel" },
@@ -1760,7 +1787,7 @@ function MonteCarloModule({ currency }) {
 
         {results ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+            <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
               {[
                 { l: "Median Outcome", v: fmt(results.pct(50), sym), c: "var(--acc)" },
                 { l: "Best Case (90th)", v: fmt(results.pct(90), sym), c: "var(--acc2)" },
@@ -1874,6 +1901,8 @@ function MonteCarloModule({ currency }) {
 
 function BudgetModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [income, setIncome] = useState(5000);
   const [period, setPeriod] = useState("1y");
   const [expenses, setExpenses] = useState([
@@ -1919,10 +1948,10 @@ function BudgetModule({ currency }) {
           <button key={id} className={`subtab${sub === id ? " on" : ""}`} onClick={() => setSub(id)}>{l}</button>
         ))}
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
         {sub === "overview" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "10px" }}>
+            <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"200px"), gap: "10px" }}>
               <div className="card card-acc" style={{ padding: "12px" }}>
                 <div className="lbl" style={{ marginBottom: "6px" }}>Monthly Income</div>
                 <select className="si" value={period} onChange={e => setPeriod(e.target.value)} style={{ marginBottom: "8px" }}><option value="monthly">Monthly</option><option value="annual">Annual ÷12</option></select>
@@ -1931,7 +1960,7 @@ function BudgetModule({ currency }) {
                   <input className="ni" type="number" value={income} onChange={e => setIncome(+e.target.value)} style={{ fontSize: "26px", color: "var(--acc)" }} />
                 </div>
               </div>
-              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+              <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { l: "Total Expenses", v: fmt(totalExp, sym), c: "var(--acc4)" },
                   { l: "Monthly Surplus", v: fmt(surplus, sym), c: surplus >= 0 ? "var(--acc)" : "var(--acc4)" },
@@ -1968,7 +1997,7 @@ function BudgetModule({ currency }) {
           </div>
         )}
         {sub === "breakdown" && (
-          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: "12px" }}>
+          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: gSide(mob,"180px"), gap: "12px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <MiniDonut data={donutData.map(([cat, value]) => ({ cat, value, color: CAT_COLORS[cat] ?? "#888" }))} size={140} />
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -2009,7 +2038,7 @@ function BudgetModule({ currency }) {
                     <input className="ti" value={g.name} onChange={e => updG(g.id, "name", e.target.value)} style={{ fontSize: "13px", color: "var(--acc)", maxWidth: "200px" }} />
                     <button className="btn-del" onClick={() => delGoal(g.id)}>×</button>
                   </div>
-                  <div className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "10px", marginBottom: "12px" }}>
+                  <div className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "10px", marginBottom: "12px" }}>
                     {[{ l: "Target", v: g.target, field: "target" }, { l: "Saved", v: g.saved, field: "saved" }].map(({ l, v, field }) => (
                       <div key={l}>
                         <div className="lbl">{l}</div>
@@ -2035,7 +2064,7 @@ function BudgetModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "12px" }}>50/30/20 Rule Analysis</div>
-              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "10px" }}>
                 {[
                   { l: "Needs (50%)", target: 50, actual: moIncome > 0 ? (essentialExp / moIncome) * 100 : 0, val: fmt(essentialExp, sym), c: "var(--acc2)" },
                   { l: "Wants (30%)", target: 30, actual: moIncome > 0 ? ((totalExp - essentialExp) / moIncome) * 100 : 0, val: fmt(totalExp - essentialExp, sym), c: "var(--acc3)" },
@@ -2083,7 +2112,7 @@ function BudgetModule({ currency }) {
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div className="card" style={{ padding: "14px" }}>
               <div className="lbl" style={{ marginBottom: "10px" }}>Invest Your Surplus — What It Becomes</div>
-              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "10px" }}>
+              <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "10px" }}>
                 {[7, 10, 12].map(rate => (
                   <div key={rate} className="card" style={{ padding: "12px", background: "var(--s3)" }}>
                     <div className="lbl" style={{ marginBottom: "8px" }}>@ {rate}% p.a.</div>
@@ -2105,7 +2134,7 @@ function BudgetModule({ currency }) {
                 const r = 0.12 / 100 / 12, n = 240;
                 const extra = cut * ((Math.pow(1 + r, n) - 1) / r);
                 const pctInc = surplus > 0 ? (cut / surplus) * 100 : 0;
-                return <div key={cut} style={{ display: "grid", gridTemplateColumns: "90px 80px 1fr 80px", padding: "5px 0", borderBottom: "1px solid var(--b1)", gap: "8px", alignItems: "center" }}>
+                return <div key={cut} style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "90px 80px 1fr 80px", padding: "5px 0", borderBottom: "1px solid var(--b1)", gap: "8px", alignItems: "center" }}>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--acc5)" }}>Cut {fmt(cut, sym)}/mo</span>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>+{pctInc.toFixed(0)}% surplus</span>
                   <div style={{ height: "3px", background: "var(--b1)", borderRadius: "2px" }}><div style={{ height: "100%", width: `${Math.min(pctInc, 100)}%`, background: "var(--acc5)" }} /></div>
@@ -2124,6 +2153,8 @@ function BudgetModule({ currency }) {
 
 function NetWorthModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [assets, setAssets] = useState([
     { id: 1, name: "Investment Portfolio", cat: "Investments", value: 25000, growth: 12 },
     { id: 2, name: "Cash / HYSA", cat: "Cash", value: 8000, growth: 4.5 },
@@ -2166,8 +2197,8 @@ function NetWorthModule({ currency }) {
   };
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
-      <div className="rg-5" style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="rg-5" style={{ display: "grid", gridTemplateColumns: g5(mob), gap: "8px" }}>
         {[
           { l: "Net Worth", v: fmt(netWorth, sym), c: netWorth >= 0 ? "var(--acc)" : "var(--acc4)", big: true },
           { l: "Total Assets", v: fmt(totalAssets, sym), c: "var(--acc2)" },
@@ -2248,7 +2279,7 @@ function NetWorthModule({ currency }) {
         </svg>
       </div>
       {/* Projections */}
-      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
         {[1, 3, 5, 10].map(y => (
           <div key={y} className="card" style={{ padding: "12px" }}>
             <div className="lbl">Projected ({y}yr)</div>
@@ -2256,13 +2287,13 @@ function NetWorthModule({ currency }) {
           </div>
         ))}
       </div>
-      <div className="nw-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div className="nw-split" style={{ display: "grid", gridTemplateColumns: mob ? g1 : "1fr 1fr", gap: "12px" }}>
         {/* Assets */}
         <div className="card" style={{ padding: "14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}><span className="lbl">Assets</span><button className="btn" onClick={addAsset}>+ Add</button></div>
           <MiniDonut data={assets.filter(a => a.value > 0).map(a => ({ cat: a.cat, value: a.value, color: ["#00FF87","#60EFFF","#A78BFA","#FFD60A","#FF9F0A","#FB7185"][assets.indexOf(a) % 6] }))} size={100} />
           {assets.map((a, i) => (
-            <div key={a.id} style={{ display: "grid", gridTemplateColumns: "1fr 100px 60px 24px", gap: "6px", alignItems: "center", padding: "5px 0", borderBottom: "1px solid var(--b1)" }} className="row-h">
+            <div key={a.id} style={{ display: "grid", gridTemplateColumns: mob ? "1fr auto auto auto" : "1fr 100px 60px 24px", gap: "6px", alignItems: "center", padding: "5px 0", borderBottom: "1px solid var(--b1)" }} className="row-h">
               <input className="ti" value={a.name} onChange={e => updA(a.id, "name", e.target.value)} />
               <div style={{ display: "flex", gap: "2px" }}><span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)" }}>{sym}</span><input type="number" value={a.value} onChange={e => updA(a.id, "value", +e.target.value)} style={{ background: "transparent", border: "none", color: "var(--acc2)", fontFamily: "var(--font-mono)", fontSize: "11px", width: "75px", outline: "none" }} /></div>
               <div style={{ display: "flex", gap: "1px" }}><input type="number" value={a.growth} onChange={e => updA(a.id, "growth", +e.target.value)} style={{ background: "transparent", border: "none", color: a.growth >= 0 ? "var(--acc)" : "var(--acc4)", fontFamily: "var(--font-mono)", fontSize: "10px", width: "38px", outline: "none" }} /><span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", color: "var(--t3)" }}>%</span></div>
@@ -2283,7 +2314,7 @@ function NetWorthModule({ currency }) {
                   <input className="ti" value={l.name} onChange={e => updL(l.id, "name", e.target.value)} style={{ flex: 1, color: "var(--acc4)" }} />
                   <button className="btn-del" onClick={() => delL(l.id)}>×</button>
                 </div>
-                <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "6px", marginBottom: "6px" }}>
+                <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "6px", marginBottom: "6px" }}>
                   {[["Balance", l.balance, "balance", sym, "", "var(--acc4)"], ["Rate", l.rate, "rate", "", "%", "var(--acc5)"], ["Min Pay", l.minPay, "minPay", sym, "", "var(--t2)"]].map(([lbl, val, field, pre, suf, c]) => (
                     <div key={lbl}>
                       <div className="lbl">{lbl}</div>
@@ -2309,6 +2340,8 @@ function NetWorthModule({ currency }) {
 
 function FIREModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [portfolio, setPortfolio] = useState(50000);
   const [annIncome, setAnnIncome] = useState(80000);
   const [annExpenses, setAnnExpenses] = useState(40000);
@@ -2349,10 +2382,10 @@ function FIREModule({ currency }) {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }} className="fade-up mob-scroll">
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column" }} className="fade-up mob-scroll">
 
       {/* ── TOP HERO STATS — always visible, no sub-tab needed ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1px", background: "var(--b1)", borderBottom: "1px solid var(--b1)", flexShrink: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "1px", background: "var(--b1)", borderBottom: "1px solid var(--b1)", flexShrink: 0 }}>
         {[
           { l: "FIRE Number", v: fmt(fireNum, sym), c: "var(--acc)", sub: `${wr}% withdrawal rate` },
           { l: "Years to FIRE", v: firePoint ? `${firePoint.y.toFixed(1)} yrs` : "50+ yrs", c: firePoint ? "var(--acc)" : "var(--acc4)", sub: firePoint ? `Age ${firePoint.age.toFixed(0)}` : "Increase savings" },
@@ -2378,7 +2411,7 @@ function FIREModule({ currency }) {
 
         {/* ── CALCULATOR ── */}
         {sub === "calculator" && (
-          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+          <div className="fade-up" style={{ display: "grid", gridTemplateColumns: gSide(mob,"240px"), gap: "12px" }}>
             {/* Inputs */}
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--t3)", letterSpacing: "1px", padding: "4px 0" }}>YOUR NUMBERS</div>
@@ -2420,7 +2453,7 @@ function FIREModule({ currency }) {
             {/* Chart + FIRE modes */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {/* FIRE modes */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
                 {[
                   { name: "Lean FIRE", mult: 0.7, desc: "Frugal lifestyle" },
                   { name: "Regular FIRE", mult: 1.0, desc: "Current expenses" },
@@ -2496,7 +2529,7 @@ function FIREModule({ currency }) {
         {/* ── SWR ── */}
         {sub === "swr" && (
           <div className="fade-up" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "8px" }}>
               {[
                 { l: "Annual Income at 4% SWR", v: fmt(fireNum * 0.04, sym), c: "var(--acc)" },
                 { l: "Monthly at 4% SWR", v: fmt(fireNum * 0.04 / 12, sym), c: "var(--acc2)" },
@@ -2535,7 +2568,7 @@ function FIREModule({ currency }) {
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t2)", lineHeight: 1.8, padding: "14px", background: "var(--s1)", border: "1px solid var(--b1)" }}>
               <strong style={{ color: "var(--acc)" }}>Coast FIRE</strong> is the portfolio value at which you can <strong style={{ color: "var(--t1)" }}>stop contributing entirely</strong> and your investments will still grow to your FIRE number by retirement age on their own.
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: g5(mob), gap: "8px" }}>
               {coastRows.map(row => (
                 <div key={row.retAge} className={`card${row.reached ? " card-acc" : ""}`} style={{ padding: "14px" }}>
                   <div className="lbl">Retire at {row.retAge}</div>
@@ -2590,6 +2623,8 @@ function FIREModule({ currency }) {
 
 function TaxModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [portfolio, setPortfolio] = useState(50000);
   const [annGain, setAnnGain] = useState(12);
   const [divYield, setDivYield] = useState(3);
@@ -2622,8 +2657,8 @@ function TaxModule({ currency }) {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
-      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"240px"), gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
           {[
             { l: "Portfolio Value", v: portfolio, set: setPortfolio, pre: sym },
@@ -2646,7 +2681,7 @@ function TaxModule({ currency }) {
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+          <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
             {[
               { l: "Gross Annual Gain", v: fmt(grossGain, sym), c: "var(--acc2)" },
               { l: "Tax on Gains", v: fmt(taxOnGains, sym), c: "var(--acc4)" },
@@ -2707,6 +2742,8 @@ function TaxModule({ currency }) {
 
 function RebalancerModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [holdings, setHoldings] = useState([
     { id: 1, ticker: "QQQ", current: 8000, target: 40 },
     { id: 2, ticker: "VOO", current: 7000, target: 35 },
@@ -2733,8 +2770,8 @@ function RebalancerModule({ currency }) {
   const needsRebal = holdings.some(h => Math.abs(calcRebal(h).drift) > threshold);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", WebkitOverflowScrolling: "touch" }} className="fade-up">
+      <div style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
         {[
           { l: "Portfolio Total", v: fmt(total, sym), c: "var(--acc)" },
           { l: "Target Allocation", v: `${targetTotal}%`, c: targetTotal === 100 ? "var(--acc)" : "var(--acc4)" },
@@ -2747,7 +2784,7 @@ function RebalancerModule({ currency }) {
           </div>
         ))}
       </div>
-      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "12px" }}>
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"200px"), gap: "12px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <div className="card" style={{ padding: "12px" }}>
             <div className="lbl" style={{ marginBottom: "6px" }}>Drift Threshold</div>
@@ -2833,6 +2870,8 @@ const CRASHES = [
 
 function CrashSimModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [portfolio, setPortfolio] = useState(50000);
   const [crash, setCrash] = useState(CRASHES[2]);
   const [monthlyDCA, setMonthlyDCA] = useState(500);
@@ -2857,8 +2896,8 @@ function CrashSimModule({ currency }) {
   const bonus = recovered - portfolio;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
-      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "12px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="side-layout" style={{ display: "grid", gridTemplateColumns: gSide(mob,"260px"), gap: "12px" }}>
 
         {/* Controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -2907,7 +2946,7 @@ function CrashSimModule({ currency }) {
 
         {/* Results */}
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "8px" }}>
+          <div className="rg-3" style={{ display: "grid", gridTemplateColumns: g3(mob), gap: "8px" }}>
             {[
               { l: "Before Crash",       v: fmt(portfolio, sym),   c: "var(--acc2)" },
               { l: `After ${Math.abs(crash.drop)}% Drop`, v: fmt(afterCrash, sym), c: "var(--acc4)" },
@@ -3113,6 +3152,8 @@ function CrashSimModule({ currency }) {
 
 function LoanModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [loans, setLoans] = useState([
     { id: 1, name: "Student Loan", balance: 25000, rate: 5.5,  minPay: 300, extra: 0 },
     { id: 2, name: "Credit Card",  balance: 3500,  rate: 19.99, minPay: 100, extra: 0 },
@@ -3141,8 +3182,8 @@ function LoanModule({ currency }) {
     : [...loans].sort((a, b) => a.balance - b.balance);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
-      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
         {[
           { l: "Total Debt",      v: fmt(totalDebt, sym),    c: "var(--acc4)" },
           { l: "Min Payments/mo", v: fmt(totalMinPay, sym),  c: "var(--acc5)" },
@@ -3248,6 +3289,8 @@ const INCOME_TYPES = ["Salary", "Freelance", "Dividends", "Rental", "Business", 
 
 function IncomeModule({ currency }) {
   const sym = CURRENCIES[currency]?.sym ?? "$";
+  const mob = useIsMobile();
+
   const [streams, setStreams] = useState([
     { id: 1, name: "Day Job",        type: "Salary",     amount: 5000, freq: "monthly", active: true,  growth: 3  },
     { id: 2, name: "Freelance",      type: "Freelance",  amount: 800,  freq: "monthly", active: true,  growth: 10 },
@@ -3279,8 +3322,8 @@ function IncomeModule({ currency }) {
   }, {});
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
-      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "8px" }}>
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }} className="fade-up mob-scroll">
+      <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
         {[
           { l: "Total Monthly",    v: fmt(totalMo, sym),           c: "var(--acc)"  },
           { l: "Active Streams",   v: `${active.length} / ${streams.length}`, c: "var(--acc2)" },
