@@ -2220,66 +2220,57 @@ function NetWorthModule({ currency }) {
             {nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month
           </span>
         </div>
-        <div style={{ width: "100%" }}>
+        <svg width="100%" height="260" viewBox="0 0 700 260" style={{ display: "block" }}>
           {(() => {
-            // Fixed internal coordinate space — scales cleanly on all screen sizes
-            const VW = 700, VH = 280;
-            const pad = 65, bot = 250, chartH = 200;
+            const pad = 65, bot = 230, chartH = 190, W = 690;
             const minV = Math.min(...nwSpark) * 0.97;
             const maxV = Math.max(...nwSpark) * 1.03 || 1;
             const pts = nwSpark.map((v, i) => ({
-              x: pad + (i / (nwSpark.length - 1)) * (VW - pad - 10),
+              x: pad + (i / (nwSpark.length - 1)) * (W - pad),
               y: bot - ((v - minV) / (maxV - minV)) * chartH,
             }));
             const polyPts = pts.map(p => `${p.x},${p.y}`).join(" ");
-            const fillPts = [`${pts[0].x},${bot}`, ...pts.map(p => `${p.x},${p.y}`), `${pts[pts.length-1].x},${bot}`].join(" ");
-            return (
-              <svg width="100%" viewBox={`0 0 ${VW} ${VH}`} style={{ display: "block" }}>
-                <defs>
-                  <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.2"/>
-                    <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
-                  </linearGradient>
-                </defs>
-                {/* Grid lines + Y labels */}
-                {[0, 0.25, 0.5, 0.75, 1].map(f => {
-                  const val = minV + f * (maxV - minV);
-                  const y = bot - f * chartH;
-                  return <g key={f}>
-                    <line x1={pad} y1={y} x2={VW - 10} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
-                    <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="11">
-                      {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
-                    </text>
-                  </g>;
-                })}
-                {/* Fill + line */}
-                <polygon points={fillPts} fill="url(#nwgrad)"/>
-                <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
-                {/* Dots */}
-                {pts.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y}
-                    r={i === pts.length - 1 ? 5 : 3}
-                    fill={i === pts.length - 1 ? "var(--acc)" : "var(--bg)"}
-                    stroke="var(--acc)" strokeWidth="1.8"
-                  />
-                ))}
-                {/* End value label */}
-                <text x={pts[pts.length-1].x - 6} y={pts[pts.length-1].y - 12}
-                  textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="12" fontWeight="bold">
-                  {fmt(nwSpark[nwSpark.length-1], sym)}
-                </text>
-                {/* X axis labels */}
-                {[...history.map(h => h.month), "Now"].map((m, i) => {
-                  const x = pad + (i / (nwSpark.length - 1)) * (VW - pad - 10);
-                  return <g key={m}>
-                    <line x1={x} y1={bot} x2={x} y2={bot + 5} stroke="var(--b2)" strokeWidth="1"/>
-                    <text x={x} y={bot + 18} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{m}</text>
-                  </g>;
-                })}
-              </svg>
-            );
+            const fillPts = [`${pts[0].x},${bot}`, ...pts.map(p => `${p.x},${p.y}`), `${pts[pts.length - 1].x},${bot}`].join(" ");
+            return <>
+              <defs>
+                <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.2"/>
+                  <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
+                </linearGradient>
+              </defs>
+              {[0, 0.25, 0.5, 0.75, 1].map(f => {
+                const val = minV + f * (maxV - minV);
+                const y = bot - f * chartH;
+                return <g key={f}>
+                  <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
+                  <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="11">
+                    {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
+                  </text>
+                </g>;
+              })}
+              <polygon points={fillPts} fill="url(#nwgrad)"/>
+              <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
+              {pts.map((p, i) => (
+                <circle key={i} cx={p.x} cy={p.y}
+                  r={i === pts.length - 1 ? 5 : 3}
+                  fill={i === pts.length - 1 ? "var(--acc)" : "var(--bg)"}
+                  stroke="var(--acc)" strokeWidth="1.8"
+                />
+              ))}
+              <text x={pts[pts.length-1].x - 6} y={pts[pts.length-1].y - 12}
+                textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="12" fontWeight="bold">
+                {fmt(nwSpark[nwSpark.length-1], sym)}
+              </text>
+              {[...history.map(h => h.month), "Now"].map((m, i) => {
+                const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
+                return <g key={m}>
+                  <line x1={x} y1={bot} x2={x} y2={bot + 5} stroke="var(--b2)" strokeWidth="1"/>
+                  <text x={x} y={bot + 18} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{m}</text>
+                </g>;
+              })}
+            </>;
           })()}
-        </div>
+        </svg>
       </div>
       {/* Projections */}
       <div className="rg-4" className="rg-4" style={{ display: "grid", gridTemplateColumns: g4(mob), gap: "8px" }}>
