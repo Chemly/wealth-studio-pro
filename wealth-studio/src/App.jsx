@@ -2220,44 +2220,40 @@ function NetWorthModule({ currency }) {
             {nwChange >= 0 ? "▲" : "▼"} {fmt(Math.abs(nwChange), sym)} this month
           </span>
         </div>
-        <div style={{ width: "100%", overflowX: "hidden" }}>
+        <div style={{ width: "100%" }}>
           {(() => {
-            const svgH = mob ? 200 : 320;
-            const pad = mob ? 50 : 70;
-            const bot = svgH - 30;
-            const chartH = bot - 20;
-            const W = 680;
+            // Fixed internal coordinate space — scales cleanly on all screen sizes
+            const VW = 700, VH = 280;
+            const pad = 65, bot = 250, chartH = 200;
             const minV = Math.min(...nwSpark) * 0.97;
             const maxV = Math.max(...nwSpark) * 1.03 || 1;
-            const pts = nwSpark.map((v, i) => {
-              const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
-              const y = bot - ((v - minV) / (maxV - minV)) * chartH;
-              return { x, y, v };
-            });
+            const pts = nwSpark.map((v, i) => ({
+              x: pad + (i / (nwSpark.length - 1)) * (VW - pad - 10),
+              y: bot - ((v - minV) / (maxV - minV)) * chartH,
+            }));
             const polyPts = pts.map(p => `${p.x},${p.y}`).join(" ");
             const fillPts = [`${pts[0].x},${bot}`, ...pts.map(p => `${p.x},${p.y}`), `${pts[pts.length-1].x},${bot}`].join(" ");
             return (
-              <svg width="100%" height={svgH} viewBox={`0 0 700 ${svgH}`} preserveAspectRatio="none" style={{ display: "block" }}>
+              <svg width="100%" viewBox={`0 0 ${VW} ${VH}`} style={{ display: "block" }}>
                 <defs>
                   <linearGradient id="nwgrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.22"/>
+                    <stop offset="0%" stopColor="var(--acc)" stopOpacity="0.2"/>
                     <stop offset="100%" stopColor="var(--acc)" stopOpacity="0"/>
                   </linearGradient>
                 </defs>
-                {/* Grid lines */}
+                {/* Grid lines + Y labels */}
                 {[0, 0.25, 0.5, 0.75, 1].map(f => {
                   const val = minV + f * (maxV - minV);
                   const y = bot - f * chartH;
                   return <g key={f}>
-                    <line x1={pad} y1={y} x2={W} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
-                    <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize={mob ? "9" : "11"}>
+                    <line x1={pad} y1={y} x2={VW - 10} y2={y} stroke="var(--b1)" strokeWidth={f === 0 ? 1 : 0.5}/>
+                    <text x={pad - 6} y={y + 4} textAnchor="end" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="11">
                       {val >= 1e6 ? `${(val/1e6).toFixed(1)}M` : val >= 1e3 ? `${(val/1e3).toFixed(0)}K` : Math.round(val)}
                     </text>
                   </g>;
                 })}
-                {/* Fill */}
+                {/* Fill + line */}
                 <polygon points={fillPts} fill="url(#nwgrad)"/>
-                {/* Line */}
                 <polyline points={polyPts} fill="none" stroke="var(--acc)" strokeWidth="2.5" strokeLinejoin="round"/>
                 {/* Dots */}
                 {pts.map((p, i) => (
@@ -2268,15 +2264,16 @@ function NetWorthModule({ currency }) {
                   />
                 ))}
                 {/* End value label */}
-                <text x={pts[pts.length-1].x - 4} y={pts[pts.length-1].y - 10} textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize={mob ? "10" : "12"} fontWeight="bold">
+                <text x={pts[pts.length-1].x - 6} y={pts[pts.length-1].y - 12}
+                  textAnchor="end" fill="var(--acc)" fontFamily="var(--font-mono)" fontSize="12" fontWeight="bold">
                   {fmt(nwSpark[nwSpark.length-1], sym)}
                 </text>
                 {/* X axis labels */}
                 {[...history.map(h => h.month), "Now"].map((m, i) => {
-                  const x = pad + (i / (nwSpark.length - 1)) * (W - pad);
+                  const x = pad + (i / (nwSpark.length - 1)) * (VW - pad - 10);
                   return <g key={m}>
                     <line x1={x} y1={bot} x2={x} y2={bot + 5} stroke="var(--b2)" strokeWidth="1"/>
-                    <text x={x} y={bot + 16} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize={mob ? "9" : "10"}>{m}</text>
+                    <text x={x} y={bot + 18} textAnchor="middle" fill="var(--t3)" fontFamily="var(--font-mono)" fontSize="10">{m}</text>
                   </g>;
                 })}
               </svg>
